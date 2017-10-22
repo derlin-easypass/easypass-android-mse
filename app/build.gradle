@@ -1,6 +1,12 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
+// see https://stackoverflow.com/a/45698927/2667536
+apply plugin: 'org.jetbrains.kotlin.android.extensions'
+androidExtensions {
+    experimental = true
+}
+
 android {
     compileSdkVersion 26
     buildToolsVersion "26.0.2"
@@ -26,15 +32,17 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    compile files('libs/not-yet-commons-ssl-0.3.11.jar')
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.dropbox.core:dropbox-core-sdk:3.0.5'
     compile 'com.google.code.gson:gson:2.8.2'
     compile 'com.android.support:design:26.+'
+    compile 'org.jetbrains.anko:anko-coroutines:0.10.2'
+    compile 'com.android.support:support-v4:26.+'
+    compile 'com.android.support:recyclerview-v7:26.+'
     testCompile 'junit:junit:4.12'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    compile "org.jetbrains.anko:anko-coroutines:0.10.2"
-    compile files('libs/not-yet-commons-ssl-0.3.11.jar')
 }
 repositories {
     mavenCentral()

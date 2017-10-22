@@ -18,7 +18,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".FilesActivity"
             android:label="@string/title_activity_files"
@@ -34,7 +33,9 @@
 
                 <!-- Change this to be db- followed by your app key -->
                 <data android:scheme="@string/dbx_app_key_manifest" />
+
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -43,6 +44,20 @@
         <service
             android:name=".dropbox.DbxService"
             android:enabled="true" />
+
+        <activity
+            android:name=".AccountListActivity"
+            android:label="@string/title_account_list"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".AccountDetailActivity"
+            android:label="@string/title_account_detail"
+            android:parentActivityName=".AccountListActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ch.derlin.easypass.easypass.AccountListActivity" />
+        </activity>
     </application>
 
 </manifest>

@@ -20,6 +20,7 @@ import android.widget.ListAdapter
 import android.widget.ListView
 import android.widget.TextView
 import ch.derlin.easypass.easypass.data.JsonManager
+import ch.derlin.easypass.easypass.dropbox.DbxBroadcastReceiver
 import ch.derlin.easypass.easypass.dropbox.DbxService
 import com.dropbox.core.v2.files.FileMetadata
 import com.dropbox.core.v2.files.ListFolderResult
@@ -44,25 +45,19 @@ class FilesActivity : AppCompatActivity() {
     private lateinit var listview: ListView
     private lateinit var listAdapter: ListAdapter
 
-    private var mDboxService: DbxService? = null
-
     private val mContext: Context = this
+    private lateinit var fab: FloatingActionButton
 
-    // ----------------------------------------------------
-
-    // this allows us to detect when the service is up.
-    private val mServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            mDboxService = (service as DbxService.BBinder).service
-            onServiceBound()
+    private val broadcastReceiver = object : DbxBroadcastReceiver() {
+        override fun onError(msg: String) {
+            Snackbar.make(fab, msg, Snackbar.LENGTH_SHORT).show()
         }
 
-
-        override fun onServiceDisconnected(name: ComponentName) {
-            mDboxService = null
+        override fun onSessionOpened(sessionName: String) {
+            val intent = Intent(mContext, AccountListActivity::class.java)
+            startActivity(intent)
         }
     }
-
     // --------------------------------------
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,34 +66,34 @@ class FilesActivity : AppCompatActivity() {
         val toolbar = findViewById(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
 
-        val fab = findViewById(R.id.fab) as FloatingActionButton
+        fab = findViewById(R.id.fab) as FloatingActionButton
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
         }
 
+        loadFiles()
 
     }
 
-    override fun onStart() {
-        super.onStart()
-        bindService(Intent(applicationContext, DbxService::class.java), //
-                mServiceConnection, Context.BIND_AUTO_CREATE)
+    override fun onResume() {
+        broadcastReceiver.registerSelf(this)
+        super.onResume()
     }
 
 
-    override fun onDestroy() {
-        unbindService(mServiceConnection)
-        super.onDestroy()
+    override fun onPause() {
+        broadcastReceiver.unregisterSelf(this)
+        super.onPause()
     }
 
     // --------------------------------------
 
-    fun onServiceBound() {
+    fun loadFiles() {
         val ref: Ref<FilesActivity> = this.asReference()
         async(UI) {
             val deferred: Deferred<ListFolderResult> = bg {
-                mDboxService!!.client!!.files().listFolder("")
+                DbxService.instance!!.client!!.files().listFolder("")
             }
             ref().setupList(deferred.await())
         }
@@ -109,23 +104,12 @@ class FilesActivity : AppCompatActivity() {
         listAdapter = FilesAdapter(mContext, results.entries)
         listview.adapter = listAdapter
         listview.setOnItemClickListener { adapterView, view, position, id ->
-            onItemSelected(listAdapter.getItem(position) as Metadata) }
+            onItemSelected(listAdapter.getItem(position) as Metadata)
+        }
     }
 
-    private fun onItemSelected(metadata: Metadata){
-        async(UI){
-            val deferred = bg {
-                val file = File.createTempFile(metadata.name, "data_ser")
-                mDboxService!!.client!!.files()
-                        .download(metadata.pathDisplay)
-                        .download(FileOutputStream(file))
-
-                JsonManager().deserialize(FileInputStream(file), "essai",
-                        object : TypeToken<ArrayList<HashMap<String, String>>>() {
-                        }.type)
-            }
-            val obj = deferred.await()
-        }
+    private fun onItemSelected(metadata: Metadata) {
+        DbxService.instance!!.openSession(metadata, "essai")
     }
 
     class FilesAdapter(context: Context, files: List<Metadata>, val resourceId: Int = android.R.layout.simple_list_item_2) :
