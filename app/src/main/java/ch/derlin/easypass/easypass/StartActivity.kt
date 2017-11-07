@@ -57,6 +57,7 @@ class StartActivity : AppCompatActivity() {
         if (mDboxService != null && mIsAuthenticating) {
             mDboxService!!.finishAuth()
             mIsAuthenticating = false
+            startApp()
         }
     }
 
