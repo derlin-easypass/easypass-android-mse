@@ -20,6 +20,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.ProgressBar
 import android.widget.Toast
 import ch.derlin.easypass.easypass.dropbox.DbxBroadcastReceiver
 import ch.derlin.easypass.easypass.dropbox.DbxService
@@ -172,6 +173,7 @@ class LoadSessionActivity : AppCompatActivity() {
         private lateinit var mSharedPreferences: SharedPreferences
         private lateinit var mPasswordField: TextInputEditText
         private lateinit var mLoginButton: Button
+        private lateinit var mProgressBar: ProgressBar
         private var mPassword: String? = null
 
         override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -188,8 +190,9 @@ class LoadSessionActivity : AppCompatActivity() {
                 // no way to save the password if the device doesn't have a pin
                 checkbox.isEnabled = false
             }
-            mLoginButton = v.findViewById<Button>(R.id.login_button)
-            mPasswordField = v.findViewById<TextInputEditText>(R.id.password_field)
+            mLoginButton = v.findViewById(R.id.login_button)
+            mPasswordField = v.findViewById(R.id.password_field)
+            mProgressBar = v.findViewById(R.id.progressBar)
 
             // register btn callback
             mLoginButton.setOnClickListener({ v ->
@@ -229,6 +232,7 @@ class LoadSessionActivity : AppCompatActivity() {
             // remove wrong credentials
             mSharedPreferences.edit().remove(PREFS_PASSWORD_KEY).apply()
             mLoginButton.isEnabled = false
+            mProgressBar.visibility = View.INVISIBLE
             Toast.makeText(activity, "Wrong credentials", Toast.LENGTH_SHORT).show()
         }
 
@@ -250,6 +254,7 @@ class LoadSessionActivity : AppCompatActivity() {
 
         fun savePasswordAndDecrypt() {
             try {
+                mProgressBar.visibility = View.VISIBLE
                 var secretKey = getKey()
                 if (secretKey == null) secretKey = createKey() // create key only once
                 val cipher = Cipher.getInstance(TRANSFORMATION)
@@ -277,6 +282,7 @@ class LoadSessionActivity : AppCompatActivity() {
 
         fun getPasswordsFromFingerprint() {
             try {
+                mProgressBar.visibility = View.VISIBLE
                 val base64Content = mSharedPreferences.getString(PREFS_PASSWORD_KEY, null)
                 if (base64Content == null) {
                     Toast.makeText(activity, "You must first store credentials.", Toast.LENGTH_SHORT).show()
@@ -296,7 +302,6 @@ class LoadSessionActivity : AppCompatActivity() {
                 mPassword = String(contentBytes, CHARSET)
                 mPasswordField.setText(mPassword)
                 DbxService.instance.openSession(mPassword!!)
-
             } catch (e: UserNotAuthenticatedException) {
                 showAuthenticationScreen(LOGIN_WITH_CREDENTIALS_REQUEST_CODE)
             } catch (e: Exception) {
