@@ -1,17 +1,12 @@
 package ch.derlin.easypass.easypass
 
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
-import android.os.AsyncTask
 import android.os.Bundle
-import android.os.IBinder
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,26 +14,18 @@ import android.widget.ArrayAdapter
 import android.widget.ListAdapter
 import android.widget.ListView
 import android.widget.TextView
-import ch.derlin.easypass.easypass.data.JsonManager
 import ch.derlin.easypass.easypass.dropbox.DbxBroadcastReceiver
 import ch.derlin.easypass.easypass.dropbox.DbxService
 import com.dropbox.core.v2.files.FileMetadata
 import com.dropbox.core.v2.files.ListFolderResult
 import com.dropbox.core.v2.files.Metadata
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import org.jetbrains.anko.coroutines.experimental.Ref
 import org.jetbrains.anko.coroutines.experimental.asReference
 import org.jetbrains.anko.coroutines.experimental.bg
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.nio.file.Files
 import java.text.SimpleDateFormat
-import java.util.ArrayList
-import java.util.HashMap
 
 class FilesActivity : AppCompatActivity() {
 
@@ -53,7 +40,7 @@ class FilesActivity : AppCompatActivity() {
             Snackbar.make(fab, msg, Snackbar.LENGTH_SHORT).show()
         }
 
-        override fun onSessionOpened(sessionName: String) {
+        override fun onSessionOpened() {
             val intent = Intent(mContext, AccountListActivity::class.java)
             startActivity(intent)
         }

@@ -76,7 +76,7 @@ class StartActivity : AppCompatActivity() {
 
     private fun startApp() {
         // service up and running, start the actual app
-        val intent = Intent(this, FilesActivity::class.java)
+        val intent = Intent(this, LoadSessionActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
         startActivity(intent)
         this.finish()

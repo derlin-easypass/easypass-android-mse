@@ -6,11 +6,11 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.support.v4.content.LocalBroadcastManager
 import ch.derlin.easypass.easypass.dropbox.DbxService.Companion.EVT_ERROR
+import ch.derlin.easypass.easypass.dropbox.DbxService.Companion.EVT_METADATA_FETCHED
 import ch.derlin.easypass.easypass.dropbox.DbxService.Companion.EVT_SESSION_OPENED
 import ch.derlin.easypass.easypass.dropbox.DbxService.Companion.EVT_UPLOAD_OK
 import ch.derlin.easypass.easypass.dropbox.DbxService.Companion.EXTRA_EVT_KEY
 import ch.derlin.easypass.easypass.dropbox.DbxService.Companion.EXTRA_MSG_KEY
-import ch.derlin.easypass.easypass.dropbox.DbxService.Companion.EXTRA_SESSION_NAME
 
 /**
  * Simplify the communication with the [DbxService] broadcast manager.
@@ -26,6 +26,8 @@ import ch.derlin.easypass.easypass.dropbox.DbxService.Companion.EXTRA_SESSION_NA
  */
 open class DbxBroadcastReceiver : BroadcastReceiver() {
 
+    private var isRegistered = false
+
     companion object {
         private val INTENT_FILTER = IntentFilter(DbxService.INTENT_FILTER)
     }
@@ -38,7 +40,8 @@ open class DbxBroadcastReceiver : BroadcastReceiver() {
 
         when (evtType) {
             EVT_ERROR -> onError(intent.getStringExtra(EXTRA_MSG_KEY))
-            EVT_SESSION_OPENED -> onSessionOpened(intent.getStringExtra(EXTRA_SESSION_NAME))
+            EVT_SESSION_OPENED -> onSessionOpened()
+            EVT_METADATA_FETCHED -> onMetaFetched()
             EVT_UPLOAD_OK -> onUploadOk()
         }
     }
@@ -50,7 +53,9 @@ open class DbxBroadcastReceiver : BroadcastReceiver() {
      * @param context the context
      */
     fun registerSelf(context: Context) {
+        if(isRegistered) return
         LocalBroadcastManager.getInstance(context).registerReceiver(this, INTENT_FILTER)
+        isRegistered = true
     }
 
 
@@ -61,6 +66,7 @@ open class DbxBroadcastReceiver : BroadcastReceiver() {
      */
     fun unregisterSelf(context: Context) {
         LocalBroadcastManager.getInstance(context).unregisterReceiver(this)
+        isRegistered = false
     }
 
     // ----------------------------------------------------
@@ -75,8 +81,11 @@ open class DbxBroadcastReceiver : BroadcastReceiver() {
         // pass
     }
 
+    open fun onMetaFetched() {
+        // pass
+    }
 
-    open fun onSessionOpened(sessionName: String) {
+    open fun onSessionOpened() {
         // pass
     }
 

@@ -7,6 +7,7 @@ import android.support.v4.content.LocalBroadcastManager
 import ch.derlin.easypass.easypass.data.Accounts
 import ch.derlin.easypass.easypass.data.JsonManager
 import ch.derlin.easypass.easypass.data.SessionSerialisationType
+import com.dropbox.core.v2.files.GetMetadataErrorException
 import com.dropbox.core.v2.files.Metadata
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.experimental.CommonPool
@@ -29,6 +30,7 @@ class DbxService : BaseDbxService() {
     private lateinit var broadcastManager: LocalBroadcastManager
 
     var accounts: Accounts? = null
+    var metadata: Metadata? = null
 
     // --------------------------------------
 
@@ -67,15 +69,39 @@ class DbxService : BaseDbxService() {
         const val EVT_ERROR = "dbx_evt.error"
         const val EXTRA_MSG_KEY = "key.msg"
 
+        const val EVT_METADATA_FETCHED = "dbx_evt.metadata_fetched"
         const val EVT_SESSION_OPENED = "dbx_evt.session_opened"
-        const val EXTRA_SESSION_NAME = "key.session_name"
-
         const val EVT_UPLOAD_OK = "dbx_evt.upload_ok"
+
+        const val DEFAULT_FILE_PATH = "/easypass.data_ser"
     }
 
     // --------------------------------------
 
+    fun getSessionMetadata() {
+        metadata = null // ensure to clear any past state
+        async(CommonPool) {
+            try {
+                metadata = client!!.files().getMetadata(DEFAULT_FILE_PATH)
+            } catch (e: GetMetadataErrorException) {
+                // session does not exist
+            } finally {
+                notifyEvent(EVT_METADATA_FETCHED)
+            }
+        }
+    }
+
+    fun openSession(password: String) {
+        if (metadata == null) {
+            accounts = Accounts(password, DEFAULT_FILE_PATH)
+            notifyEvent(EVT_SESSION_OPENED)
+        }else{
+            openSession(metadata!!, password)
+        }
+    }
+
     fun openSession(sessionMeta: Metadata, password: String) {
+
         async(CommonPool) {
             try {
 
@@ -89,7 +115,7 @@ class DbxService : BaseDbxService() {
                         }.type) as SessionSerialisationType
 
                 accounts = Accounts(password, sessionMeta.pathDisplay, accountList)
-                notifySessionOpened(sessionMeta.name)
+                notifyEvent(EVT_SESSION_OPENED)
 
             } catch (e: Exception) {
                 notifyError(e.message ?: "error opening session.")
@@ -97,7 +123,7 @@ class DbxService : BaseDbxService() {
         }
     }
 
-    // --------------------------------------
+// --------------------------------------
 
     protected fun notifyError(error: String) {
         val i = getIntentFor(EVT_ERROR)
@@ -105,9 +131,8 @@ class DbxService : BaseDbxService() {
         broadcastManager.sendBroadcast(i)
     }
 
-    protected fun notifySessionOpened(sessionName: String) {
-        val i = getIntentFor(EVT_SESSION_OPENED)
-        i.putExtra(EXTRA_SESSION_NAME, sessionName)
+    protected fun notifyEvent(eventName: String) {
+        val i = getIntentFor(eventName)
         broadcastManager.sendBroadcast(i)
     }
 
