@@ -2,17 +2,18 @@ package ch.derlin.easypass.easypass
 
 import android.app.Activity
 import android.app.KeyguardManager
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.content.*
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.IBinder
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.security.keystore.UserNotAuthenticatedException
 import android.support.design.widget.TextInputEditText
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
@@ -30,16 +31,26 @@ import javax.crypto.spec.IvParameterSpec
 
 class LoadSessionActivity : AppCompatActivity() {
 
-    private var mCurrentFragment: Fragment? = null
+    interface LoadSessionFragment {
+        fun onFail(msg: String)
+    }
 
+    private var mIsAuthenticating = false
+    private var mCurrentFragment: LoadSessionFragment? = null
+    // ----------------------------------------- Service callbacks
 
-    // -----------------------------------------
-
+    // each fragment will do one of those things:
+    // - fetching metadata
+    // - opening a session
+    // Thus, this is the way of "communicating" with the fragments and know the
+    // overall state of the activity
     private val mBroadcastReceiver = object : DbxBroadcastReceiver() {
+        /** Triggered by the [ProgressFragment] */
         override fun onMetaFetched() {
             switchFragments(PasswordFragment())
         }
 
+        /** Triggered by the [PasswordFragment] */
         override fun onSessionOpened() {
             // service up and running, start the actual app
             val intent = Intent(this@LoadSessionActivity, AccountListActivity::class.java)
@@ -49,67 +60,118 @@ class LoadSessionActivity : AppCompatActivity() {
         }
 
         override fun onError(msg: String) {
-            Toast.makeText(this@LoadSessionActivity, "error: " + msg, Toast.LENGTH_LONG).show()
+            if(mCurrentFragment != null){
+                mCurrentFragment!!.onFail(msg)
+            }else {
+                Toast.makeText(this@LoadSessionActivity, "error: " + msg, Toast.LENGTH_LONG).show()
+            }
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        // mandatory to do this here as well, since onActivityResult is called before
-        // onResume (and the DbxService might be called inside onActivityResult, see
-        // the PasswordFragment)
-        mBroadcastReceiver.registerSelf(this)
-        super.onActivityResult(requestCode, resultCode, data)
+    // ----------------------------------------- Manage the Dropbox service
+
+    // this allows us to detect when the service is up.
+    private val mServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            mIsAuthenticating = true
+            if (DbxService.instance!!.startAuth()) {
+                // returns true only if already authenticated --> start fetching metadata !
+                mIsAuthenticating = false
+                switchFragments(ProgressFragment())
+            } else {
+                // else, a dbx activity will be launched --> see the on resume
+            }
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            // this is not used at all...
+        }
     }
 
-    override fun onResume() {
-        mBroadcastReceiver.registerSelf(this)
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
+        // start the dropbox service
+        startService(Intent(applicationContext, DbxService::class.java))
+        bindService(Intent(applicationContext, DbxService::class.java), //
+                mServiceConnection, Context.BIND_AUTO_CREATE)
     }
 
+    override fun onDestroy() {
+        // destroy the bind
+        unbindService(mServiceConnection)
+        super.onDestroy()
+    }
 
     override fun onPause() {
+        // stop receiving local broadcasts
         mBroadcastReceiver.unregisterSelf(this)
         super.onPause()
     }
 
-    // -----------------------------------------
+    override fun onResume() {
+        super.onResume()
+        // receive local broadcasts
+        mBroadcastReceiver.registerSelf(this)
+
+        if (mIsAuthenticating) {
+            // it was the first time the app was launched on this device
+            // and the dropbox authentication succeeded
+            DbxService.instance.finishAuth()
+            mIsAuthenticating = false
+            // next !
+            switchFragments(ProgressFragment())
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        // mandatory to do this here as well, since onActivityResult is called before
+        // onResume (and the DbxService might be called inside onActivityResult, see
+        // the PasswordFragment)
+        mBroadcastReceiver.registerSelf(this)
+    }
+
+    // ----------------------------------------- Activity stuff
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_load_session)
-        DbxService.instance.getSessionMetadata()
-        switchFragments(ProgressFragment())
     }
 
-    // -----------------------------------------
 
-    private fun switchFragments(f: Fragment) {
+    private fun switchFragments(f: LoadSessionFragment) {
         // Execute a transaction, replacing any existing fragment
         // with this one inside the frame.
+        (f as Fragment).setRetainInstance(true)
         mCurrentFragment = f
-        f.setRetainInstance(true)
         val ft = supportFragmentManager.beginTransaction()
         ft.replace(R.id.load_session_fragment_layout, f)
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
         ft.commitAllowingStateLoss()
     }
 
-    // -----------------------------------------
+    // ----------------------------------------- Metadata fetching Fragment
 
-    class ProgressFragment : Fragment() {
+    class ProgressFragment : Fragment(), LoadSessionFragment {
         override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             super.onCreateView(inflater, container, savedInstanceState)
+            DbxService.instance.getSessionMetadata()
             return inflater!!.inflate(R.layout.fragment_load_session_meta, container, false)
+        }
+
+        override fun onFail(msg: String) {
+            // TODO
         }
     }
 
-    // -----------------------------------------
+    // ----------------------------------------- Credentials Fragment
 
-    class PasswordFragment : Fragment() {
+    class PasswordFragment : Fragment(), LoadSessionFragment {
 
         private lateinit var mKeyguardManager: KeyguardManager
         private lateinit var mSharedPreferences: SharedPreferences
         private lateinit var mPasswordField: TextInputEditText
+        private lateinit var mLoginButton: Button
         private var mPassword: String? = null
 
         override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -120,21 +182,41 @@ class LoadSessionActivity : AppCompatActivity() {
             mSharedPreferences = activity.getSharedPreferences(STORAGE_FILE_NAME, Activity.MODE_PRIVATE)
             mKeyguardManager = activity.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
+            // fetch views
             val checkbox = v.findViewById<CheckBox>(R.id.remember_me_checkbox)
+            if(!mKeyguardManager.isKeyguardSecure){
+                // no way to save the password if the device doesn't have a pin
+                checkbox.isEnabled = false
+            }
+            mLoginButton = v.findViewById<Button>(R.id.login_button)
             mPasswordField = v.findViewById<TextInputEditText>(R.id.password_field)
 
-            // setup callbacks
-            v.findViewById<Button>(R.id.login_button).setOnClickListener({ v ->
+            // register btn callback
+            mLoginButton.setOnClickListener({ v ->
                 mPassword = mPasswordField.text.toString()
                 if (checkbox.isChecked) {
-                    savePassword()
+                    mSharedPreferences.edit().clear().apply()
+                    savePasswordAndDecrypt()
                 } else {
-                    decryptSession()
+                   decryptSession()
                 }
             })
 
-            // load login data from shared preferences (
-            // only the mPassword is encrypted, IV used for the encryption is loaded from shared preferences
+
+            // toggle button to avoid empty passwords
+            mPasswordField.addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(p0: Editable?) {
+                    mLoginButton.isEnabled = mPasswordField.text.length >= MIN_PASSWORD_LENGTH
+                }
+
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            })
+
+            // load login data from shared preferences
+            // only the password is encrypted, IV used for the encryption is loaded from shared preferences
             if (mSharedPreferences.contains(PREFS_PASSWORD_KEY)) {
                 getPasswordsFromFingerprint()
             }
@@ -142,31 +224,50 @@ class LoadSessionActivity : AppCompatActivity() {
             return v
         }
 
-        fun decryptSession() {
-            DbxService.instance.openSession(mPassword!!)
+        override fun onFail(msg: String) {
+            // TODO
+            // remove wrong credentials
+            mSharedPreferences.edit().remove(PREFS_PASSWORD_KEY).apply()
+            mLoginButton.isEnabled = false
+            Toast.makeText(activity, "Wrong credentials", Toast.LENGTH_SHORT).show()
         }
 
+        override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+            if (resultCode == Activity.RESULT_OK) {
+                if (requestCode == SAVE_CREDENTIALS_REQUEST_CODE) {
+                    savePasswordAndDecrypt()
+                } else if (requestCode == LOGIN_WITH_CREDENTIALS_REQUEST_CODE) {
+                    getPasswordsFromFingerprint()
+                }
+            } else {
+                Toast.makeText(activity, "Confirming credentials failed", Toast.LENGTH_SHORT).show()
+            }
+        }
 
-        fun savePassword() {
+        private fun decryptSession() {
+                DbxService.instance.openSession(mPassword!!)
+        }
+
+        fun savePasswordAndDecrypt() {
             try {
-                // encrypt the mPassword
-                //val secretKey = createKey()
                 var secretKey = getKey()
-                if (secretKey == null) secretKey = createKey()
+                if (secretKey == null) secretKey = createKey() // create key only once
                 val cipher = Cipher.getInstance(TRANSFORMATION)
                 cipher.init(Cipher.ENCRYPT_MODE, secretKey)
-                val encryptionIv = cipher.iv
-                val passwordBytes = mPassword!!.toByteArray(CHARSET)
-                val encryptedPasswordBytes = cipher.doFinal(passwordBytes)
-                val encryptedPassword = Base64.encodeToString(encryptedPasswordBytes, Base64.DEFAULT)
+                val encryptedPassword = cipher.doFinal(mPassword!!.toByteArray(CHARSET))
 
+                // save both password and IV for decrypt later
+                val prefValue = "%s,%s".format(
+                        Base64.encodeToString(cipher.iv, Base64.DEFAULT),
+                        Base64.encodeToString(encryptedPassword, Base64.DEFAULT))
+
+                // finally, save everything
                 mSharedPreferences
                         .edit()
-                        .putString(PREFS_PASSWORD_KEY, Base64.encodeToString(encryptionIv, Base64.DEFAULT) + "," + encryptedPassword)
+                        .putString(PREFS_PASSWORD_KEY, prefValue)
                         .apply()
 
                 decryptSession()
-
             } catch (e: UserNotAuthenticatedException) {
                 showAuthenticationScreen(SAVE_CREDENTIALS_REQUEST_CODE)
             } catch (e: Exception) {
@@ -194,7 +295,7 @@ class LoadSessionActivity : AppCompatActivity() {
 
                 mPassword = String(contentBytes, CHARSET)
                 mPasswordField.setText(mPassword)
-                decryptSession()
+                DbxService.instance.openSession(mPassword!!)
 
             } catch (e: UserNotAuthenticatedException) {
                 showAuthenticationScreen(LOGIN_WITH_CREDENTIALS_REQUEST_CODE)
@@ -207,24 +308,13 @@ class LoadSessionActivity : AppCompatActivity() {
             val keyStore = KeyStore.getInstance(ANDROID_KEY_STORE)
             keyStore.load(null)
             return keyStore.getKey(KEY_NAME, null) as SecretKey?
+
         }
 
         private fun showAuthenticationScreen(requestCode: Int) {
             val intent = mKeyguardManager.createConfirmDeviceCredentialIntent(null, null)
             if (intent != null) {
                 startActivityForResult(intent, requestCode)
-            }
-        }
-
-        override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-            if (resultCode == Activity.RESULT_OK) {
-                if (requestCode == SAVE_CREDENTIALS_REQUEST_CODE) {
-                    savePassword()
-                } else if (requestCode == LOGIN_WITH_CREDENTIALS_REQUEST_CODE) {
-                    getPasswordsFromFingerprint()
-                }
-            } else {
-                Toast.makeText(activity, "Confirming credentials failed", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -238,6 +328,7 @@ class LoadSessionActivity : AppCompatActivity() {
                         .setUserAuthenticationValidityDurationSeconds(AUTHENTICATION_DURATION_SECONDS)
                         .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
                         .build())
+                mSharedPreferences.edit().putBoolean(PREFS_KEYSTORE_INITIALISED, true).apply()
                 return keyGenerator.generateKey()
             } catch (e: Exception) {
                 throw RuntimeException("Failed to create a symmetric key", e)
@@ -251,7 +342,7 @@ class LoadSessionActivity : AppCompatActivity() {
 
             val SAVE_CREDENTIALS_REQUEST_CODE = 1
             val LOGIN_WITH_CREDENTIALS_REQUEST_CODE = 2
-            val AUTHENTICATION_DURATION_SECONDS = 30
+            val AUTHENTICATION_DURATION_SECONDS = 5 * 60
 
             val CHARSET = Charsets.UTF_8
 
@@ -262,7 +353,9 @@ class LoadSessionActivity : AppCompatActivity() {
                     + KeyProperties.ENCRYPTION_PADDING_PKCS7)
 
             val PREFS_PASSWORD_KEY = "default_pass"
+            val PREFS_KEYSTORE_INITIALISED = "keystore_initialised"
 
+            val MIN_PASSWORD_LENGTH = 3
         }
     }
 
