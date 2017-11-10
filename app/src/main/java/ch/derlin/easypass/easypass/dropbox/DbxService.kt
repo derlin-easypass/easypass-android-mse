@@ -21,6 +21,8 @@ import java.util.HashMap
 
 /**
  *
+ * See https://developer.android.com/guide/components/bound-services.html#Lifecycle
+ * for this service lifecycle.
  * @author Lucy Linder
  */
 

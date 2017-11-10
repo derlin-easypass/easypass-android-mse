@@ -167,6 +167,7 @@ class LoadSessionActivity : AppCompatActivity() {
 
     // ----------------------------------------- Credentials Fragment
 
+    // inspired from https://github.com/Zlate87/android-fingerprint-example
     class PasswordFragment : Fragment(), LoadSessionFragment {
 
         private lateinit var mKeyguardManager: KeyguardManager
@@ -181,6 +182,7 @@ class LoadSessionActivity : AppCompatActivity() {
             val v = inflater!!.inflate(R.layout.fragment_enter_password, container, false)
 
             // setup auth
+            // cf https://developer.android.com/training/articles/keystore.html
             mSharedPreferences = activity.getSharedPreferences(STORAGE_FILE_NAME, Activity.MODE_PRIVATE)
             mKeyguardManager = activity.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
