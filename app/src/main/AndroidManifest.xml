@@ -18,11 +18,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".FilesActivity"
-            android:label="@string/title_activity_files"
-            android:theme="@style/AppTheme.NoActionBar" />
-
         <!-- dropbox activity -->
         <activity
             android:name="com.dropbox.core.android.AuthActivity"
