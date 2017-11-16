@@ -1,20 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:background="@drawable/account_list_item_bg"
+    android:padding="5dip">
+
 
     <TextView
-        android:id="@+id/id"
+        android:id="@+id/account_title"
+        style="@android:style/TextAppearance.Material.Large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:textAppearance="?attr/textAppearanceListItem"/>
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="1dip"
+        android:layout_marginStart="5dip"
+        android:text="Dropbox" />
 
     <TextView
-        android:id="@+id/content"
+        android:id="@+id/account_subtitle"
+        style="@android:style/TextAppearance.Material.Body1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:textAppearance="?attr/textAppearanceListItem"/>
-</LinearLayout>
+        android:layout_below="@id/account_title"
+        android:layout_marginStart="5dip"
+        android:text="04.03.2014" />
+
+
+    <ImageButton
+        android:id="@+id/account_favorite"
+        android:layout_width="40dip"
+        android:layout_height="40dip"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="5dip"
+        android:background="@drawable/ic_pinned_off" />
+
+</RelativeLayout>

@@ -1,6 +1,5 @@
 package ch.derlin.easypass.easypass.data
 
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonIOException
 import com.google.gson.JsonSyntaxException
@@ -31,6 +30,7 @@ import java.security.GeneralSecurityException
  */
 object JsonManager {
 
+    val gson = GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
     /**
      * encrypts the arraylist of objects with the cipher given in parameter and
      * serializes it in json format.
@@ -68,8 +68,6 @@ object JsonManager {
                     "")
         }
         try {
-
-            val gson = GsonBuilder().create()
 
             outStream.write(OpenSSL.encrypt(algo, password.toCharArray(),
                     gson.toJson(data).toByteArray(charset("UTF-8"))))
@@ -133,7 +131,7 @@ object JsonManager {
         }
         try {
 
-            val data = GsonBuilder().create().fromJson<List<*>>(InputStreamReader(OpenSSL
+            val data = gson.fromJson<List<*>>(InputStreamReader(OpenSSL
                     .decrypt(algo, password.toCharArray(), stream), "UTF-8"), type)
             return data ?: throw WrongCredentialsException()
 

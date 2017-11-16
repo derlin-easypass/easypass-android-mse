@@ -5,6 +5,7 @@ import android.os.Binder
 import android.os.IBinder
 import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
+import ch.derlin.easypass.easypass.data.Account
 import ch.derlin.easypass.easypass.data.Accounts
 import ch.derlin.easypass.easypass.data.JsonManager
 import ch.derlin.easypass.easypass.data.SessionSerialisationType
@@ -140,6 +141,7 @@ class DbxService : BaseDbxService() {
                         }.type) as SessionSerialisationType
 
                 accounts = Accounts(password, sessionMeta.pathDisplay, accountList)
+                accounts!!.forEach { a -> a.uid = Account.generateUid() }
                 notifyEvent(EVT_SESSION_OPENED)
 
             } catch (e: Exception) {

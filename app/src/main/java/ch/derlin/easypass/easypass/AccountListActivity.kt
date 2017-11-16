@@ -5,24 +5,17 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.BottomSheetBehavior
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
 import ch.derlin.easypass.easypass.data.Account
-import ch.derlin.easypass.easypass.data.Accounts
 import ch.derlin.easypass.easypass.dropbox.DbxService
 import android.support.design.widget.BottomSheetDialog
+import android.support.v7.widget.helper.ItemTouchHelper
 import android.widget.Toast
-import android.content.Context.CLIPBOARD_SERVICE
-
-
 
 
 /**
@@ -40,6 +33,8 @@ class AccountListActivity : AppCompatActivity() {
      * device.
      */
     private var mTwoPane: Boolean = false
+
+    lateinit var mAdapter: AccountAdapter
 
     private var bottomSheetDialog: BottomSheetDialog? = null
 
@@ -59,8 +54,8 @@ class AccountListActivity : AppCompatActivity() {
                     .setAction("Action", null).show()
         }
 
-        val recyclerView = findViewById(R.id.account_list)!!
-        setupRecyclerView(recyclerView as RecyclerView)
+        val recyclerView = findViewById(R.id.account_list)!! as RecyclerView
+        setupRecyclerView(recyclerView)
 
         if (findViewById(R.id.account_detail_container) != null) {
             // The detail container view will be present only in the
@@ -89,13 +84,13 @@ class AccountListActivity : AppCompatActivity() {
             else -> Toast.makeText(this, "something clicked", Toast.LENGTH_SHORT).show()
         }
 
-        if(bottomSheetDialog != null) bottomSheetDialog!!.hide()
+        if (bottomSheetDialog != null) bottomSheetDialog!!.hide()
     }
 
-    private fun copyToClipboard(text: String, toastDescription: String = ""){
+    private fun copyToClipboard(text: String, toastDescription: String = "") {
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.primaryClip = ClipData.newPlainText("easypass", text)
-        if(toastDescription != "") {
+        if (toastDescription != "") {
             Toast.makeText(this, toastDescription, Toast.LENGTH_SHORT).show()
         }
     }
@@ -120,61 +115,28 @@ class AccountListActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
-        recyclerView.adapter = SimpleItemRecyclerViewAdapter(DbxService.instance.accounts!!)
-    }
+        mAdapter = AccountAdapter(DbxService.instance.accounts!!)
+        recyclerView.adapter = mAdapter
+        //recyclerView.layoutManager.isItemPrefetchEnabled = false
 
-    inner class SimpleItemRecyclerViewAdapter(private val mValues: Accounts) :
-            RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.account_list_content, parent, false)
-            return ViewHolder(view)
+        mAdapter.onCLick = View.OnClickListener { v ->
+            val position = recyclerView.getChildAdapterPosition(v)
+            showBottomSheet(mAdapter.itemAtPosition(position))
         }
 
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            holder.mItem = mValues[position]
-            holder.mIdView.text = mValues[position].name
-            holder.mContentView.text = mValues[position].notes
-
-//            holder.mView.setOnClickListener { v ->
-//                if (mTwoPane) {
-//                    val arguments = Bundle()
-//                    arguments.putParcelable(AccountDetailFragment.ARG_ACCOUNT, holder.mItem)
-//                    val fragment = AccountDetailFragment()
-//                    fragment.arguments = arguments
-//                    supportFragmentManager.beginTransaction()
-//                            .replace(R.id.account_detail_container, fragment)
-//                            .commit()
-//                } else {
-//                    val context = v.context
-//                    val intent = Intent(context, AccountDetailActivity::class.java)
-//                    intent.putExtra(AccountDetailFragment.ARG_ACCOUNT, holder.mItem)
-//
-//                    context.startActivity(intent)
-//                }
-//            }
-            holder.mView.setOnClickListener { v -> showBottomSheet(holder.mItem!!) }
-            holder.mView.setOnLongClickListener { v -> showDetails(holder.mItem!!) }
+        mAdapter.onLongClick = View.OnLongClickListener { v ->
+            val position = recyclerView.getChildAdapterPosition(v)
+            showDetails(mAdapter.itemAtPosition(position))
         }
 
-        override fun getItemCount(): Int {
-            return mValues.size
-        }
-
-        inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
-            val mIdView: TextView
-            val mContentView: TextView
-            var mItem: Account? = null
-
-            init {
-                mIdView = mView.findViewById<View>(R.id.id) as TextView
-                mContentView = mView.findViewById<View>(R.id.content) as TextView
-            }
-
-            override fun toString(): String {
-                return super.toString() + " '" + mContentView.text + "'"
+        val swipeHandler = object : SwipeToDeleteCallback(this) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder?, direction: Int) {
+                mAdapter.removeAt(viewHolder!!.adapterPosition)
             }
         }
+        val itemTouchHelper = ItemTouchHelper(swipeHandler)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+
     }
+
 }
