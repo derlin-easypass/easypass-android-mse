@@ -29,7 +29,7 @@ import java.security.GeneralSecurityException
  * @author Lucy Linder
  * @date Dec 21, 2012
  */
-class JsonManager {
+object JsonManager {
 
     /**
      * encrypts the arraylist of objects with the cipher given in parameter and

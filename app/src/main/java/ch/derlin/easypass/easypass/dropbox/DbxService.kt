@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import android.support.v4.content.LocalBroadcastManager
+import android.util.Log
 import ch.derlin.easypass.easypass.data.Accounts
 import ch.derlin.easypass.easypass.data.JsonManager
 import ch.derlin.easypass.easypass.data.SessionSerialisationType
@@ -17,6 +18,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.ArrayList
 import java.util.HashMap
+import com.dropbox.core.v2.files.FileMetadata
 
 
 /**
@@ -87,9 +89,30 @@ class DbxService : BaseDbxService() {
                 metadata = client!!.files().getMetadata(DEFAULT_FILE_PATH)
             } catch (e: GetMetadataErrorException) {
                 // session does not exist
+                // TODO
             } finally {
                 notifyEvent(EVT_METADATA_FETCHED)
             }
+        }
+    }
+
+    fun saveAccounts() {
+        assert(this.accounts != null)
+
+        try {
+            // serialize accounts to tempFile
+            val file = File.createTempFile("seralization", "data_ser")
+            file.outputStream().use { out ->
+                JsonManager.serialize(accounts!!.data, out, accounts!!.password)
+            }
+
+            // upload file to dropbox
+            FileInputStream(file).use { `in` ->
+                this.metadata = client!!.files().uploadBuilder(accounts!!.path)
+                        .uploadAndFinish(`in`)
+            }
+        } catch (t: Throwable) {
+            Log.d("sgf", "merde " + t)
         }
     }
 
@@ -97,7 +120,7 @@ class DbxService : BaseDbxService() {
         if (metadata == null) {
             accounts = Accounts(password, DEFAULT_FILE_PATH)
             notifyEvent(EVT_SESSION_OPENED)
-        }else{
+        } else {
             openSession(metadata!!, password)
         }
     }
@@ -112,7 +135,7 @@ class DbxService : BaseDbxService() {
                         .download(sessionMeta.pathDisplay)
                         .download(FileOutputStream(file))
 
-                val accountList = JsonManager().deserialize(FileInputStream(file), password,
+                val accountList = JsonManager.deserialize(FileInputStream(file), password,
                         object : TypeToken<SessionSerialisationType>() {
                         }.type) as SessionSerialisationType
 
