@@ -59,10 +59,11 @@ class AccountListActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         toolbar.title = title
 
-        mFab = findViewById(R.id.fab) as FloatingActionButton
-        mFab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+        val fab = findViewById(R.id.fab) as FloatingActionButton
+        fab.setOnClickListener { view ->
+            newAccount()
+            // Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+            //         .setAction("Action", null).show()
         }
 
         val recyclerView = findViewById(R.id.account_list)!! as RecyclerView
@@ -101,11 +102,12 @@ class AccountListActivity : AppCompatActivity() {
         when (v.id) {
             R.id.copy_pass_btn -> copyToClipboard(selectedAccount!!.password)
             R.id.copy_username_btn -> copyToClipboard(selectedAccount!!.pseudo)
-            R.id.view_details_btn -> showDetails(selectedAccount!!)
+            R.id.view_details_btn -> {
+                bottomSheetDialog!!.dismiss()
+                showDetails(selectedAccount!!)
+            }
             else -> Toast.makeText(this, "something clicked", Toast.LENGTH_SHORT).show()
         }
-
-        if (bottomSheetDialog != null) bottomSheetDialog!!.hide()
     }
 
     private fun copyToClipboard(text: String, toastDescription: String = "") {
@@ -114,6 +116,13 @@ class AccountListActivity : AppCompatActivity() {
         if (toastDescription != "") {
             Toast.makeText(this, toastDescription, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun newAccount(): Boolean {
+        val context = this
+        val intent = Intent(context, AccountNewActivity::class.java)
+        context.startActivity(intent)
+        return true
     }
 
     private fun showDetails(item: Account): Boolean {
@@ -129,7 +138,6 @@ class AccountListActivity : AppCompatActivity() {
             val context = this
             val intent = Intent(context, AccountDetailActivity::class.java)
             intent.putExtra(AccountDetailFragment.ARG_ACCOUNT, item)
-
             context.startActivity(intent)
         }
         return true

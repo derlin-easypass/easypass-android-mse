@@ -24,42 +24,59 @@
             android:layout_columnSpan="2"
             android:layout_marginBottom="10dp" />
 
+        <!-- NEW -->
+        <TextView
+            style="@style/details_label"
+            android:text="NEW" />
+
+        <TextView
+            style="@style/details_label"
+            android:text="NEW" />
+
+
         <!--name-->
         <TextView
             style="@style/details_label"
             android:text="@string/account_name_txt" />
 
-        <TextView
-            android:id="@+id/details_name"
-            style="@style/details_value"  />
+        <EditText
+            android:id="@+id/new_name"
+            android:maxLines="1"
+            android:inputType="text"
+            android:scrollHorizontally="true" />
+
         <!--pseudo-->
         <TextView
             style="@style/details_label"
             android:text="@string/account_pseudo_txt" />
 
-        <TextView
-            android:id="@+id/details_pseudo"
-            style="@style/details_value"
-            android:text="haskellyna" />
+        <EditText
+            android:id="@+id/new_pseudo"
+            android:maxLines="1"
+            android:inputType="text"
+            android:scrollHorizontally="true" />
 
         <!--email-->
         <TextView
             style="@style/details_label"
             android:text="@string/account_email_txt" />
 
-        <TextView
-            android:id="@+id/details_email"
-            style="@style/details_value"
-            android:text="example@lala.com"/>
+        <EditText
+            android:id="@+id/new_email"
+            android:maxLines="1"
+            android:inputType="text"
+            android:scrollHorizontally="true" />
 
         <!--password-->
         <TextView
             style="@style/details_label"
             android:text="@string/account_password_txt" />
 
-        <TextView
-            style="@style/details_value"
-            android:id="@+id/details_password" />
+        <EditText
+            android:id="@+id/new_password"
+            android:maxLines="1"
+            android:inputType="textPassword"
+            android:scrollHorizontally="true" />
 
         <!--show password-->
         <CheckBox
@@ -71,25 +88,6 @@
             android:text="@string/account_show_passwd_txt"
 
             />
-
-        <!--Created on-->
-        <TextView
-            style="@style/details_label"
-            android:text="@string/account_created_date_txt" />
-
-        <TextView
-            style="@style/details_value"
-            android:id="@+id/details_created_date" />
-
-        <!--Modified on-->
-        <TextView
-            style="@style/details_label"
-            android:text="@string/account_modified_date_txt" />
-
-        <TextView
-            style="@style/details_value"
-            android:id="@+id/details_modified_date" />
-
 
         <!--notes header-->
         <TextView
@@ -121,6 +119,19 @@
             android:id="@+id/details_metadata"
             style="@style/details_font"
             android:padding="5dp" />
+
+        <Button
+            android:id="@+id/button_new_save"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="Save" />
+
+        <Button
+            android:id="@+id/button_new_cancel"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="Cancel" />
+
 
     </GridLayout>
 </LinearLayout>

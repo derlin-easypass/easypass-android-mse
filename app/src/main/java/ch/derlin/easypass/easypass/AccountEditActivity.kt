@@ -7,7 +7,6 @@ import android.support.design.widget.Snackbar
 import android.support.v7.widget.Toolbar
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
-import ch.derlin.easypass.easypass.data.Account
 
 /**
  * An activity representing a single Account detail screen. This
@@ -15,22 +14,18 @@ import ch.derlin.easypass.easypass.data.Account
  * item details are presented side-by-side with a list of items
  * in a [AccountListActivity].
  */
-class AccountDetailActivity : AppCompatActivity() {
-
-    private var selectedAccount: Account? = null
+class AccountEditActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_account_detail)
+        setContentView(R.layout.activity_account_edit)
         val toolbar = findViewById(R.id.detail_toolbar) as Toolbar
         setSupportActionBar(toolbar)
 
-        selectedAccount = intent.getParcelableExtra(AccountDetailFragment.ARG_ACCOUNT)
-
         val fab = findViewById(R.id.fab) as FloatingActionButton
-        fab.setOnClickListener { view -> editAccount()
-            // Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
-            //        .setAction("Action", null).show()
+        fab.setOnClickListener { view ->
+            Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
         }
 
         // Show the Up button in the action bar.
@@ -50,22 +45,14 @@ class AccountDetailActivity : AppCompatActivity() {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             val arguments = Bundle()
-            arguments.putParcelable(AccountDetailFragment.ARG_ACCOUNT,
-                    intent.getParcelableExtra(AccountDetailFragment.ARG_ACCOUNT))
-            val fragment = AccountDetailFragment()
+            arguments.putParcelable(AccountEditFragment.ARG_ACCOUNT,
+                    intent.getParcelableExtra(AccountEditFragment.ARG_ACCOUNT))
+            val fragment = AccountEditFragment()
             fragment.arguments = arguments
             supportFragmentManager.beginTransaction()
-                    .add(R.id.account_detail_container, fragment)
+                    .add(R.id.account_edit_container, fragment)
                     .commit()
         }
-    }
-
-    private fun editAccount(): Boolean {
-        val context = this
-        val intent = Intent(context, AccountEditActivity::class.java)
-        intent.putExtra(AccountDetailFragment.ARG_ACCOUNT, selectedAccount)
-        context.startActivity(intent)
-        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
