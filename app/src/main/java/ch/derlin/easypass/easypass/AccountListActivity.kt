@@ -17,6 +17,7 @@ import android.support.design.widget.BottomSheetDialog
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.widget.Toast
 import ch.derlin.easypass.easypass.dropbox.DbxBroadcastReceiver
+import java.util.*
 
 
 /**
@@ -136,6 +137,7 @@ class AccountListActivity : AppCompatActivity() {
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
         mAdapter = AccountAdapter(DbxService.instance.accounts!!)
+        //mAdapter = AccountAdapter(IntRange(0, 3).map { i -> Account("name " + i, "pseudo " + i, "", "") }.toMutableList())
         recyclerView.adapter = mAdapter
         //recyclerView.layoutManager.isItemPrefetchEnabled = false
 

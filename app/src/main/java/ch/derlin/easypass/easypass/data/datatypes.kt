@@ -24,16 +24,21 @@ data class Account(
         @Expose @SerializedName("pseudo") var pseudo: String,
         @Expose @SerializedName("email") var email: String,
         @Expose @SerializedName("password") var password: String,
-        @Expose @SerializedName("notes") var notes: String,
-        @Expose @SerializedName("creation date") var creationDate: String,
-        @Expose @SerializedName("modification date") var modificationDate: String,
-        @Expose @SerializedName("favorite") var isFavorite: Boolean,
-        var uid: Long = nextUid) : Parcelable {
+        @Expose @SerializedName("notes") var notes: String = "",
+        @Expose @SerializedName("creation date") var creationDate: String = "",
+        @Expose @SerializedName("modification date") var modificationDate: String = "",
+        @Expose @SerializedName("favorite") var isFavorite: Boolean = false) : Parcelable {
+
+    private var _uid = 0L
+
+    val uid: Long
+        get() {
+            if (_uid == 0L) _uid = name.hashCode().toLong()
+            return _uid
+        }
+
 
     companion object {
-        var nextUid: Long = 0
-        fun generateUid(): Long = nextUid++
-
         val nameComparator = Comparator<Account> { a1, a2 -> a1.name.compareTo(a2.name, true) }
     }
 }

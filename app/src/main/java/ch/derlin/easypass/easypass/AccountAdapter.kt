@@ -37,7 +37,7 @@ class AccountAdapter(var accounts: MutableList<Account>) :
 
     var comparator: Comparator<Account> = Account.nameComparator
         set(value) {
-            field = value; sort()
+            field = value; doSort(); notifyDataSetChanged()
         }
 
     var onCLick: View.OnClickListener? = null
@@ -51,11 +51,12 @@ class AccountAdapter(var accounts: MutableList<Account>) :
         }
     }
 
+    private var lastSearch: String = ""
     var filtered = accounts.map { i -> i }.toMutableList()
 
     init {
         setHasStableIds(true)
-        filtered.sortWith(comparatorWrapper)
+        doSort()
     }
 
     override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
@@ -78,7 +79,8 @@ class AccountAdapter(var accounts: MutableList<Account>) :
 
         holder.favoriteIcon.setOnClickListener({ v ->
             item.isFavorite = !item.isFavorite
-            sort()
+            doSort()
+            notifyDataSetChanged()
         })
 
         holder.view.setOnClickListener(onCLick)
@@ -89,38 +91,44 @@ class AccountAdapter(var accounts: MutableList<Account>) :
 
     override fun getItemId(position: Int): Long = filtered[position].uid
 
-    fun replaceAll(accounts: MutableList<Account>){
+    fun replaceAll(accounts: MutableList<Account>) {
         this.accounts = accounts
-        this.filter(null)
-        sort()
+        resetAndNotify()
     }
 
     fun itemAtPosition(position: Int): Account = filtered[position]
 
     fun removeAt(position: Int) {
-        accounts.removeAt(position)
-        filtered.removeAt(position)
-        notifyItemRemoved(position)
+        accounts.remove(filtered[position])
+        resetAndNotify()
     }
 
-    fun filter(search: String?) {
-        filtered = if (search == null || search.isBlank()) accounts.toMutableList()
-        else accounts.filter { i -> i.name.toLowerCase().contains(search) }.toMutableList()
+    fun filter(search: String? = lastSearch) {
+        lastSearch = search ?: ""
+        doFilter()
         notifyDataSetChanged()
     }
 
 
     fun add(item: Account) {
         accounts.add(item)
-        filtered.add(item)
-        notifyDataSetChanged()
+        resetAndNotify()
     }
 
-    private fun sort() {
+    private fun doSort() {
         filtered.sortWith(comparatorWrapper)
-        notifyDataSetChanged()
     }
 
+    private fun doFilter() {
+        filtered = if (lastSearch == null || lastSearch.isBlank()) accounts.toMutableList()
+        else accounts.filter { i -> i.name.toLowerCase().contains(lastSearch) }.toMutableList()
+    }
+
+    private fun resetAndNotify() {
+        doFilter()
+        doSort()
+        notifyDataSetChanged()
+    }
     // -----------------------------------------
 
     // Provide a reference to the views for each data item

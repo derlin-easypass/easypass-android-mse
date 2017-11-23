@@ -180,7 +180,6 @@ class DbxService : BaseDbxService() {
                 }.type) as SessionSerialisationType
 
         accounts = Accounts(password, pathName ?: "??", accountList)
-        accounts!!.forEach { a -> a.uid = Account.generateUid() }
     }
 
 // --------------------------------------
