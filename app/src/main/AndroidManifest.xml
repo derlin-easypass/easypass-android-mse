@@ -41,6 +41,7 @@
             android:name=".AccountListActivity"
             android:label="@string/title_account_list"
             android:theme="@style/AppTheme.NoActionBar" />
+
         <activity
             android:name=".AccountDetailActivity"
             android:label="@string/title_account_detail"
@@ -50,6 +51,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ch.derlin.easypass.easypass.AccountListActivity" />
         </activity>
+
+        <activity
+            android:name=".AccountEditActivity"
+            android:label="@string/title_account_edit"
+            android:theme="@style/AppTheme.NoActionBar" />
+
     </application>
 
 </manifest>

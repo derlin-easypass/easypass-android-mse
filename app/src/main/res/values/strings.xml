@@ -11,6 +11,7 @@
     <string name="title_activity_files">FilesActivity</string>
     <string name="title_account_list">Accounts</string>
     <string name="title_account_detail">Account Detail</string>
+    <string name="title_account_edit">Account Edit</string>
 
     <!--account details-->
     <string name="account_infos_header">Infos</string>

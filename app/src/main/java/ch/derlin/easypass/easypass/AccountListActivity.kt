@@ -111,8 +111,8 @@ class AccountListActivity : AppCompatActivity() {
                     .commit()
         } else {
             val context = this
-            val intent = Intent(context, AccountDetailActivity::class.java)
-            intent.putExtra(AccountDetailFragment.ARG_ACCOUNT, item)
+            val intent = Intent(context, AccountEditActivity::class.java)
+            intent.putExtra(AccountEditFragment.ARG_ACCOUNT, item)
 
             context.startActivity(intent)
         }
