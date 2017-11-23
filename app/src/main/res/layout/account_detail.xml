@@ -72,6 +72,25 @@
 
             />
 
+        <!--Created on-->
+        <TextView
+            style="@style/details_label"
+            android:text="@string/account_created_date_txt" />
+
+        <TextView
+            style="@style/details_value"
+            android:id="@+id/details_created_date" />
+
+        <!--Modified on-->
+        <TextView
+            style="@style/details_label"
+            android:text="@string/account_modified_date_txt" />
+
+        <TextView
+            style="@style/details_value"
+            android:id="@+id/details_modified_date" />
+
+
         <!--notes header-->
         <TextView
             style="@style/header"

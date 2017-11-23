@@ -57,6 +57,11 @@
             android:label="@string/title_account_edit"
             android:theme="@style/AppTheme.NoActionBar" />
 
+        <activity
+            android:name=".AccountNewActivity"
+            android:label="@string/title_account_new"
+            android:theme="@style/AppTheme.NoActionBar" />
+
     </application>
 
 </manifest>

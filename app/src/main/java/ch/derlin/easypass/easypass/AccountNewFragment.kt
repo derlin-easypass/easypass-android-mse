@@ -20,7 +20,7 @@ import ch.derlin.easypass.easypass.data.Account
  * Mandatory empty constructor for the fragment manager to instantiate the
  * fragment (e.g. upon screen orientation changes).
  */
-class AccountEditFragment : Fragment() {
+class AccountNewFragment : Fragment() {
 
     /**
      * The dummy content this fragment is presenting.
@@ -48,35 +48,7 @@ class AccountEditFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
-        val rootView = inflater!!.inflate(R.layout.account_edit, container, false)
-
-        // Show the dummy content as text in a TextView.
-        if (mItem != null) {
-
-            rootView.findViewById<TextView>(R.id.details_name).text = mItem!!.name
-            rootView.findViewById<TextView>(R.id.details_email).text = mItem!!.email
-            rootView.findViewById<TextView>(R.id.details_pseudo).text = mItem!!.pseudo
-            rootView.findViewById<TextView>(R.id.details_notes).text = mItem!!.notes
-
-            // handle password
-            val password = mItem!!.password
-            val hiddenPassword = if (password.isEmpty()) "" else HIDDEN_PASSWORD
-            val passwordField = rootView.findViewById<TextView>(R.id.details_password)
-
-            // register listener on the show password checkbox
-            showPassCheckbox = rootView.findViewById<CheckBox>(R.id.details_show_password)
-            showPassCheckbox.setOnCheckedChangeListener {
-                compoundButton, checked -> passwordField.text = if(checked) password else hiddenPassword
-            }
-
-            // check if the checkbox state was previously saved
-            if(savedInstanceState != null && savedInstanceState.getBoolean(BUNDLE_CHECKBOX_STATE)){
-                showPassCheckbox.isChecked = true
-                passwordField.text = password
-            }else{
-                passwordField.text = hiddenPassword
-            }
-        }
+        val rootView = inflater!!.inflate(R.layout.account_new, container, false)
 
         return rootView
     }

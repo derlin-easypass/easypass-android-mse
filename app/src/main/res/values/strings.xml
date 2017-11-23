@@ -12,6 +12,7 @@
     <string name="title_account_list">Accounts</string>
     <string name="title_account_detail">Account Detail</string>
     <string name="title_account_edit">Account Edit</string>
+    <string name="title_account_new">New Account</string>
 
     <!--account details-->
     <string name="account_infos_header">Infos</string>
@@ -20,5 +21,7 @@
     <string name="account_email_txt">Email</string>
     <string name="account_password_txt">Password</string>
     <string name="account_show_passwd_txt">Show password</string>
+    <string name="account_created_date_txt">Created on</string>
+    <string name="account_modified_date_txt">Modified on</string>
     <string name="account_notes_txt">Notes</string>
 </resources>

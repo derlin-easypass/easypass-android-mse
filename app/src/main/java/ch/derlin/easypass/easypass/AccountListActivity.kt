@@ -54,9 +54,9 @@ class AccountListActivity : AppCompatActivity() {
         toolbar.title = title
 
         val fab = findViewById(R.id.fab) as FloatingActionButton
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+        fab.setOnClickListener { view -> newAccount()
+            // Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+            //         .setAction("Action", null).show()
         }
 
         val recyclerView = findViewById(R.id.account_list)!!
@@ -100,6 +100,13 @@ class AccountListActivity : AppCompatActivity() {
         }
     }
 
+    private fun newAccount(): Boolean {
+        val context = this
+        val intent = Intent(context, AccountNewActivity::class.java)
+        context.startActivity(intent)
+        return true
+    }
+
     private fun showDetails(item: Account): Boolean {
         if (mTwoPane) {
             val arguments = Bundle()
@@ -111,9 +118,8 @@ class AccountListActivity : AppCompatActivity() {
                     .commit()
         } else {
             val context = this
-            val intent = Intent(context, AccountEditActivity::class.java)
-            intent.putExtra(AccountEditFragment.ARG_ACCOUNT, item)
-
+            val intent = Intent(context, AccountDetailActivity::class.java)
+            intent.putExtra(AccountDetailFragment.ARG_ACCOUNT, item)
             context.startActivity(intent)
         }
         return true
