@@ -24,6 +24,7 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import ch.derlin.easypass.easypass.dropbox.DbxBroadcastReceiver
 import ch.derlin.easypass.easypass.dropbox.DbxService
+import com.dropbox.core.v1.DbxDelta
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -111,6 +112,12 @@ class LoadSessionActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        // in case we missed the event
+        if(mCurrentFragment is PasswordFragment && DbxService.instance.accounts != null) {
+            mBroadcastReceiver.onSessionOpened()
+            return
+        }
+
         // receive local broadcasts
         mBroadcastReceiver.registerSelf(this)
 

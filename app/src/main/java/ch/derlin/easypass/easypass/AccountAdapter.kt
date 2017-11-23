@@ -89,6 +89,11 @@ class AccountAdapter(var accounts: MutableList<Account>) :
 
     override fun getItemId(position: Int): Long = filtered[position].uid
 
+    fun replaceAll(accounts: MutableList<Account>){
+        this.accounts = accounts
+        this.filter(null)
+        sort()
+    }
 
     fun itemAtPosition(position: Int): Account = filtered[position]
 

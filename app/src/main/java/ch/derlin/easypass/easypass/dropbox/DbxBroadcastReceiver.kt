@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.support.v4.content.LocalBroadcastManager
 import ch.derlin.easypass.easypass.dropbox.DbxService.Companion.EVT_ERROR
 import ch.derlin.easypass.easypass.dropbox.DbxService.Companion.EVT_METADATA_FETCHED
+import ch.derlin.easypass.easypass.dropbox.DbxService.Companion.EVT_SESSION_CHANGED
 import ch.derlin.easypass.easypass.dropbox.DbxService.Companion.EVT_SESSION_OPENED
 import ch.derlin.easypass.easypass.dropbox.DbxService.Companion.EVT_UPLOAD_OK
 import ch.derlin.easypass.easypass.dropbox.DbxService.Companion.EXTRA_EVT_KEY
@@ -43,6 +44,7 @@ open class DbxBroadcastReceiver : BroadcastReceiver() {
             EVT_SESSION_OPENED -> onSessionOpened()
             EVT_METADATA_FETCHED -> onMetaFetched()
             EVT_UPLOAD_OK -> onUploadOk()
+            EVT_SESSION_CHANGED -> onSessionChanged()
         }
     }
 
@@ -53,7 +55,7 @@ open class DbxBroadcastReceiver : BroadcastReceiver() {
      * @param context the context
      */
     fun registerSelf(context: Context) {
-        if(isRegistered) return
+        if (isRegistered) return
         LocalBroadcastManager.getInstance(context).registerReceiver(this, INTENT_FILTER)
         isRegistered = true
     }
@@ -87,6 +89,10 @@ open class DbxBroadcastReceiver : BroadcastReceiver() {
 
     open fun onSessionOpened() {
         // pass
+    }
+
+    open fun onSessionChanged() {
+
     }
 
 

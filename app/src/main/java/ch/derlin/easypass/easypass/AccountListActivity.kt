@@ -16,6 +16,7 @@ import ch.derlin.easypass.easypass.dropbox.DbxService
 import android.support.design.widget.BottomSheetDialog
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.widget.Toast
+import ch.derlin.easypass.easypass.dropbox.DbxBroadcastReceiver
 
 
 /**
@@ -36,9 +37,18 @@ class AccountListActivity : AppCompatActivity() {
 
     lateinit var mAdapter: AccountAdapter
 
+    lateinit var mFab: FloatingActionButton
+
     private var bottomSheetDialog: BottomSheetDialog? = null
 
     private var selectedAccount: Account? = null
+
+    private val mBroadcastReceiver = object : DbxBroadcastReceiver() {
+        override fun onSessionChanged() {
+            mAdapter.replaceAll(DbxService.instance.accounts!!.toMutableList())
+            Snackbar.make(mFab, "Session updated", Snackbar.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,8 +58,8 @@ class AccountListActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         toolbar.title = title
 
-        val fab = findViewById(R.id.fab) as FloatingActionButton
-        fab.setOnClickListener { view ->
+        mFab = findViewById(R.id.fab) as FloatingActionButton
+        mFab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
         }
@@ -64,6 +74,16 @@ class AccountListActivity : AppCompatActivity() {
             // activity should be in two-pane mode.
             mTwoPane = true
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mBroadcastReceiver.unregisterSelf(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mBroadcastReceiver.registerSelf(this)
     }
 
     private fun showBottomSheet(item: Account) {
