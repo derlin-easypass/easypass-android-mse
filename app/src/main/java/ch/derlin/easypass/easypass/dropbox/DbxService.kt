@@ -2,13 +2,10 @@ package ch.derlin.easypass.easypass.dropbox
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Binder
 import android.os.IBinder
-import android.preference.PreferenceManager
 import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
-import ch.derlin.easypass.easypass.data.Account
 import ch.derlin.easypass.easypass.data.Accounts
 import ch.derlin.easypass.easypass.data.JsonManager
 import ch.derlin.easypass.easypass.data.SessionSerialisationType
@@ -18,6 +15,7 @@ import com.dropbox.core.v2.files.Metadata
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.async
+import timber.log.Timber
 import java.io.FileInputStream
 
 
@@ -32,11 +30,13 @@ class DbxService : BaseDbxService() {
 
     private val myBinder = BBinder()
     private lateinit var broadcastManager: LocalBroadcastManager
-    private lateinit var sharedPrefs: SharedPreferences
+    private lateinit var prefs: Preferences
 
     var accounts: Accounts? = null
     var metadata: FileMetadata? = null
-    var version: String? = null
+
+    val localFileExists: Boolean
+        get() = prefs.revision != null
 
     // --------------------------------------
 
@@ -61,7 +61,7 @@ class DbxService : BaseDbxService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val ret = super.onStartCommand(intent, flags, startId)
         broadcastManager = LocalBroadcastManager.getInstance(this)
-        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
+        prefs = Preferences(this)
         instance = this
         return ret
     }
@@ -89,6 +89,12 @@ class DbxService : BaseDbxService() {
     // --------------------------------------
 
     fun getSessionMetadata() {
+        // TODO
+        if (!NetworkStatus.isInternetAvailable(this)) {
+            notifyError("network not available.")
+            return
+        }
+
         metadata = null // ensure to clear any past state
         async(CommonPool) {
             try {
@@ -118,57 +124,62 @@ class DbxService : BaseDbxService() {
                         .uploadBuilder(accounts!!.path)
                         .uploadAndFinish(`in`)
             }
-            sharedPrefs.edit().putString("revision", metadata!!.rev).apply()
+            prefs.revision = metadata!!.rev
         } catch (t: Throwable) {
-            Log.d("sgf", "oups " + t)
+            Timber.d(t)
         }
     }
 
     fun openSession(password: String) {
 
-        if (metadata == null) {
-            accounts = Accounts(password, DEFAULT_FILE_PATH)
-            sharedPrefs.edit().putString("revision", null).apply()
-            notifyEvent(EVT_SESSION_OPENED)
-            return
-        }
+        val version = prefs.revision
 
-        val version = sharedPrefs.getString("revision", null)
-        if (version != null) {
+        if (localFileExists) {
             loadCachedFile(password)
             notifyEvent(EVT_SESSION_OPENED)
             if (metadata != null && metadata!!.rev != version)
                 openSession(metadata!!, password)
 
-        } else {
-            openSession(metadata!!, password)
-            Log.d("easypass", "metadata is not null, but version is ...")
 
+        } else {
+            if (metadata == null) {
+                // new account
+                accounts = Accounts(password, DEFAULT_FILE_PATH)
+                notifyEvent(EVT_SESSION_OPENED)
+            } else {
+                openSession(metadata!!, password)
+            }
         }
     }
 
     fun loadCachedFile(password: String) {
         deserialize(openFileInput(CACHED_FILE), DEFAULT_FILE_PATH, password)
+        Timber.d("loaded cached file: rev=%s", prefs.revision)
     }
 
     fun openSession(sessionMeta: Metadata, password: String) {
 
         async(CommonPool) {
             try {
-
                 metadata = client!!.files()
                         .download(sessionMeta.pathDisplay)
                         .download(openFileOutput(CACHED_FILE, Context.MODE_PRIVATE))
 
                 val isUpdate = accounts != null
                 deserialize(openFileInput(CACHED_FILE), metadata?.pathDisplay, password)
-                sharedPrefs.edit().putString("revision", metadata!!.rev).apply()
-                if (isUpdate) notifyEvent(EVT_SESSION_CHANGED)
-                else notifyEvent(EVT_SESSION_OPENED)
+                prefs.revision = metadata!!.rev
+
+                if (isUpdate) {
+                    notifyEvent(EVT_SESSION_CHANGED)
+                    Timber.d("session changed: %s", metadata!!.rev)
+                } else {
+                    notifyEvent(EVT_SESSION_OPENED)
+                    Timber.d("remote session loaded: rev: %s", metadata!!.rev)
+                }
 
 
             } catch (e: Exception) {
-                Log.e("easypass", e.toString())
+                Timber.d(e)
                 notifyError(e.message ?: "error opening session.")
             }
         }

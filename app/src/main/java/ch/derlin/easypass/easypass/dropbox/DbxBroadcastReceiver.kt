@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.support.v4.content.LocalBroadcastManager
 import ch.derlin.easypass.easypass.dropbox.DbxService.Companion.EVT_ERROR
 import ch.derlin.easypass.easypass.dropbox.DbxService.Companion.EVT_METADATA_FETCHED
@@ -30,21 +31,34 @@ open class DbxBroadcastReceiver : BroadcastReceiver() {
     private var isRegistered = false
 
     companion object {
-        private val INTENT_FILTER = IntentFilter(DbxService.INTENT_FILTER)
+        private var INTENT_FILTER: IntentFilter
+
+        init {
+            INTENT_FILTER = IntentFilter()
+            INTENT_FILTER.addAction(DbxService.INTENT_FILTER)
+            INTENT_FILTER.addAction(ConnectivityManager.CONNECTIVITY_ACTION)
+        }
     }
 
     // ----------------------------------------------------
 
 
     override fun onReceive(context: Context, intent: Intent) {
-        val evtType = intent.getStringExtra(EXTRA_EVT_KEY)
+        when (intent.action) {
 
-        when (evtType) {
-            EVT_ERROR -> onError(intent.getStringExtra(EXTRA_MSG_KEY))
-            EVT_SESSION_OPENED -> onSessionOpened()
-            EVT_METADATA_FETCHED -> onMetaFetched()
-            EVT_UPLOAD_OK -> onUploadOk()
-            EVT_SESSION_CHANGED -> onSessionChanged()
+            ConnectivityManager.CONNECTIVITY_ACTION -> onNetworkChange()
+
+            DbxService.INTENT_FILTER -> {
+                val evtType = intent.getStringExtra(EXTRA_EVT_KEY)
+
+                when (evtType) {
+                    EVT_ERROR -> onError(intent.getStringExtra(EXTRA_MSG_KEY))
+                    EVT_SESSION_OPENED -> onSessionOpened()
+                    EVT_METADATA_FETCHED -> onMetaFetched()
+                    EVT_UPLOAD_OK -> onUploadOk()
+                    EVT_SESSION_CHANGED -> onSessionChanged()
+                }
+            }
         }
     }
 
@@ -92,6 +106,10 @@ open class DbxBroadcastReceiver : BroadcastReceiver() {
     }
 
     open fun onSessionChanged() {
+
+    }
+
+    open fun onNetworkChange() {
 
     }
 

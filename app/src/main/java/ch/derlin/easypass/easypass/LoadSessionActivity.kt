@@ -9,6 +9,7 @@ import android.os.IBinder
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.security.keystore.UserNotAuthenticatedException
+import android.support.design.widget.Snackbar
 import android.support.design.widget.TextInputEditText
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
@@ -24,7 +25,8 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import ch.derlin.easypass.easypass.dropbox.DbxBroadcastReceiver
 import ch.derlin.easypass.easypass.dropbox.DbxService
-import com.dropbox.core.v1.DbxDelta
+import ch.derlin.easypass.easypass.dropbox.NetworkStatus
+import ch.derlin.easypass.easypass.dropbox.Preferences
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -37,8 +39,8 @@ class LoadSessionActivity : AppCompatActivity() {
         fun onFail(msg: String)
     }
 
-    private var mIsAuthenticating = false
     private var mCurrentFragment: LoadSessionFragment? = null
+
     // ----------------------------------------- Service callbacks
 
     // each fragment will do one of those things:
@@ -62,47 +64,14 @@ class LoadSessionActivity : AppCompatActivity() {
         }
 
         override fun onError(msg: String) {
-            if(mCurrentFragment != null){
+            if (mCurrentFragment != null) {
                 mCurrentFragment!!.onFail(msg)
-            }else {
+            } else {
                 Toast.makeText(this@LoadSessionActivity, "error: " + msg, Toast.LENGTH_LONG).show()
             }
         }
     }
 
-    // ----------------------------------------- Manage the Dropbox service
-
-    // this allows us to detect when the service is up.
-    private val mServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            mIsAuthenticating = true
-            if (DbxService.instance!!.startAuth()) {
-                // returns true only if already authenticated --> start fetching metadata !
-                mIsAuthenticating = false
-                switchFragments(ProgressFragment())
-            } else {
-                // else, a dbx activity will be launched --> see the on resume
-            }
-        }
-
-        override fun onServiceDisconnected(name: ComponentName) {
-            // this is not used at all...
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        // start the dropbox service
-        startService(Intent(applicationContext, DbxService::class.java))
-        bindService(Intent(applicationContext, DbxService::class.java), //
-                mServiceConnection, Context.BIND_AUTO_CREATE)
-    }
-
-    override fun onDestroy() {
-        // destroy the bind
-        unbindService(mServiceConnection)
-        super.onDestroy()
-    }
 
     override fun onPause() {
         // stop receiving local broadcasts
@@ -112,23 +81,15 @@ class LoadSessionActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
         // in case we missed the event
-        if(mCurrentFragment is PasswordFragment && DbxService.instance.accounts != null) {
+        if (mCurrentFragment is PasswordFragment && DbxService.instance.accounts != null) {
             mBroadcastReceiver.onSessionOpened()
             return
         }
 
         // receive local broadcasts
         mBroadcastReceiver.registerSelf(this)
-
-        if (mIsAuthenticating) {
-            // it was the first time the app was launched on this device
-            // and the dropbox authentication succeeded
-            DbxService.instance.finishAuth()
-            mIsAuthenticating = false
-            // next !
-            switchFragments(ProgressFragment())
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -144,6 +105,17 @@ class LoadSessionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_load_session)
+        initWorkflow()
+    }
+
+    private fun initWorkflow() {
+        if (DbxService.instance.localFileExists || NetworkStatus.isInternetAvailable(this)) {
+            switchFragments(ProgressFragment())
+        } else {
+            Snackbar.make(findViewById(android.R.id.content), "No network", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("retry", { v -> initWorkflow() })
+                    .show()
+        }
     }
 
 
@@ -178,24 +150,26 @@ class LoadSessionActivity : AppCompatActivity() {
     class PasswordFragment : Fragment(), LoadSessionFragment {
 
         private lateinit var mKeyguardManager: KeyguardManager
-        private lateinit var mSharedPreferences: SharedPreferences
         private lateinit var mPasswordField: TextInputEditText
         private lateinit var mLoginButton: Button
         private lateinit var mProgressBar: ProgressBar
+        private lateinit var mPrefs: Preferences
         private var mPassword: String? = null
 
         override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             super.onCreateView(inflater, container, savedInstanceState)
             val v = inflater!!.inflate(R.layout.fragment_enter_password, container, false)
 
+            // setup prefs
+            mPrefs = Preferences(activity)
+
             // setup auth
             // cf https://developer.android.com/training/articles/keystore.html
-            mSharedPreferences = activity.getSharedPreferences(STORAGE_FILE_NAME, Activity.MODE_PRIVATE)
             mKeyguardManager = activity.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
             // fetch views
             val checkbox = v.findViewById<CheckBox>(R.id.remember_me_checkbox)
-            if(!mKeyguardManager.isKeyguardSecure){
+            if (!mKeyguardManager.isKeyguardSecure) {
                 // no way to save the password if the device doesn't have a pin
                 checkbox.isEnabled = false
             }
@@ -207,10 +181,10 @@ class LoadSessionActivity : AppCompatActivity() {
             mLoginButton.setOnClickListener({ v ->
                 mPassword = mPasswordField.text.toString()
                 if (checkbox.isChecked) {
-                    mSharedPreferences.edit().clear().apply()
+                    mPrefs.cachedPassword = null
                     savePasswordAndDecrypt()
                 } else {
-                   decryptSession()
+                    decryptSession()
                 }
             })
 
@@ -229,7 +203,7 @@ class LoadSessionActivity : AppCompatActivity() {
 
             // load login data from shared preferences
             // only the password is encrypted, IV used for the encryption is loaded from shared preferences
-            if (mSharedPreferences.contains(PREFS_PASSWORD_KEY)) {
+            if (mPrefs.cachedPassword != null) {
                 getPasswordsFromFingerprint()
             }
 
@@ -239,7 +213,7 @@ class LoadSessionActivity : AppCompatActivity() {
         override fun onFail(msg: String) {
             // TODO
             // remove wrong credentials
-            mSharedPreferences.edit().remove(PREFS_PASSWORD_KEY).apply()
+            mPrefs.cachedPassword = null
             mLoginButton.isEnabled = false
             mProgressBar.visibility = View.INVISIBLE
             Toast.makeText(activity, "Wrong credentials", Toast.LENGTH_SHORT).show()
@@ -258,7 +232,7 @@ class LoadSessionActivity : AppCompatActivity() {
         }
 
         private fun decryptSession() {
-                DbxService.instance.openSession(mPassword!!)
+            DbxService.instance.openSession(mPassword!!)
         }
 
         fun savePasswordAndDecrypt() {
@@ -270,16 +244,10 @@ class LoadSessionActivity : AppCompatActivity() {
                 cipher.init(Cipher.ENCRYPT_MODE, secretKey)
                 val encryptedPassword = cipher.doFinal(mPassword!!.toByteArray(CHARSET))
 
-                // save both password and IV for decrypt later
-                val prefValue = "%s,%s".format(
+                // save both password and IV
+                mPrefs.cachedPassword = "%s,%s".format(
                         Base64.encodeToString(cipher.iv, Base64.DEFAULT),
                         Base64.encodeToString(encryptedPassword, Base64.DEFAULT))
-
-                // finally, save everything
-                mSharedPreferences
-                        .edit()
-                        .putString(PREFS_PASSWORD_KEY, prefValue)
-                        .apply()
 
                 decryptSession()
             } catch (e: UserNotAuthenticatedException) {
@@ -292,7 +260,7 @@ class LoadSessionActivity : AppCompatActivity() {
         fun getPasswordsFromFingerprint() {
             try {
                 mProgressBar.visibility = View.VISIBLE
-                val base64Content = mSharedPreferences.getString(PREFS_PASSWORD_KEY, null)
+                val base64Content = mPrefs.cachedPassword
                 if (base64Content == null) {
                     Toast.makeText(activity, "You must first store credentials.", Toast.LENGTH_SHORT).show()
                     return
@@ -342,7 +310,7 @@ class LoadSessionActivity : AppCompatActivity() {
                         .setUserAuthenticationValidityDurationSeconds(AUTHENTICATION_DURATION_SECONDS)
                         .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
                         .build())
-                mSharedPreferences.edit().putBoolean(PREFS_KEYSTORE_INITIALISED, true).apply()
+                mPrefs.keysoreInitialised = true
                 return keyGenerator.generateKey()
             } catch (e: Exception) {
                 throw RuntimeException("Failed to create a symmetric key", e)
@@ -362,13 +330,8 @@ class LoadSessionActivity : AppCompatActivity() {
 
             val ANDROID_KEY_STORE = "AndroidKeyStore"
             val KEY_NAME = "key"
-            val STORAGE_FILE_NAME = "credentials"
             val TRANSFORMATION = (KeyProperties.KEY_ALGORITHM_AES + "/" + KeyProperties.BLOCK_MODE_CBC + "/"
                     + KeyProperties.ENCRYPTION_PADDING_PKCS7)
-
-            val PREFS_PASSWORD_KEY = "default_pass"
-            val PREFS_KEYSTORE_INITIALISED = "keystore_initialised"
-
             val MIN_PASSWORD_LENGTH = 3
         }
     }

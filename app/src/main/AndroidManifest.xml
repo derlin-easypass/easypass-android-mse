@@ -3,6 +3,7 @@
     package="ch.derlin.easypass.easypass">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -11,13 +12,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".LoadSessionActivity">
+        <activity android:name=".StartActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
         <!-- dropbox activity -->
         <activity
             android:name="com.dropbox.core.android.AuthActivity"
@@ -28,6 +30,7 @@
                 <!-- Change this to be db- followed by your app key -->
                 <data android:scheme="@string/dbx_app_key_manifest" />
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -37,6 +40,8 @@
             android:name=".dropbox.DbxService"
             android:enabled="true" />
 
+        <activity android:name=".LoadSessionActivity"
+            android:label="@string/title_activity_load"/>
         <activity
             android:name=".AccountListActivity"
             android:label="@string/title_account_list"

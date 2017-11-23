@@ -8,7 +8,7 @@
     <string name="dbx_request_config_name">Easypass/2.0</string>
 
     <!--general-->
-    <string name="title_activity_files">FilesActivity</string>
+    <string name="title_activity_load">Setup</string>
     <string name="title_account_list">Accounts</string>
     <string name="title_account_detail">Account Detail</string>
 
