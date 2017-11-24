@@ -1,4 +1,4 @@
-package ch.derlin.easypass.easypass.dropbox
+package ch.derlin.easypass.easypass.helper
 
 import android.content.Context
 import ch.derlin.easypass.easypass.App
@@ -10,8 +10,6 @@ import com.dropbox.core.v2.DbxClientV2
 import com.dropbox.core.v2.files.FileMetadata
 import com.dropbox.core.v2.files.GetMetadataErrorException
 import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.async
 import nl.komponents.kovenant.Promise
 import nl.komponents.kovenant.deferred
 import nl.komponents.kovenant.task

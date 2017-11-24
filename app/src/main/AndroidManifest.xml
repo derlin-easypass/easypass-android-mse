@@ -38,7 +38,7 @@
         </activity>
 
         <service
-            android:name=".dropbox.DbxService"
+            android:name=".helper.DbxService"
             android:enabled="true" />
 
         <activity android:name=".LoadSessionActivity"

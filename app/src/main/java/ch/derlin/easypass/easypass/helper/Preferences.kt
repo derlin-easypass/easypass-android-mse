@@ -1,18 +1,6 @@
-package ch.derlin.easypass.easypass.dropbox
+package ch.derlin.easypass.easypass.helper
 
 import android.content.Context
-import android.net.ConnectivityManager
-import android.preference.PreferenceManager
-
-
-object NetworkStatus {
-
-    fun isInternetAvailable(context: Context): Boolean {
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        return cm.activeNetworkInfo != null && cm.activeNetworkInfo.isConnected
-    }
-}
-
 
 class Preferences(context: Context) {
 

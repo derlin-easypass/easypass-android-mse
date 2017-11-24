@@ -7,14 +7,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
-import android.support.design.widget.FloatingActionButton
 import android.view.View
 import ch.derlin.easypass.easypass.data.Account
 import android.support.design.widget.BottomSheetDialog
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.widget.Toast
-import ch.derlin.easypass.easypass.dropbox.NetworkChangeListener
-import ch.derlin.easypass.easypass.dropbox.DbxManager
+import ch.derlin.easypass.easypass.helper.NetworkChangeListener
+import ch.derlin.easypass.easypass.helper.DbxManager
 import kotlinx.android.synthetic.main.account_list.*
 import kotlinx.android.synthetic.main.activity_account_list.*
 

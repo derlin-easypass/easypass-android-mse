@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
-import ch.derlin.easypass.easypass.dropbox.Preferences
+import ch.derlin.easypass.easypass.helper.Preferences
 import com.dropbox.core.android.Auth
 import timber.log.Timber
 

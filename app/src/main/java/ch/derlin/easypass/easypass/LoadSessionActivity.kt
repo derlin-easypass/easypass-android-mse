@@ -22,7 +22,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.ProgressBar
 import android.widget.Toast
-import ch.derlin.easypass.easypass.dropbox.*
+import ch.derlin.easypass.easypass.helper.*
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
 import java.security.KeyStore

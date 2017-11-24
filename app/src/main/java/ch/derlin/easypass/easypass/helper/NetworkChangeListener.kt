@@ -1,4 +1,4 @@
-package ch.derlin.easypass.easypass.dropbox
+package ch.derlin.easypass.easypass.helper
 
 import android.content.BroadcastReceiver
 import android.content.Context
