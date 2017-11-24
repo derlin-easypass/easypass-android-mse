@@ -5,7 +5,6 @@ import android.app.KeyguardManager
 import android.content.*
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.os.IBinder
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.security.keystore.UserNotAuthenticatedException
@@ -23,10 +22,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.ProgressBar
 import android.widget.Toast
-import ch.derlin.easypass.easypass.dropbox.DbxBroadcastReceiver
-import ch.derlin.easypass.easypass.dropbox.DbxService
-import ch.derlin.easypass.easypass.dropbox.NetworkStatus
-import ch.derlin.easypass.easypass.dropbox.Preferences
+import ch.derlin.easypass.easypass.dropbox.*
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -83,7 +79,7 @@ class LoadSessionActivity : AppCompatActivity() {
         super.onResume()
 
         // in case we missed the event
-        if (mCurrentFragment is PasswordFragment && DbxService.instance.accounts != null) {
+        if (mCurrentFragment is PasswordFragment && DbxManager.accounts != null) {
             mBroadcastReceiver.onSessionOpened()
             return
         }
@@ -109,7 +105,7 @@ class LoadSessionActivity : AppCompatActivity() {
     }
 
     private fun initWorkflow() {
-        if (DbxService.instance.localFileExists || NetworkStatus.isInternetAvailable(this)) {
+        if (DbxManager.localFileExists || NetworkStatus.isInternetAvailable(this)) {
             switchFragments(ProgressFragment())
         } else {
             Snackbar.make(findViewById(android.R.id.content), "No network", Snackbar.LENGTH_INDEFINITE)
@@ -135,7 +131,11 @@ class LoadSessionActivity : AppCompatActivity() {
     class ProgressFragment : Fragment(), LoadSessionFragment {
         override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             super.onCreateView(inflater, container, savedInstanceState)
-            DbxService.instance.getSessionMetadata()
+            DbxManager.fetchRemoteFileInfo().success {
+                (activity as LoadSessionActivity).mBroadcastReceiver.onMetaFetched()
+            } fail {
+                (activity as LoadSessionActivity).mBroadcastReceiver.onError(it.message ?: "error loading meta")
+            }
             return inflater!!.inflate(R.layout.fragment_load_session_meta, container, false)
         }
 
@@ -232,7 +232,11 @@ class LoadSessionActivity : AppCompatActivity() {
         }
 
         private fun decryptSession() {
-            DbxService.instance.openSession(mPassword!!)
+            DbxManager.openSession(mPassword!!).success {
+                (activity as LoadSessionActivity).mBroadcastReceiver.onSessionOpened()
+            } fail {
+                (activity as LoadSessionActivity).mBroadcastReceiver.onError(it.message ?: "error loading meta")
+            }
         }
 
         fun savePasswordAndDecrypt() {
@@ -278,7 +282,7 @@ class LoadSessionActivity : AppCompatActivity() {
 
                 mPassword = String(contentBytes, CHARSET)
                 mPasswordField.setText(mPassword)
-                DbxService.instance.openSession(mPassword!!)
+                decryptSession()
             } catch (e: UserNotAuthenticatedException) {
                 showAuthenticationScreen(LOGIN_WITH_CREDENTIALS_REQUEST_CODE)
             } catch (e: Exception) {

@@ -11,11 +11,11 @@ import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
 import android.view.View
 import ch.derlin.easypass.easypass.data.Account
-import ch.derlin.easypass.easypass.dropbox.DbxService
 import android.support.design.widget.BottomSheetDialog
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.widget.Toast
 import ch.derlin.easypass.easypass.dropbox.DbxBroadcastReceiver
+import ch.derlin.easypass.easypass.dropbox.DbxManager
 import kotlinx.android.synthetic.main.account_list.*
 import kotlinx.android.synthetic.main.activity_account_list.*
 
@@ -46,7 +46,7 @@ class AccountListActivity : AppCompatActivity() {
 
     private val mBroadcastReceiver = object : DbxBroadcastReceiver() {
         override fun onSessionChanged() {
-            mAdapter.replaceAll(DbxService.instance.accounts!!.toMutableList())
+            mAdapter.replaceAll(DbxManager.accounts!!.toMutableList())
             Snackbar.make(mFab, "Session updated", Snackbar.LENGTH_SHORT).show()
         }
     }
@@ -138,7 +138,7 @@ class AccountListActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
-        mAdapter = AccountAdapter(DbxService.instance.accounts!!)
+        mAdapter = AccountAdapter(DbxManager.accounts!!)
         //mAdapter = AccountAdapter(IntRange(0, 3).map { i -> Account("name " + i, "pseudo " + i, "", "") }.toMutableList())
         recyclerView.adapter = mAdapter
         //recyclerView.layoutManager.isItemPrefetchEnabled = false

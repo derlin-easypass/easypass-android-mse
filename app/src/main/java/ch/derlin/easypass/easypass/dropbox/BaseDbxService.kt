@@ -1,17 +1,13 @@
 package ch.derlin.easypass.easypass.dropbox
 
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import android.util.Log
-
+import ch.derlin.easypass.easypass.R
 import com.dropbox.core.DbxRequestConfig
 import com.dropbox.core.android.Auth
 import com.dropbox.core.v2.DbxClientV2
-
-import ch.derlin.easypass.easypass.R
 import timber.log.Timber
 
 

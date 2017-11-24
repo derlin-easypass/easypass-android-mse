@@ -1,14 +1,12 @@
 package ch.derlin.easypass.easypass
 
-import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Bundle
-import android.os.IBinder
+import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
-import ch.derlin.easypass.easypass.dropbox.DbxService
+import ch.derlin.easypass.easypass.dropbox.Preferences
+import com.dropbox.core.android.Auth
+import timber.log.Timber
 
 /**
  * This activity is the entry point of the application.
@@ -20,19 +18,6 @@ import ch.derlin.easypass.easypass.dropbox.DbxService
 class StartActivity : AppCompatActivity() {
 
     private var mIsAuthenticating = false
-    // ----------------------------------------------------
-
-    // this allows us to detect when the service is up.
-    private val mServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            onServiceBound()
-        }
-
-
-        override fun onServiceDisconnected(name: ComponentName) {
-        }
-    }
-
 
     // ----------------------------------------------------
 
@@ -40,21 +25,14 @@ class StartActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_start)
-    }
 
-
-    override fun onStart() {
-        super.onStart()
-        // start the dropbox service
-        startService(Intent(applicationContext, DbxService::class.java))
-        bindService(Intent(applicationContext, DbxService::class.java), //
-                mServiceConnection, Context.BIND_AUTO_CREATE)
-    }
-
-
-    override fun onDestroy() {
-        unbindService(mServiceConnection)
-        super.onDestroy()
+        val token = Preferences(this).dbxAccessToken
+        if (token == null) {
+            mIsAuthenticating = true
+            Auth.startOAuth2Authentication(this, getString(R.string.dbx_app_key))
+        } else {
+            startApp()
+        }
     }
 
 
@@ -62,24 +40,23 @@ class StartActivity : AppCompatActivity() {
         super.onResume()
         // the dropbox linking happens in another activity.
         if (mIsAuthenticating) {
-            DbxService.instance.finishAuth()
-            mIsAuthenticating = false
-            startApp()
+            val token = Auth.getOAuth2Token() //generate Access Token
+            if (token != null) {
+                Preferences(this).dbxAccessToken = token //Store accessToken in SharedPreferences
+                mIsAuthenticating = false
+                startApp()
+            } else {
+                Snackbar.make(findViewById(android.R.id.content), "Error authenticating with Dropbox", Snackbar.LENGTH_INDEFINITE)
+                        .setAction("retry", { _ ->
+                            forceRestart()
+                        })
+                        .show()
+                Timber.d("Error authenticating")
+            }
         }
     }
 
     // ----------------------------------------------------
-
-
-    private fun onServiceBound() {
-        mIsAuthenticating = true
-        if (DbxService.instance.startAuth()) {
-            // returns true only if already authenticated
-            startApp()
-        } else {
-            // else, a dbx activity will be launched --> see the on resume
-        }
-    }
 
 
     private fun startApp() {
@@ -88,6 +65,12 @@ class StartActivity : AppCompatActivity() {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
         startActivity(intent)
         this.finish()
+    }
+
+    private fun forceRestart() {
+        val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+        launchIntent!!.flags = Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(launchIntent)
     }
 
 
