@@ -55,6 +55,7 @@ class AccountAdapter(var accounts: MutableList<Account>) :
     var filtered = accounts.map { i -> i }.toMutableList()
 
     init {
+        accounts = accounts.toMutableList() // make a copy
         setHasStableIds(true)
         doSort()
     }

@@ -14,7 +14,7 @@ import java.util.ArrayList
 
 typealias SessionSerialisationType = ArrayList<Account>
 
-class Accounts(var password: String, var path: String, var data: SessionSerialisationType = arrayListOf())
+class Accounts(var password: String, var path: String, data: SessionSerialisationType = arrayListOf())
     : ArrayList<Account>(data) {}
 
 

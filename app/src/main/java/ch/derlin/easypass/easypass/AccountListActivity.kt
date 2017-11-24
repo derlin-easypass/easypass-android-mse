@@ -16,6 +16,9 @@ import ch.derlin.easypass.easypass.helper.NetworkChangeListener
 import ch.derlin.easypass.easypass.helper.DbxManager
 import kotlinx.android.synthetic.main.account_list.*
 import kotlinx.android.synthetic.main.activity_account_list.*
+import nl.komponents.kovenant.ui.failUi
+import nl.komponents.kovenant.ui.successUi
+import timber.log.Timber
 
 
 /**
@@ -35,9 +38,7 @@ class AccountListActivity : AppCompatActivity() {
     private var mTwoPane: Boolean = false
 
     lateinit var mAdapter: AccountAdapter
-
     private var bottomSheetDialog: BottomSheetDialog? = null
-
     private var selectedAccount: Account? = null
 
     private val mNetworkChangeListener = object : NetworkChangeListener() {
@@ -150,7 +151,16 @@ class AccountListActivity : AppCompatActivity() {
 
         val swipeHandler = object : SwipeToDeleteCallback(this) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder?, direction: Int) {
-                mAdapter.removeAt(viewHolder!!.adapterPosition)
+                val item = mAdapter.itemAtPosition(viewHolder!!.adapterPosition)
+                DbxManager.accounts!!.remove(item)
+                DbxManager.saveAccounts().successUi {
+                    Timber.d("removed account: %s", item)
+                    mAdapter.removeAt(viewHolder.adapterPosition)
+                } failUi {
+                    // TODO: undo swipe !
+                    Toast.makeText(this@AccountListActivity, "Failed to save changes", Toast.LENGTH_SHORT).show()
+
+                }
             }
         }
         val itemTouchHelper = ItemTouchHelper(swipeHandler)

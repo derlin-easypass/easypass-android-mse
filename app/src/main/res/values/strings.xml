@@ -24,4 +24,8 @@
     <string name="account_created_date_txt">Created on</string>
     <string name="account_modified_date_txt">Modified on</string>
     <string name="account_notes_txt">Notes</string>
+    <string name="header_new_session"><![CDATA[<h1>Welcome to EasyPass!</h1><br>
+    It is time to choose your master password.<br><br>
+    <i>Watch out ! </i>There is no way to recover a lost password.
+    Ensure your master pass is <b>strong enough</b>, but not too hard to remember :).]]></string>
 </resources>

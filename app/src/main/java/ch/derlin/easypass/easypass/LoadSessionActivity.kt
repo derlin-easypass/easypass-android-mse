@@ -9,20 +9,18 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.security.keystore.UserNotAuthenticatedException
 import android.support.design.widget.Snackbar
-import android.support.design.widget.TextInputEditText
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
 import android.text.Editable
+import android.text.Html
 import android.text.TextWatcher
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.ProgressBar
 import android.widget.Toast
 import ch.derlin.easypass.easypass.helper.*
+import kotlinx.android.synthetic.main.fragment_enter_password.*
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
 import java.security.KeyStore
@@ -112,15 +110,16 @@ class LoadSessionActivity : AppCompatActivity() {
     class PasswordFragment : Fragment() {
 
         private lateinit var mKeyguardManager: KeyguardManager
-        private lateinit var mPasswordField: TextInputEditText
-        private lateinit var mLoginButton: Button
-        private lateinit var mProgressBar: ProgressBar
         private lateinit var mPrefs: Preferences
         private var mPassword: String? = null
 
         override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             super.onCreateView(inflater, container, savedInstanceState)
-            val v = inflater!!.inflate(R.layout.fragment_enter_password, container, false)
+            return inflater!!.inflate(R.layout.fragment_enter_password, container, false)
+        }
+
+        override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
 
             // setup prefs
             mPrefs = Preferences(activity)
@@ -129,20 +128,22 @@ class LoadSessionActivity : AppCompatActivity() {
             // cf https://developer.android.com/training/articles/keystore.html
             mKeyguardManager = activity.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
-            // fetch views
-            val checkbox: CheckBox = v.findViewById(R.id.remember_me_checkbox)
-            if (!mKeyguardManager.isKeyguardSecure) {
+            if (!mKeyguardManager.isKeyguardSecure || DbxManager.isNewSession) {
                 // no way to save the password if the device doesn't have a pin
-                checkbox.isEnabled = false
+                // or if this is the first time the password is entered
+                rememberMeCheckbox.isEnabled = false
             }
-            mLoginButton = v.findViewById(R.id.login_button)
-            mPasswordField = v.findViewById(R.id.password_field)
-            mProgressBar = v.findViewById(R.id.progressBar)
+
+            // show text in case it is the first time
+            if (DbxManager.isNewSession) {
+                newSessionText.visibility = View.VISIBLE
+                newSessionText.text = Html.fromHtml(getString(R.string.header_new_session))
+            }
 
             // register btn callback
-            mLoginButton.setOnClickListener({ _ ->
-                mPassword = mPasswordField.text.toString()
-                if (checkbox.isChecked) {
+            loginButton.setOnClickListener({ _ ->
+                mPassword = passwordField.text.toString()
+                if (rememberMeCheckbox.isChecked) {
                     mPrefs.cachedPassword = null
                     savePasswordAndDecrypt()
                 } else {
@@ -152,9 +153,9 @@ class LoadSessionActivity : AppCompatActivity() {
 
 
             // toggle button to avoid empty passwords
-            mPasswordField.addTextChangedListener(object : TextWatcher {
+            passwordField.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(p0: Editable?) {
-                    mLoginButton.isEnabled = mPasswordField.text.length >= MIN_PASSWORD_LENGTH
+                    loginButton.isEnabled = passwordField.text.length >= MIN_PASSWORD_LENGTH
                 }
 
                 override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -168,8 +169,6 @@ class LoadSessionActivity : AppCompatActivity() {
             if (mPrefs.cachedPassword != null) {
                 getPasswordsFromFingerprint()
             }
-
-            return v
         }
 
 
@@ -188,18 +187,18 @@ class LoadSessionActivity : AppCompatActivity() {
         private fun decryptSession() {
             DbxManager.openSession(mPassword!!).successUi {
                 (activity as LoadSessionActivity).onSessionOpened()
-            } failUi  {
+            } failUi {
                 // remove wrong credentials
                 mPrefs.cachedPassword = null
-                mLoginButton.isEnabled = false
-                mProgressBar.visibility = View.INVISIBLE
+                loginButton.isEnabled = false
+                progressBar.visibility = View.INVISIBLE
                 Toast.makeText(activity, "Wrong credentials", Toast.LENGTH_LONG).show()
             }
         }
 
         fun savePasswordAndDecrypt() {
             try {
-                mProgressBar.visibility = View.VISIBLE
+                progressBar.visibility = View.VISIBLE
                 var secretKey = getKey()
                 if (secretKey == null) secretKey = createKey() // create key only once
                 val cipher = Cipher.getInstance(TRANSFORMATION)
@@ -221,7 +220,7 @@ class LoadSessionActivity : AppCompatActivity() {
 
         fun getPasswordsFromFingerprint() {
             try {
-                mProgressBar.visibility = View.VISIBLE
+                progressBar.visibility = View.VISIBLE
                 val base64Content = mPrefs.cachedPassword
                 if (base64Content == null) {
                     Toast.makeText(activity, "You must first store credentials.", Toast.LENGTH_SHORT).show()
@@ -239,7 +238,7 @@ class LoadSessionActivity : AppCompatActivity() {
                 val contentBytes = cipher.doFinal(encryptedContent)
 
                 mPassword = String(contentBytes, CHARSET)
-                mPasswordField.setText(mPassword)
+                passwordField.setText(mPassword)
                 decryptSession()
             } catch (e: UserNotAuthenticatedException) {
                 showAuthenticationScreen(LOGIN_WITH_CREDENTIALS_REQUEST_CODE)

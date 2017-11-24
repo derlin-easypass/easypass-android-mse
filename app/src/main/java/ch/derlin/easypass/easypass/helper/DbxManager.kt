@@ -6,9 +6,11 @@ import ch.derlin.easypass.easypass.data.Accounts
 import ch.derlin.easypass.easypass.data.JsonManager
 import ch.derlin.easypass.easypass.data.SessionSerialisationType
 import com.dropbox.core.DbxRequestConfig
+import com.dropbox.core.util.IOUtil
 import com.dropbox.core.v2.DbxClientV2
 import com.dropbox.core.v2.files.FileMetadata
 import com.dropbox.core.v2.files.GetMetadataErrorException
+import com.dropbox.core.v2.files.WriteMode
 import com.google.gson.reflect.TypeToken
 import nl.komponents.kovenant.Promise
 import nl.komponents.kovenant.deferred
@@ -27,7 +29,14 @@ object DbxManager {
 
 
     var accounts: Accounts? = null
+
+    var metaFetched = false
+        private set
+
     var metadata: FileMetadata? = null
+
+    val isNewSession: Boolean
+        get() = metaFetched && metadata == null
 
     val localFileExists: Boolean
         get() = prefs.revision != null
@@ -53,9 +62,10 @@ object DbxManager {
 
                 try {
                     metadata = client.files().getMetadata(remoteFilePath) as FileMetadata
+                    metaFetched = true
                 } catch (e: GetMetadataErrorException) {
                     // session does not exist
-                    // TODO
+                    // TODO ?
                 } finally {
                     deferred.resolve(metadata != null)
                 }
@@ -100,19 +110,27 @@ object DbxManager {
 
         val deferred = deferred<Boolean, Exception>()
         task {
+            val tempFile = "lala"
             // serialize accounts to private file
-            val fos = App.appContext.openFileOutput(localFileName, Context.MODE_PRIVATE)
-            fos.use { out ->
-                JsonManager.serialize(accounts!!.data, out, accounts!!.password)
+            App.appContext.openFileOutput(tempFile, Context.MODE_PRIVATE).use { out ->
+                JsonManager.serialize(accounts!!, out, accounts!!.password)
             }
 
             // upload file to dropbox
-            App.appContext.openFileInput(localFileName).use { `in` ->
+            App.appContext.openFileInput(tempFile).use { `in` ->
                 this.metadata = client.files()
                         .uploadBuilder(accounts!!.path)
+                        .withMode(WriteMode.OVERWRITE)
                         .uploadAndFinish(`in`)
             }
+
+            // make changes locally permanent
+            // TODO
+            IOUtil.copyStreamToStream(App.appContext.openFileInput(tempFile),
+                    App.appContext.openFileOutput(localFileName, Context.MODE_PRIVATE))
+
             prefs.revision = metadata!!.rev
+            deferred.resolve(true)
         } fail {
             val ex = it
             Timber.d(it)
@@ -126,6 +144,7 @@ object DbxManager {
     private fun loadSession(password: String, deferred: nl.komponents.kovenant.Deferred<Boolean, Exception>) {
 
         try {
+
             metadata = client.files()
                     .download(metadata!!.pathDisplay)
                     .download(App.appContext.openFileOutput(localFileName, Context.MODE_PRIVATE))
@@ -141,9 +160,11 @@ object DbxManager {
                 //notifyEvent(EVT_SESSION_OPENED)
                 Timber.d("remote session loaded: rev: %s", metadata!!.rev)
             }
+
             deferred.resolve(true)
 
         } catch (e: Exception) {
+            // TODO: undo local change
             Timber.d(e)
             deferred.reject(e)
         }
