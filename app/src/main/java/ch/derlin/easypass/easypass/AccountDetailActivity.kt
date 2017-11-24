@@ -2,12 +2,10 @@ package ch.derlin.easypass.easypass
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
-import android.support.design.widget.Snackbar
-import android.support.v7.widget.Toolbar
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import ch.derlin.easypass.easypass.data.Account
+import kotlinx.android.synthetic.main.activity_account_detail.*
 
 /**
  * An activity representing a single Account detail screen. This
@@ -22,12 +20,8 @@ class AccountDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_account_detail)
-        val toolbar = findViewById(R.id.detail_toolbar) as Toolbar
-        setSupportActionBar(toolbar)
 
         selectedAccount = intent.getParcelableExtra(AccountDetailFragment.ARG_ACCOUNT)
-
-        val fab = findViewById(R.id.fab) as FloatingActionButton
         fab.setOnClickListener { view -> editAccount()
             // Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
             //        .setAction("Action", null).show()
@@ -55,7 +49,7 @@ class AccountDetailActivity : AppCompatActivity() {
             val fragment = AccountDetailFragment()
             fragment.arguments = arguments
             supportFragmentManager.beginTransaction()
-                    .add(R.id.account_detail_container, fragment)
+                    .add(R.id.accountDetailContainer, fragment)
                     .commit()
         }
     }

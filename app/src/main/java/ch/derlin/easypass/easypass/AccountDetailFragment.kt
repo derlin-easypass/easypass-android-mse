@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
 import ch.derlin.easypass.easypass.data.Account
+import kotlinx.android.synthetic.main.activity_account_detail.*
 
 /**
  * A fragment representing a single Account detail screen.
@@ -37,10 +38,8 @@ class AccountDetailFragment : Fragment() {
             // to load content from a content provider.
             mItem = arguments.getParcelable(ARG_ACCOUNT)
 
-            val activity = this.activity
-            val appBarLayout = activity.findViewById<View>(R.id.toolbar_layout) as CollapsingToolbarLayout
-            if (appBarLayout != null) {
-                appBarLayout.title = mItem!!.name
+            if (toolbarLayout != null) {
+                toolbarLayout.title = mItem!!.name
             }
         }
     }

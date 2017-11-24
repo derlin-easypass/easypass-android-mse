@@ -12,6 +12,7 @@ import com.dropbox.core.android.Auth
 import com.dropbox.core.v2.DbxClientV2
 
 import ch.derlin.easypass.easypass.R
+import timber.log.Timber
 
 
 /**
@@ -37,10 +38,10 @@ open class BaseDbxService : Service() {
     val client: DbxClientV2?
         get() = dbxClientV2
 
-    private val accessToken: String?
-        get() {
-            val prefs = getSharedPreferences(packageName, Context.MODE_PRIVATE)
-            return prefs.getString(getString(R.string.prefs_dbx_access_token), null)
+    private var accessToken: String?
+        get() = Preferences(this).dbxAccessToken
+        set(value) {
+            Preferences(this).dbxAccessToken = value
         }
 
     /**
@@ -73,12 +74,12 @@ open class BaseDbxService : Service() {
      * return but will launch the OAuth process otherwise.
      */
     fun startAuth(): Boolean {
-        val accessToken = accessToken
-        if (accessToken == null) {
+        val token = accessToken
+        if (token == null) {
             Auth.startOAuth2Authentication(this, getString(R.string.dbx_app_key))
             return false
         } else {
-            initializeClient(accessToken)
+            initializeClient(token)
             return true
         }
     }
@@ -90,13 +91,12 @@ open class BaseDbxService : Service() {
      */
     fun finishAuth() {
 
-        val accessToken = Auth.getOAuth2Token() //generate Access Token
-        if (accessToken != null) {
-            //Store accessToken in SharedPreferences
-            storeAccessToken(accessToken)
-            initializeClient(accessToken)
+        val token = Auth.getOAuth2Token() //generate Access Token
+        if (token != null) {
+            accessToken = token //Store accessToken in SharedPreferences
+            initializeClient(token)
         } else {
-            Log.i("DbAuthLog", "Error authenticating")
+            Timber.d("Error authenticating")
         }
     }
 
@@ -109,9 +109,4 @@ open class BaseDbxService : Service() {
         dbxClientV2 = DbxClientV2(config, accessToken)
     }
 
-
-    private fun storeAccessToken(accessToken: String) {
-        val prefs = getSharedPreferences(packageName, Context.MODE_PRIVATE)
-        prefs.edit().putString(getString(R.string.prefs_dbx_access_token), accessToken).apply()
-    }
 }

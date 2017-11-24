@@ -20,6 +20,10 @@ class Preferences(context: Context) {
 
     val sharedPrefs = context.getSharedPreferences(PREFERENCES_FILENAME, Context.MODE_PRIVATE)
 
+    var dbxAccessToken: String?
+        get() = sharedPrefs.getString("dbx_access-token", null)
+        set(value) = sharedPrefs.edit().putString("dbx_access-token", value).apply()
+
     var revision: String?
         get() = sharedPrefs.getString("revision", null)
         set(value) = sharedPrefs.edit().putString("revision", value).apply()

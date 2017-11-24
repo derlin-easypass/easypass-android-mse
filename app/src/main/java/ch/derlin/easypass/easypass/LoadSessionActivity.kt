@@ -168,7 +168,7 @@ class LoadSessionActivity : AppCompatActivity() {
             mKeyguardManager = activity.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
             // fetch views
-            val checkbox = v.findViewById<CheckBox>(R.id.remember_me_checkbox)
+            val checkbox: CheckBox = v.findViewById(R.id.remember_me_checkbox)
             if (!mKeyguardManager.isKeyguardSecure) {
                 // no way to save the password if the device doesn't have a pin
                 checkbox.isEnabled = false
@@ -178,7 +178,7 @@ class LoadSessionActivity : AppCompatActivity() {
             mProgressBar = v.findViewById(R.id.progressBar)
 
             // register btn callback
-            mLoginButton.setOnClickListener({ v ->
+            mLoginButton.setOnClickListener({ _ ->
                 mPassword = mPasswordField.text.toString()
                 if (checkbox.isChecked) {
                     mPrefs.cachedPassword = null

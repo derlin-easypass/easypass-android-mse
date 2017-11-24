@@ -64,6 +64,7 @@ class StartActivity : AppCompatActivity() {
         if (mIsAuthenticating) {
             DbxService.instance.finishAuth()
             mIsAuthenticating = false
+            startApp()
         }
     }
 
