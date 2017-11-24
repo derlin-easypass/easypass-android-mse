@@ -5,7 +5,6 @@ import ch.derlin.easypass.easypass.App
 import ch.derlin.easypass.easypass.data.Accounts
 import ch.derlin.easypass.easypass.data.JsonManager
 import ch.derlin.easypass.easypass.data.SessionSerialisationType
-import ch.derlin.easypass.easypass.dropbox.DbxService.Companion.CACHED_FILE
 import com.dropbox.core.DbxRequestConfig
 import com.dropbox.core.v2.DbxClientV2
 import com.dropbox.core.v2.files.FileMetadata
@@ -24,6 +23,10 @@ import java.io.FileInputStream
  */
 
 object DbxManager {
+
+    const val remoteFilePath = "/easypass.data_ser"
+    const val localFileName = "easypass_cached.data_ser"
+
 
     var accounts: Accounts? = null
     var metadata: FileMetadata? = null
@@ -49,15 +52,14 @@ object DbxManager {
                 deferred.reject(Exception("Network not available"))
             } else {
                 metadata = null // ensure to clear any past state
-                async(CommonPool) {
-                    try {
-                        metadata = client.files().getMetadata(DbxService.DEFAULT_FILE_PATH) as FileMetadata
-                    } catch (e: GetMetadataErrorException) {
-                        // session does not exist
-                        // TODO
-                    } finally {
-                        deferred.resolve(metadata != null)
-                    }
+
+                try {
+                    metadata = client.files().getMetadata(remoteFilePath) as FileMetadata
+                } catch (e: GetMetadataErrorException) {
+                    // session does not exist
+                    // TODO
+                } finally {
+                    deferred.resolve(metadata != null)
                 }
 
             }
@@ -81,7 +83,7 @@ object DbxManager {
             } else {
                 if (metadata == null) {
                     // new account
-                    accounts = Accounts(password, DbxService.DEFAULT_FILE_PATH)
+                    accounts = Accounts(password, remoteFilePath)
                     deferred.resolve(true)
                 } else {
                     loadSession(password, deferred)
@@ -101,13 +103,13 @@ object DbxManager {
         val deferred = deferred<Boolean, Exception>()
         task {
             // serialize accounts to private file
-            val fos = App.appContext.openFileOutput(DbxService.CACHED_FILE, Context.MODE_PRIVATE)
+            val fos = App.appContext.openFileOutput(localFileName, Context.MODE_PRIVATE)
             fos.use { out ->
                 JsonManager.serialize(accounts!!.data, out, accounts!!.password)
             }
 
             // upload file to dropbox
-            App.appContext.openFileInput(DbxService.CACHED_FILE).use { `in` ->
+            App.appContext.openFileInput(localFileName).use { `in` ->
                 this.metadata = client.files()
                         .uploadBuilder(accounts!!.path)
                         .uploadAndFinish(`in`)
@@ -125,34 +127,32 @@ object DbxManager {
 
     private fun loadSession(password: String, deferred: nl.komponents.kovenant.Deferred<Boolean, Exception>) {
 
-        async(CommonPool) {
-            try {
-                metadata = client.files()
-                        .download(metadata!!.pathDisplay)
-                        .download(App.appContext.openFileOutput(CACHED_FILE, Context.MODE_PRIVATE))
+        try {
+            metadata = client.files()
+                    .download(metadata!!.pathDisplay)
+                    .download(App.appContext.openFileOutput(localFileName, Context.MODE_PRIVATE))
 
-                val isUpdate = accounts != null
-                deserialize(App.appContext.openFileInput(CACHED_FILE), metadata?.pathDisplay, password)
-                prefs.revision = metadata!!.rev
+            val isUpdate = accounts != null
+            deserialize(App.appContext.openFileInput(localFileName), metadata?.pathDisplay, password)
+            prefs.revision = metadata!!.rev
 
-                if (isUpdate) {
-                    //notifyEvent(EVT_SESSION_CHANGED)
-                    Timber.d("session changed: %s", metadata!!.rev)
-                } else {
-                    //notifyEvent(EVT_SESSION_OPENED)
-                    Timber.d("remote session loaded: rev: %s", metadata!!.rev)
-                }
-                deferred.resolve(true)
-
-            } catch (e: Exception) {
-                Timber.d(e)
-                deferred.reject(e)
+            if (isUpdate) {
+                //notifyEvent(EVT_SESSION_CHANGED)
+                Timber.d("session changed: %s", metadata!!.rev)
+            } else {
+                //notifyEvent(EVT_SESSION_OPENED)
+                Timber.d("remote session loaded: rev: %s", metadata!!.rev)
             }
+            deferred.resolve(true)
+
+        } catch (e: Exception) {
+            Timber.d(e)
+            deferred.reject(e)
         }
     }
 
     private fun loadCachedFile(password: String) {
-        deserialize(App.appContext.openFileInput(DbxService.CACHED_FILE), DbxService.DEFAULT_FILE_PATH, password)
+        deserialize(App.appContext.openFileInput(localFileName), remoteFilePath, password)
         Timber.d("loaded cached file: rev=%s", prefs.revision)
     }
 

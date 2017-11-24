@@ -23,6 +23,8 @@ import android.widget.CheckBox
 import android.widget.ProgressBar
 import android.widget.Toast
 import ch.derlin.easypass.easypass.dropbox.*
+import nl.komponents.kovenant.ui.failUi
+import nl.komponents.kovenant.ui.successUi
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -31,11 +33,7 @@ import javax.crypto.spec.IvParameterSpec
 
 class LoadSessionActivity : AppCompatActivity() {
 
-    interface LoadSessionFragment {
-        fun onFail(msg: String)
-    }
-
-    private var mCurrentFragment: LoadSessionFragment? = null
+    private var mCurrentFragment: Fragment? = null
 
     // ----------------------------------------- Service callbacks
 
@@ -44,56 +42,17 @@ class LoadSessionActivity : AppCompatActivity() {
     // - opening a session
     // Thus, this is the way of "communicating" with the fragments and know the
     // overall state of the activity
-    private val mBroadcastReceiver = object : DbxBroadcastReceiver() {
-        /** Triggered by the [ProgressFragment] */
-        override fun onMetaFetched() {
-            switchFragments(PasswordFragment())
-        }
-
-        /** Triggered by the [PasswordFragment] */
-        override fun onSessionOpened() {
-            // service up and running, start the actual app
-            val intent = Intent(this@LoadSessionActivity, AccountListActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
-            startActivity(intent)
-            finish()
-        }
-
-        override fun onError(msg: String) {
-            if (mCurrentFragment != null) {
-                mCurrentFragment!!.onFail(msg)
-            } else {
-                Toast.makeText(this@LoadSessionActivity, "error: " + msg, Toast.LENGTH_LONG).show()
-            }
-        }
+    fun onMetaFetched() {
+        switchFragments(PasswordFragment())
     }
 
-
-    override fun onPause() {
-        // stop receiving local broadcasts
-        mBroadcastReceiver.unregisterSelf(this)
-        super.onPause()
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        // in case we missed the event
-        if (mCurrentFragment is PasswordFragment && DbxManager.accounts != null) {
-            mBroadcastReceiver.onSessionOpened()
-            return
-        }
-
-        // receive local broadcasts
-        mBroadcastReceiver.registerSelf(this)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        // mandatory to do this here as well, since onActivityResult is called before
-        // onResume (and the DbxService might be called inside onActivityResult, see
-        // the PasswordFragment)
-        mBroadcastReceiver.registerSelf(this)
+    /** Triggered by the [PasswordFragment] */
+    fun onSessionOpened() {
+        // service up and running, start the actual app
+        val intent = Intent(this@LoadSessionActivity, AccountListActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
+        startActivity(intent)
+        finish()
     }
 
     // ----------------------------------------- Activity stuff
@@ -115,10 +74,10 @@ class LoadSessionActivity : AppCompatActivity() {
     }
 
 
-    private fun switchFragments(f: LoadSessionFragment) {
+    private fun switchFragments(f: Fragment) {
         // Execute a transaction, replacing any existing fragment
         // with this one inside the frame.
-        (f as Fragment).setRetainInstance(true)
+        f.setRetainInstance(true)
         mCurrentFragment = f
         val ft = supportFragmentManager.beginTransaction()
         ft.replace(R.id.load_session_fragment_layout, f)
@@ -128,26 +87,29 @@ class LoadSessionActivity : AppCompatActivity() {
 
     // ----------------------------------------- Metadata fetching Fragment
 
-    class ProgressFragment : Fragment(), LoadSessionFragment {
+    class ProgressFragment : Fragment() {
         override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             super.onCreateView(inflater, container, savedInstanceState)
-            DbxManager.fetchRemoteFileInfo().success {
-                (activity as LoadSessionActivity).mBroadcastReceiver.onMetaFetched()
-            } fail {
-                (activity as LoadSessionActivity).mBroadcastReceiver.onError(it.message ?: "error loading meta")
-            }
+            fetchMeta()
             return inflater!!.inflate(R.layout.fragment_load_session_meta, container, false)
         }
 
-        override fun onFail(msg: String) {
-            // TODO
+        private fun fetchMeta() {
+            DbxManager.fetchRemoteFileInfo().successUi {
+                (activity as LoadSessionActivity).onMetaFetched()
+            } failUi {
+                Snackbar.make(activity.findViewById<View>(android.R.id.content),
+                        it.message ?: "error loading meta", Snackbar.LENGTH_INDEFINITE)
+                        .setAction("retry", { _ -> fetchMeta() })
+                        .show()
+            }
         }
     }
 
     // ----------------------------------------- Credentials Fragment
 
     // inspired from https://github.com/Zlate87/android-fingerprint-example
-    class PasswordFragment : Fragment(), LoadSessionFragment {
+    class PasswordFragment : Fragment() {
 
         private lateinit var mKeyguardManager: KeyguardManager
         private lateinit var mPasswordField: TextInputEditText
@@ -210,14 +172,6 @@ class LoadSessionActivity : AppCompatActivity() {
             return v
         }
 
-        override fun onFail(msg: String) {
-            // TODO
-            // remove wrong credentials
-            mPrefs.cachedPassword = null
-            mLoginButton.isEnabled = false
-            mProgressBar.visibility = View.INVISIBLE
-            Toast.makeText(activity, "Wrong credentials", Toast.LENGTH_SHORT).show()
-        }
 
         override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
             if (resultCode == Activity.RESULT_OK) {
@@ -232,10 +186,14 @@ class LoadSessionActivity : AppCompatActivity() {
         }
 
         private fun decryptSession() {
-            DbxManager.openSession(mPassword!!).success {
-                (activity as LoadSessionActivity).mBroadcastReceiver.onSessionOpened()
-            } fail {
-                (activity as LoadSessionActivity).mBroadcastReceiver.onError(it.message ?: "error loading meta")
+            DbxManager.openSession(mPassword!!).successUi {
+                (activity as LoadSessionActivity).onSessionOpened()
+            } failUi  {
+                // remove wrong credentials
+                mPrefs.cachedPassword = null
+                mLoginButton.isEnabled = false
+                mProgressBar.visibility = View.INVISIBLE
+                Toast.makeText(activity, "Wrong credentials", Toast.LENGTH_LONG).show()
             }
         }
 

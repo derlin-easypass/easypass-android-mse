@@ -8,13 +8,12 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.support.design.widget.FloatingActionButton
-import android.support.design.widget.Snackbar
 import android.view.View
 import ch.derlin.easypass.easypass.data.Account
 import android.support.design.widget.BottomSheetDialog
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.widget.Toast
-import ch.derlin.easypass.easypass.dropbox.DbxBroadcastReceiver
+import ch.derlin.easypass.easypass.dropbox.NetworkChangeListener
 import ch.derlin.easypass.easypass.dropbox.DbxManager
 import kotlinx.android.synthetic.main.account_list.*
 import kotlinx.android.synthetic.main.activity_account_list.*
@@ -38,16 +37,13 @@ class AccountListActivity : AppCompatActivity() {
 
     lateinit var mAdapter: AccountAdapter
 
-    lateinit var mFab: FloatingActionButton
-
     private var bottomSheetDialog: BottomSheetDialog? = null
 
     private var selectedAccount: Account? = null
 
-    private val mBroadcastReceiver = object : DbxBroadcastReceiver() {
-        override fun onSessionChanged() {
-            mAdapter.replaceAll(DbxManager.accounts!!.toMutableList())
-            Snackbar.make(mFab, "Session updated", Snackbar.LENGTH_SHORT).show()
+    private val mNetworkChangeListener = object : NetworkChangeListener() {
+        override fun onNetworkChange() {
+            // TODO
         }
     }
 
@@ -74,12 +70,12 @@ class AccountListActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        mBroadcastReceiver.unregisterSelf(this)
+        mNetworkChangeListener.unregisterSelf(this)
     }
 
     override fun onResume() {
         super.onResume()
-        mBroadcastReceiver.registerSelf(this)
+        mNetworkChangeListener.registerSelf(this)
     }
 
     private fun showBottomSheet(item: Account) {
