@@ -38,7 +38,7 @@
         </activity>
 
         <activity android:name=".LoadSessionActivity"
-            android:label="@string/title_activity_load"/>
+            android:label="@string/title_activity_load" />
         <activity
             android:name=".AccountListActivity"
             android:label="@string/title_account_list"

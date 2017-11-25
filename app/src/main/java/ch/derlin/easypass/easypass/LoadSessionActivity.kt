@@ -2,8 +2,8 @@ package ch.derlin.easypass.easypass
 
 import android.app.Activity
 import android.app.KeyguardManager
-import android.content.*
-import android.support.v7.app.AppCompatActivity
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
@@ -11,6 +11,7 @@ import android.security.keystore.UserNotAuthenticatedException
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
+import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.Html
 import android.text.TextWatcher
@@ -19,7 +20,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import ch.derlin.easypass.easypass.helper.*
+import ch.derlin.easypass.easypass.helper.DbxManager
+import ch.derlin.easypass.easypass.helper.NetworkStatus
+import ch.derlin.easypass.easypass.helper.Preferences
 import kotlinx.android.synthetic.main.fragment_enter_password.*
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
@@ -88,6 +91,7 @@ class LoadSessionActivity : AppCompatActivity() {
     class ProgressFragment : Fragment() {
         override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             super.onCreateView(inflater, container, savedInstanceState)
+            (activity as AppCompatActivity).supportActionBar?.hide()
             fetchMeta()
             return inflater!!.inflate(R.layout.fragment_load_session_meta, container, false)
         }
@@ -115,6 +119,7 @@ class LoadSessionActivity : AppCompatActivity() {
 
         override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             super.onCreateView(inflater, container, savedInstanceState)
+            (activity as AppCompatActivity).supportActionBar?.show()
             return inflater!!.inflate(R.layout.fragment_enter_password, container, false)
         }
 

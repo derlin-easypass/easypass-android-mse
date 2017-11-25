@@ -3,10 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#000000dd"
+    android:background="@color/colorPrimary"
     android:padding="20dip">
 
     <TextView
+        style="@android:style/TextAppearance.Large"
+        android:textColor="@android:color/primary_text_dark"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dip"
@@ -18,6 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dip"
+        android:textColor="@android:color/secondary_text_dark"
         android:gravity="end"
         android:text="@string/start_quote_author" />
 
@@ -35,5 +38,6 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
+        android:textColor="@android:color/primary_text_dark"
         android:text="Fetching session..."/>
 </LinearLayout>

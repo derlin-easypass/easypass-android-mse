@@ -55,7 +55,7 @@ class AccountListActivity : SecureActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_account_list)
-
+        setSupportActionBar(toolbar)
 
         fab.setOnClickListener { view ->
             newAccount()
