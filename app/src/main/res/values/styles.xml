@@ -61,4 +61,12 @@
         <item name="android:textIsSelectable">false</item>
     </style>
 
+
+    <style name="bottom_sheet_buttons" parent="Widget.AppCompat.Button.Borderless.Colored">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:drawablePadding">15dip</item>
+        <item name="android:drawableTint">@android:color/darker_gray</item>
+    </style>
 </resources>

@@ -6,12 +6,17 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.BottomSheetDialog
+import android.support.design.widget.Snackbar
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
+import android.text.Html
 import android.view.View
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import ch.derlin.easypass.easypass.data.Account
 import ch.derlin.easypass.easypass.helper.DbxManager
+import ch.derlin.easypass.easypass.helper.MiscUtils
 import ch.derlin.easypass.easypass.helper.NetworkChangeListener
 import ch.derlin.easypass.easypass.helper.SecureActivity
 import kotlinx.android.synthetic.main.account_list.*
@@ -83,6 +88,17 @@ class AccountListActivity : SecureActivity() {
         selectedAccount = item
         bottomSheetDialog = BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.bottom_sheet_layout, null)
+
+        view.findViewById<TextView>(R.id.bottomSheetTitle).text = item.name
+
+        var tv = view.findViewById<Button>(R.id.copy_username_btn)
+        tv.text = MiscUtils.toSpannable(getString(R.string.fmt_copy_xx).format("USERNAME", item.pseudo))
+        tv.isEnabled = item.pseudo.isNotBlank()
+
+        tv = view.findViewById<Button>(R.id.copy_email_btn)
+        tv.text = MiscUtils.toSpannable(getString(R.string.fmt_copy_xx).format("EMAIL", item.email))
+        tv.isEnabled = item.email.isNotBlank()
+
         bottomSheetDialog!!.setContentView(view)
         bottomSheetDialog!!.show()
     }
@@ -91,21 +107,26 @@ class AccountListActivity : SecureActivity() {
     fun bottomSheetClicked(v: View) {
         if (selectedAccount == null) return;
         when (v.id) {
-            R.id.copy_pass_btn -> copyToClipboard(selectedAccount!!.password)
-            R.id.copy_username_btn -> copyToClipboard(selectedAccount!!.pseudo)
+            R.id.copy_pass_btn -> copyToClipboard(selectedAccount!!.password, "password copied!")
+            R.id.copy_username_btn -> copyToClipboard(selectedAccount!!.pseudo, "'${selectedAccount!!.pseudo}' copied!")
+            R.id.copy_email_btn -> copyToClipboard(selectedAccount!!.email, "'${selectedAccount!!.email}' copied!")
             R.id.view_details_btn -> {
                 bottomSheetDialog!!.dismiss()
                 showDetails(selectedAccount!!)
             }
             else -> Toast.makeText(this, "something clicked", Toast.LENGTH_SHORT).show()
         }
+
     }
 
     private fun copyToClipboard(text: String, toastDescription: String = "") {
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.primaryClip = ClipData.newPlainText("easypass", text)
         if (toastDescription != "") {
-            Toast.makeText(this, toastDescription, Toast.LENGTH_SHORT).show()
+            if (bottomSheetDialog != null)
+                Snackbar.make(bottomSheetDialog!!.findViewById(android.R.id.content)!!, toastDescription, Snackbar.LENGTH_SHORT).show()
+            else
+                Toast.makeText(this, toastDescription, Toast.LENGTH_SHORT).show()
         }
     }
 

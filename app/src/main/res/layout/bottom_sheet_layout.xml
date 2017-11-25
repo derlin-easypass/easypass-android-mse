@@ -4,34 +4,52 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/RelativeLayoutSheet"
     android:layout_width="fill_parent"
-    android:layout_height="250dp"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:paddingBottom="50dip"
     app:behavior_hideable="true"
     app:layout_behavior="@string/bottom_sheet_behavior"
     tools:context="ch.derlin.easypass.easypass.AccountListActivity">
 
+    <TextView
+        android:id="@+id/bottomSheetTitle"
+        android:paddingStart="15dip"
+        android:layout_marginBottom="20dip"
+        style="@style/bottom_sheet_buttons"
+        android:textColor="@android:color/primary_text_dark"
+        android:foregroundTint="@android:color/primary_text_dark"
+        android:background="@color/colorPrimary"
+        android:text="title"/>
 
     <Button
         android:id="@+id/copy_pass_btn"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        style="@style/bottom_sheet_buttons"
         android:onClick="bottomSheetClicked"
-        android:tag="clickable"
-        android:text="Copy password" />
+        android:drawableStart="@drawable/ic_content_copy_24dp"
+        android:drawableTint="@android:color/darker_gray"
+        android:text="Copy Password" />
 
     <Button
         android:id="@+id/copy_username_btn"
-        android:tag="clickable"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        style="@style/bottom_sheet_buttons"
         android:onClick="bottomSheetClicked"
-        android:text="Copy username" />
+        android:drawableStart="@drawable/ic_content_copy_24dp"
+        android:textAllCaps="false"
+        android:text="@string/fmt_copy_xx" />
+
+    <Button
+        android:id="@+id/copy_email_btn"
+        style="@style/bottom_sheet_buttons"
+        android:onClick="bottomSheetClicked"
+        android:drawableStart="@drawable/ic_content_copy_24dp"
+        android:textAllCaps="false"
+        android:text="@string/fmt_copy_xx" />
 
     <Button
         android:id="@+id/view_details_btn"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        style="@style/bottom_sheet_buttons"
         android:onClick="bottomSheetClicked"
+        android:drawableStart="@drawable/ic_visibility_on_24dp"
         android:text="view details" />
 
 </LinearLayout>

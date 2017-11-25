@@ -4,7 +4,22 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#000000dd"
-    android:weightSum="10">
+    android:padding="20dip">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dip"
+        android:gravity="center_horizontal"
+        android:text="@string/start_quote"
+        android:textStyle="italic" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dip"
+        android:gravity="end"
+        android:text="@string/start_quote_author" />
 
     <ProgressBar
         android:id="@+id/progressBar"
