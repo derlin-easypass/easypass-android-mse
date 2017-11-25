@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
+import ch.derlin.easypass.easypass.helper.SecureActivity
 import kotlinx.android.synthetic.main.activity_account_new.*
 
 /**
@@ -13,11 +14,12 @@ import kotlinx.android.synthetic.main.activity_account_new.*
  * item details are presented side-by-side with a list of items
  * in a [AccountListActivity].
  */
-class AccountNewActivity : AppCompatActivity() {
+class AccountNewActivity : SecureActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_account_new)
+        setSupportActionBar(toolbar)
 
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)

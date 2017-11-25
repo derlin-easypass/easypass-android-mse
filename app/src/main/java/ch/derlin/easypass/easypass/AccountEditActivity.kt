@@ -2,11 +2,10 @@ package ch.derlin.easypass.easypass
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
-import android.support.v7.widget.Toolbar
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
+import ch.derlin.easypass.easypass.helper.SecureActivity
 import kotlinx.android.synthetic.main.activity_account_edit.*
 
 /**
@@ -15,11 +14,12 @@ import kotlinx.android.synthetic.main.activity_account_edit.*
  * item details are presented side-by-side with a list of items
  * in a [AccountListActivity].
  */
-class AccountEditActivity : AppCompatActivity() {
+class AccountEditActivity : SecureActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_account_edit)
+        setSupportActionBar(toolbar)
 
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)

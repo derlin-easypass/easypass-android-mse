@@ -5,15 +5,15 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.RecyclerView
-import android.view.View
-import ch.derlin.easypass.easypass.data.Account
 import android.support.design.widget.BottomSheetDialog
+import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
+import android.view.View
 import android.widget.Toast
-import ch.derlin.easypass.easypass.helper.NetworkChangeListener
+import ch.derlin.easypass.easypass.data.Account
 import ch.derlin.easypass.easypass.helper.DbxManager
+import ch.derlin.easypass.easypass.helper.NetworkChangeListener
+import ch.derlin.easypass.easypass.helper.SecureActivity
 import kotlinx.android.synthetic.main.account_list.*
 import kotlinx.android.synthetic.main.activity_account_list.*
 import nl.komponents.kovenant.ui.failUi
@@ -29,7 +29,7 @@ import timber.log.Timber
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-class AccountListActivity : AppCompatActivity() {
+class AccountListActivity : SecureActivity() {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -50,6 +50,7 @@ class AccountListActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_account_list)
+
 
         fab.setOnClickListener { view ->
             newAccount()

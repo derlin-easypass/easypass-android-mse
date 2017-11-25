@@ -37,10 +37,6 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".helper.DbxService"
-            android:enabled="true" />
-
         <activity android:name=".LoadSessionActivity"
             android:label="@string/title_activity_load"/>
         <activity

@@ -2,9 +2,9 @@ package ch.derlin.easypass.easypass
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import ch.derlin.easypass.easypass.data.Account
+import ch.derlin.easypass.easypass.helper.SecureActivity
 import kotlinx.android.synthetic.main.activity_account_detail.*
 
 /**
@@ -13,13 +13,14 @@ import kotlinx.android.synthetic.main.activity_account_detail.*
  * item details are presented side-by-side with a list of items
  * in a [AccountListActivity].
  */
-class AccountDetailActivity : AppCompatActivity() {
+class AccountDetailActivity : SecureActivity() {
 
     private var selectedAccount: Account? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_account_detail)
+        setSupportActionBar(toolbar)
 
         selectedAccount = intent.getParcelableExtra(AccountDetailFragment.ARG_ACCOUNT)
         fab.setOnClickListener { view -> editAccount()
