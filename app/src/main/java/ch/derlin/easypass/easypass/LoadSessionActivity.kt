@@ -5,8 +5,6 @@ import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.security.keystore.KeyGenParameterSpec
-import android.security.keystore.KeyProperties
 import android.security.keystore.UserNotAuthenticatedException
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
@@ -15,22 +13,17 @@ import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.Html
 import android.text.TextWatcher
-import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import ch.derlin.easypass.easypass.helper.CachedCredentials
 import ch.derlin.easypass.easypass.helper.DbxManager
 import ch.derlin.easypass.easypass.helper.NetworkStatus
 import ch.derlin.easypass.easypass.helper.Preferences
 import kotlinx.android.synthetic.main.fragment_enter_password.*
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
-import java.security.KeyStore
-import javax.crypto.Cipher
-import javax.crypto.KeyGenerator
-import javax.crypto.SecretKey
-import javax.crypto.spec.IvParameterSpec
 
 class LoadSessionActivity : AppCompatActivity() {
 
@@ -113,7 +106,6 @@ class LoadSessionActivity : AppCompatActivity() {
     // inspired from https://github.com/Zlate87/android-fingerprint-example
     class PasswordFragment : Fragment() {
 
-        private lateinit var mKeyguardManager: KeyguardManager
         private lateinit var mPrefs: Preferences
         private var mPassword: String? = null
 
@@ -131,9 +123,8 @@ class LoadSessionActivity : AppCompatActivity() {
 
             // setup auth
             // cf https://developer.android.com/training/articles/keystore.html
-            mKeyguardManager = activity.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-
-            if (!mKeyguardManager.isKeyguardSecure || DbxManager.isNewSession) {
+            val keyguardManager = activity.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+            if (!keyguardManager.isKeyguardSecure || DbxManager.isNewSession) {
                 // no way to save the password if the device doesn't have a pin
                 // or if this is the first time the password is entered
                 rememberMeCheckbox.isEnabled = false
@@ -171,7 +162,7 @@ class LoadSessionActivity : AppCompatActivity() {
 
             // load login data from shared preferences
             // only the password is encrypted, IV used for the encryption is loaded from shared preferences
-            if (mPrefs.cachedPassword != null) {
+            if (CachedCredentials.isPasswordCached) {
                 getPasswordsFromFingerprint()
             }
         }
@@ -179,10 +170,9 @@ class LoadSessionActivity : AppCompatActivity() {
 
         override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
             if (resultCode == Activity.RESULT_OK) {
-                if (requestCode == SAVE_CREDENTIALS_REQUEST_CODE) {
-                    savePasswordAndDecrypt()
-                } else if (requestCode == LOGIN_WITH_CREDENTIALS_REQUEST_CODE) {
-                    getPasswordsFromFingerprint()
+                when (requestCode) {
+                    SAVE_CREDENTIALS_REQUEST_CODE -> savePasswordAndDecrypt()
+                    LOGIN_WITH_CREDENTIALS_REQUEST_CODE -> getPasswordsFromFingerprint()
                 }
             } else {
                 Toast.makeText(activity, "Confirming credentials failed", Toast.LENGTH_SHORT).show()
@@ -194,7 +184,7 @@ class LoadSessionActivity : AppCompatActivity() {
                 (activity as LoadSessionActivity).onSessionOpened()
             } failUi {
                 // remove wrong credentials
-                mPrefs.cachedPassword = null
+                CachedCredentials.clearPassword()
                 loginButton.isEnabled = false
                 progressBar.visibility = View.INVISIBLE
                 Toast.makeText(activity, "Wrong credentials", Toast.LENGTH_LONG).show()
@@ -204,100 +194,38 @@ class LoadSessionActivity : AppCompatActivity() {
         fun savePasswordAndDecrypt() {
             try {
                 progressBar.visibility = View.VISIBLE
-                var secretKey = getKey()
-                if (secretKey == null) secretKey = createKey() // create key only once
-                val cipher = Cipher.getInstance(TRANSFORMATION)
-                cipher.init(Cipher.ENCRYPT_MODE, secretKey)
-                val encryptedPassword = cipher.doFinal(mPassword!!.toByteArray(CHARSET))
-
-                // save both password and IV
-                mPrefs.cachedPassword = "%s,%s".format(
-                        Base64.encodeToString(cipher.iv, Base64.DEFAULT),
-                        Base64.encodeToString(encryptedPassword, Base64.DEFAULT))
-
+                CachedCredentials.savePassword(mPassword!!)
                 decryptSession()
             } catch (e: UserNotAuthenticatedException) {
                 showAuthenticationScreen(SAVE_CREDENTIALS_REQUEST_CODE)
-            } catch (e: Exception) {
-                throw RuntimeException(e)
             }
         }
 
         fun getPasswordsFromFingerprint() {
             try {
                 progressBar.visibility = View.VISIBLE
-                val base64Content = mPrefs.cachedPassword
-                if (base64Content == null) {
-                    Toast.makeText(activity, "You must first store credentials.", Toast.LENGTH_SHORT).show()
-                    return
-                }
-
-                val (base64iv, base64password) = base64Content.split(",")
-                val encryptionIv = Base64.decode(base64iv, Base64.DEFAULT)
-                val encryptedContent = Base64.decode(base64password, Base64.DEFAULT)
-
-                // decrypt the content
-                val secretKey = getKey()
-                val cipher = Cipher.getInstance(TRANSFORMATION)
-                cipher.init(Cipher.DECRYPT_MODE, secretKey, IvParameterSpec(encryptionIv))
-                val contentBytes = cipher.doFinal(encryptedContent)
-
-                mPassword = String(contentBytes, CHARSET)
+                mPassword = CachedCredentials.getPassword()
                 passwordField.setText(mPassword)
                 decryptSession()
             } catch (e: UserNotAuthenticatedException) {
                 showAuthenticationScreen(LOGIN_WITH_CREDENTIALS_REQUEST_CODE)
-            } catch (e: Exception) {
-                throw RuntimeException(e)
             }
         }
 
-        private fun getKey(): SecretKey? {
-            val keyStore = KeyStore.getInstance(ANDROID_KEY_STORE)
-            keyStore.load(null)
-            return keyStore.getKey(KEY_NAME, null) as SecretKey?
-
-        }
-
         private fun showAuthenticationScreen(requestCode: Int) {
-            val intent = mKeyguardManager.createConfirmDeviceCredentialIntent(null, null)
+            val intent = CachedCredentials.getAuthenticationIntent(activity, requestCode)
             if (intent != null) {
                 startActivityForResult(intent, requestCode)
             }
         }
 
-        private fun createKey(): SecretKey {
-            try {
-                val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEY_STORE)
-                keyGenerator.init(KeyGenParameterSpec.Builder(KEY_NAME,
-                        KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
-                        .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-                        .setUserAuthenticationRequired(true)
-                        .setUserAuthenticationValidityDurationSeconds(AUTHENTICATION_DURATION_SECONDS)
-                        .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
-                        .build())
-                mPrefs.keysoreInitialised = true
-                return keyGenerator.generateKey()
-            } catch (e: Exception) {
-                throw RuntimeException("Failed to create a symmetric key", e)
-            }
 
-        }
         // -----------------------------------------
 
 
         companion object {
-
             val SAVE_CREDENTIALS_REQUEST_CODE = 1
             val LOGIN_WITH_CREDENTIALS_REQUEST_CODE = 2
-            val AUTHENTICATION_DURATION_SECONDS = 5 * 60
-
-            val CHARSET = Charsets.UTF_8
-
-            val ANDROID_KEY_STORE = "AndroidKeyStore"
-            val KEY_NAME = "key"
-            val TRANSFORMATION = (KeyProperties.KEY_ALGORITHM_AES + "/" + KeyProperties.BLOCK_MODE_CBC + "/"
-                    + KeyProperties.ENCRYPTION_PADDING_PKCS7)
             val MIN_PASSWORD_LENGTH = 3
         }
     }

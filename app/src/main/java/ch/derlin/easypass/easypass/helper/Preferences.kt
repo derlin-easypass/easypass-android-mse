@@ -1,8 +1,9 @@
 package ch.derlin.easypass.easypass.helper
 
 import android.content.Context
+import ch.derlin.easypass.easypass.App
 
-class Preferences(context: Context) {
+class Preferences(context: Context = App.appContext) {
 
     private val PREFERENCES_FILENAME = "ch.derlin.easypass.preferences"
 
