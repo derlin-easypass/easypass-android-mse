@@ -23,8 +23,6 @@
         android:name="ch.derlin.easypass.easypass.AccountListFragment"
         android:layout_width="@dimen/item_width"
         android:layout_height="match_parent"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
         app:layoutManager="LinearLayoutManager"
         tools:context="ch.derlin.easypass.easypass.AccountListActivity"
         tools:listitem="@layout/account_list_content" />

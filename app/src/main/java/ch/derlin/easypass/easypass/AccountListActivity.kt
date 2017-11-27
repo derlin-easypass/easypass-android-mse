@@ -8,8 +8,10 @@ import android.os.Bundle
 import android.support.design.widget.BottomSheetDialog
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.SearchView
 import android.support.v7.widget.helper.ItemTouchHelper
-import android.text.Html
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -21,6 +23,8 @@ import ch.derlin.easypass.easypass.helper.NetworkChangeListener
 import ch.derlin.easypass.easypass.helper.SecureActivity
 import kotlinx.android.synthetic.main.account_list.*
 import kotlinx.android.synthetic.main.activity_account_list.*
+import nl.komponents.kovenant.then
+import nl.komponents.kovenant.ui.alwaysUi
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
 import timber.log.Timber
@@ -82,6 +86,38 @@ class AccountListActivity : SecureActivity() {
     override fun onResume() {
         super.onResume()
         mNetworkChangeListener.registerSelf(this)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_list_accounts, menu)
+        (menu!!.findItem(R.id.action_search).actionView as SearchView)
+                .setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                    override fun onQueryTextSubmit(query: String?): Boolean {
+                        // TODO
+                        return true
+                    }
+
+                    override fun onQueryTextChange(newText: String?): Boolean {
+                        mAdapter.filter(newText)
+                        return true
+                    }
+                })
+        return true
+
+    }
+
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        if (item?.groupId == R.id.group_menu_sort) {
+            when (item.itemId) {
+                R.id.submenu_sort_title_asc -> mAdapter.comparator = Account.nameComparatorAsc
+                R.id.submenu_sort_title_desc -> mAdapter.comparator = Account.nameComparatorDesc
+                R.id.submenu_sort_year_asc -> mAdapter.comparator = Account.modifiedComparatorAsc
+                R.id.submenu_sort_year_desc -> mAdapter.comparator = Account.modifiedComparatorDesc
+            }
+            item?.isChecked = true
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private fun showBottomSheet(item: Account) {
@@ -173,21 +209,39 @@ class AccountListActivity : SecureActivity() {
 
         val swipeHandler = object : SwipeToDeleteCallback(this) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder?, direction: Int) {
-                val item = mAdapter.itemAtPosition(viewHolder!!.adapterPosition)
-                DbxManager.accounts!!.remove(item)
-                DbxManager.saveAccounts().successUi {
-                    Timber.d("removed account: %s", item)
-                    mAdapter.removeAt(viewHolder.adapterPosition)
-                } failUi {
-                    // TODO: undo swipe !
-                    Toast.makeText(this@AccountListActivity, "Failed to save changes", Toast.LENGTH_SHORT).show()
+                val item = mAdapter.removeAt(viewHolder!!.adapterPosition)
+                progressBar.visibility = View.VISIBLE
 
-                }
+                DbxManager.saveAccounts()
+                        .alwaysUi { progressBar.visibility = View.INVISIBLE }
+                        .successUi {
+                            Timber.d("removed account: %s", item)
+                            Snackbar.make(fab, "Account deleted", Snackbar.LENGTH_LONG)
+                                    .setAction("undo", { _ ->
+                                        mAdapter.add(item)
+                                        progressBar.visibility = View.VISIBLE
+                                        DbxManager.saveAccounts()
+                                                // TODO: what if it fails
+                                                .alwaysUi { progressBar.visibility = View.INVISIBLE }
+                                                .failUi { showToast("Failed to undo changes !") }
+                                    })
+                                    .show()
+                        }
+                        .failUi {
+                            // undo swipe !
+                            mAdapter.add(item)
+                            showToast("Failed to save changes")
+
+                        }
             }
         }
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
+    }
+
+    private fun showToast(msg: String, duration: Int = Toast.LENGTH_SHORT) {
+        Toast.makeText(this@AccountListActivity, msg, duration).show()
     }
 
 }

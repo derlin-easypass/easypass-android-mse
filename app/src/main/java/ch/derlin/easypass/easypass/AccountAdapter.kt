@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
 import ch.derlin.easypass.easypass.data.Account
+import ch.derlin.easypass.easypass.helper.DbxManager
 
 /**
  * Created by Lin on 16.11.17.
@@ -35,7 +36,7 @@ import ch.derlin.easypass.easypass.data.Account
 class AccountAdapter(var accounts: MutableList<Account>) :
         RecyclerView.Adapter<AccountAdapter.ViewHolder>() {
 
-    var comparator: Comparator<Account> = Account.nameComparator
+    var comparator: Comparator<Account> = Account.nameComparatorAsc
         set(value) {
             field = value; doSort(); notifyDataSetChanged()
         }
@@ -55,7 +56,7 @@ class AccountAdapter(var accounts: MutableList<Account>) :
     var filtered = accounts.map { i -> i }.toMutableList()
 
     init {
-        accounts = accounts.toMutableList() // make a copy
+        //accounts = accounts .toMutableList() // make a copy
         setHasStableIds(true)
         doSort()
     }
@@ -82,6 +83,7 @@ class AccountAdapter(var accounts: MutableList<Account>) :
             item.isFavorite = !item.isFavorite
             doSort()
             notifyDataSetChanged()
+            DbxManager.saveAccounts() // TODO
         })
 
         holder.view.setOnClickListener(onCLick)
@@ -99,15 +101,16 @@ class AccountAdapter(var accounts: MutableList<Account>) :
 
     fun itemAtPosition(position: Int): Account = filtered[position]
 
-    fun removeAt(position: Int) {
-        accounts.remove(filtered[position])
+    fun removeAt(position: Int): Account {
+        val item = filtered[position]
+        accounts.remove(item)
         resetAndNotify()
+        return item;
     }
 
     fun filter(search: String? = lastSearch) {
         lastSearch = search ?: ""
-        doFilter()
-        notifyDataSetChanged()
+        resetAndNotify()
     }
 
 

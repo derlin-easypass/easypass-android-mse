@@ -39,7 +39,10 @@ data class Account(
 
 
     companion object {
-        val nameComparator = Comparator<Account> { a1, a2 -> a1.name.compareTo(a2.name, true) }
+        val nameComparatorAsc = Comparator<Account> { a1, a2 -> a1.name.compareTo(a2.name, true) }
+        val nameComparatorDesc = Comparator<Account> { a1, a2 -> a2.name.compareTo(a1.name, true) }
+        val modifiedComparatorAsc = Comparator<Account> { a1, a2 -> a1.modificationDate.compareTo(a2.modificationDate, true) }
+        val modifiedComparatorDesc = Comparator<Account> { a1, a2 -> a2.modificationDate.compareTo(a1.modificationDate, true) }
     }
 }
 
