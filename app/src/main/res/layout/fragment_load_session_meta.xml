@@ -2,42 +2,88 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/colorPrimary"
+    android:orientation="vertical"
     android:padding="20dip">
 
     <TextView
         style="@android:style/TextAppearance.Large"
-        android:textColor="@android:color/primary_text_dark"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dip"
         android:gravity="center_horizontal"
         android:text="@string/start_quote"
+        android:textColor="@android:color/primary_text_dark"
         android:textStyle="italic" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dip"
-        android:textColor="@android:color/secondary_text_dark"
         android:gravity="end"
-        android:text="@string/start_quote_author" />
+        android:text="@string/start_quote_author"
+        android:textColor="@android:color/secondary_text_dark" />
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="100dp"
-        android:layout_height="0dp"
-        android:layout_gravity="center"
-        android:layout_weight="9.00"
-        android:indeterminate="true" />
-
-    <TextView
-        android:id="@+id/text"
+    <LinearLayout
+        android:id="@+id/loadingLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:textColor="@android:color/primary_text_dark"
-        android:text="Fetching session..."/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:layout_width="100dp"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="9.00"
+            android:indeterminate="true" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Fetching session..."
+            android:textColor="@android:color/primary_text_dark" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/errorLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="50dip"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="60dip"
+            android:layout_height="60dip"
+            android:layout_gravity="center_horizontal"
+            android:background="@android:drawable/stat_sys_warning"
+            android:textColor="@android:color/primary_text_dark" />
+
+        <TextView
+            android:id="@+id/errorText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="An error occurred"
+            android:textColor="@android:color/primary_text_dark" />
+
+        <Button
+            android:id="@+id/loadLocalButton"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Load local file" />
+
+        <Button
+            android:id="@+id/retryButton"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Retry" />
+
+    </LinearLayout>
+
 </LinearLayout>

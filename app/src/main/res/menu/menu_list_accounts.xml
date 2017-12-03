@@ -34,4 +34,10 @@
         </menu>
     </item>
 
+    <item
+        android:id="@+id/action_offline"
+        android:icon="@drawable/ic_cloud_off"
+        app:showAsAction="ifRoom"
+        android:title="Offline"/>
+
 </menu>

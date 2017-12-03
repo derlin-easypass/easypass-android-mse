@@ -9,6 +9,7 @@
     android:paddingBottom="5dip">
 
 
+
     <TextView
         android:id="@+id/account_title"
         style="@android:style/TextAppearance.Material.Large"
@@ -28,6 +29,15 @@
         android:layout_marginStart="5dip"
         android:text="04.03.2014" />
 
+    <!--<ImageButton-->
+        <!--android:id="@+id/account_fae"-->
+        <!--android:layout_width="40dip"-->
+        <!--android:layout_height="40dip"-->
+        <!--android:layout_alignParentEnd="true"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:layout_marginEnd="5dip"-->
+        <!--android:backgroundTint="#777"-->
+        <!--android:background="@drawable/ic_visibility_on_24dp" />-->
 
     <ImageButton
         android:id="@+id/account_favorite"

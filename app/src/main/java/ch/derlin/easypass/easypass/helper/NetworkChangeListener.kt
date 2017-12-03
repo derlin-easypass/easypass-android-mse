@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.support.v4.content.LocalBroadcastManager
+import ch.derlin.easypass.easypass.App
 
 
 open class NetworkChangeListener : BroadcastReceiver() {
@@ -24,7 +25,11 @@ open class NetworkChangeListener : BroadcastReceiver() {
 
 
     override fun onReceive(context: Context, intent: Intent) {
-        onNetworkChange()
+        val oldStatus = NetworkStatus.isConnected
+        val status = NetworkStatus.isInternetAvailable(App.appContext)
+        if(oldStatus != status){
+            onNetworkChange(status)
+        }
     }
 
 
@@ -35,7 +40,7 @@ open class NetworkChangeListener : BroadcastReceiver() {
      */
     fun registerSelf(context: Context) {
         if (isRegistered) return
-        LocalBroadcastManager.getInstance(context).registerReceiver(this, INTENT_FILTER)
+        context.registerReceiver(this, INTENT_FILTER)
         isRegistered = true
     }
 
@@ -46,7 +51,7 @@ open class NetworkChangeListener : BroadcastReceiver() {
      * @param context the context
      */
     fun unregisterSelf(context: Context) {
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(this)
+        context.unregisterReceiver(this)
         isRegistered = false
     }
 
@@ -54,7 +59,7 @@ open class NetworkChangeListener : BroadcastReceiver() {
     /**
      * callback to implement
      */
-    open fun onNetworkChange() {
+    open fun onNetworkChange(connectionAvailable: Boolean) {
 
     }
 

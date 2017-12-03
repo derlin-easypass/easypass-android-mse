@@ -17,13 +17,11 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import ch.derlin.easypass.easypass.data.Account
-import ch.derlin.easypass.easypass.helper.DbxManager
-import ch.derlin.easypass.easypass.helper.MiscUtils
-import ch.derlin.easypass.easypass.helper.NetworkChangeListener
-import ch.derlin.easypass.easypass.helper.SecureActivity
+import ch.derlin.easypass.easypass.helper.*
+import ch.derlin.easypass.easypass.helper.MiscUtils.dismissKeyboard
+import ch.derlin.easypass.easypass.helper.MiscUtils.restartApp
 import kotlinx.android.synthetic.main.account_list.*
 import kotlinx.android.synthetic.main.activity_account_list.*
-import nl.komponents.kovenant.then
 import nl.komponents.kovenant.ui.alwaysUi
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
@@ -47,14 +45,25 @@ class AccountListActivity : SecureActivity() {
     private var mTwoPane: Boolean = false
 
     lateinit var mAdapter: AccountAdapter
+    var mOfflineIndicator: MenuItem? = null
     private var bottomSheetDialog: BottomSheetDialog? = null
     private var selectedAccount: Account? = null
 
     private val mNetworkChangeListener = object : NetworkChangeListener() {
-        override fun onNetworkChange() {
-            // TODO
+        override fun onNetworkChange(connectionAvailable: Boolean) {
+            updateConnectivityViews(connectionAvailable)
+            if (connectionAvailable) {
+                syncWithRemote()
+            } else {
+                Snackbar.make(fab, "Network unavailable", Snackbar.LENGTH_LONG).show()
+            }
         }
     }
+
+    private var progressbarVisible: Boolean
+        set(value) = progressBar.setVisibility(if (value) View.VISIBLE else View.INVISIBLE)
+        get() = progressBar.visibility == View.VISIBLE
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +75,8 @@ class AccountListActivity : SecureActivity() {
             // Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
             //         .setAction("Action", null).show()
         }
+
+        syncButton.setOnClickListener { _ -> restartApp() }
 
         setupRecyclerView(recyclerView)
 
@@ -85,12 +96,17 @@ class AccountListActivity : SecureActivity() {
 
     override fun onResume() {
         super.onResume()
+        val connected = NetworkStatus.isInternetAvailable(this)
+        syncButton.visibility = if (!connected || DbxManager.isInSync) View.GONE else View.VISIBLE
+        updateConnectivityViews(connected)
         mNetworkChangeListener.registerSelf(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_list_accounts, menu)
-        (menu!!.findItem(R.id.action_search).actionView as SearchView)
+        mOfflineIndicator = menu!!.findItem(R.id.action_offline)
+        mOfflineIndicator!!.isVisible = !(NetworkStatus.isConnected ?: false)
+        (menu.findItem(R.id.action_search).actionView as SearchView)
                 .setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                     override fun onQueryTextSubmit(query: String?): Boolean {
                         // TODO
@@ -102,22 +118,29 @@ class AccountListActivity : SecureActivity() {
                         return true
                     }
                 })
+        val sort = Preferences(this).sortOrder
+        menu.findItem(sort).isChecked = true
+        setSortOrder(sort)
         return true
-
     }
 
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         if (item?.groupId == R.id.group_menu_sort) {
-            when (item.itemId) {
-                R.id.submenu_sort_title_asc -> mAdapter.comparator = Account.nameComparatorAsc
-                R.id.submenu_sort_title_desc -> mAdapter.comparator = Account.nameComparatorDesc
-                R.id.submenu_sort_year_asc -> mAdapter.comparator = Account.modifiedComparatorAsc
-                R.id.submenu_sort_year_desc -> mAdapter.comparator = Account.modifiedComparatorDesc
-            }
+            Preferences(this).sortOrder = item.itemId
+            setSortOrder(item.itemId)
             item?.isChecked = true
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private fun setSortOrder(itemId: Int) {
+        when (itemId) {
+            R.id.submenu_sort_title_asc -> mAdapter.comparator = Account.nameComparatorAsc
+            R.id.submenu_sort_title_desc -> mAdapter.comparator = Account.nameComparatorDesc
+            R.id.submenu_sort_year_asc -> mAdapter.comparator = Account.modifiedComparatorAsc
+            R.id.submenu_sort_year_desc -> mAdapter.comparator = Account.modifiedComparatorDesc
+        }
     }
 
     private fun showBottomSheet(item: Account) {
@@ -135,6 +158,7 @@ class AccountListActivity : SecureActivity() {
         tv.text = MiscUtils.toSpannable(getString(R.string.fmt_copy_xx).format("EMAIL", item.email))
         tv.isEnabled = item.email.isNotBlank()
 
+        dismissKeyboard()
         bottomSheetDialog!!.setContentView(view)
         bottomSheetDialog!!.show()
     }
@@ -210,16 +234,16 @@ class AccountListActivity : SecureActivity() {
         val swipeHandler = object : SwipeToDeleteCallback(this) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder?, direction: Int) {
                 val item = mAdapter.removeAt(viewHolder!!.adapterPosition)
-                progressBar.visibility = View.VISIBLE
+                progressbarVisible = true
 
                 DbxManager.saveAccounts()
-                        .alwaysUi { progressBar.visibility = View.INVISIBLE }
+                        .alwaysUi { progressbarVisible = false }
                         .successUi {
                             Timber.d("removed account: %s", item)
                             Snackbar.make(fab, "Account deleted", Snackbar.LENGTH_LONG)
                                     .setAction("undo", { _ ->
                                         mAdapter.add(item)
-                                        progressBar.visibility = View.VISIBLE
+                                        progressbarVisible = true
                                         DbxManager.saveAccounts()
                                                 // TODO: what if it fails
                                                 .alwaysUi { progressBar.visibility = View.INVISIBLE }
@@ -244,4 +268,24 @@ class AccountListActivity : SecureActivity() {
         Toast.makeText(this@AccountListActivity, msg, duration).show()
     }
 
+    private fun syncWithRemote() {
+        progressbarVisible = true
+        DbxManager.fetchRemoteFileInfo().successUi {
+            val inSync = it
+            if (!inSync) {
+                syncButton.visibility = View.VISIBLE
+//                Snackbar.make(fab, "Remote session changed", Snackbar.LENGTH_INDEFINITE)
+//                        .setAction("Reload",
+//                                { _ -> restartApp() })
+//                        .show()
+            }
+        } alwaysUi {
+            progressbarVisible = false
+        }
+    }
+
+    private fun updateConnectivityViews(connectionAvailable: Boolean) {
+        mOfflineIndicator?.isVisible = !connectionAvailable
+        fab.isEnabled = connectionAvailable
+    }
 }

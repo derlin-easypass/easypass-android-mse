@@ -22,6 +22,8 @@ import ch.derlin.easypass.easypass.helper.DbxManager
 import ch.derlin.easypass.easypass.helper.NetworkStatus
 import ch.derlin.easypass.easypass.helper.Preferences
 import kotlinx.android.synthetic.main.fragment_enter_password.*
+import kotlinx.android.synthetic.main.fragment_load_session_meta.*
+import nl.komponents.kovenant.ui.alwaysUi
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
 
@@ -58,13 +60,14 @@ class LoadSessionActivity : AppCompatActivity() {
     }
 
     private fun initWorkflow() {
-        if (DbxManager.localFileExists || NetworkStatus.isInternetAvailable(this)) {
-            switchFragments(ProgressFragment())
-        } else {
-            Snackbar.make(findViewById(android.R.id.content), "No network", Snackbar.LENGTH_INDEFINITE)
-                    .setAction("retry", { v -> initWorkflow() })
-                    .show()
-        }
+//        if (DbxManager.localFileExists || NetworkStatus.isInternetAvailable(this)) {
+//            switchFragments(ProgressFragment())
+//        } else {
+//            Snackbar.make(findViewById(android.R.id.content), "No network", Snackbar.LENGTH_INDEFINITE)
+//                    .setAction("retry", { v -> initWorkflow() })
+//                    .show()
+//        }
+        switchFragments(ProgressFragment())
     }
 
 
@@ -85,19 +88,38 @@ class LoadSessionActivity : AppCompatActivity() {
         override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             super.onCreateView(inflater, container, savedInstanceState)
             (activity as AppCompatActivity).supportActionBar?.hide()
-            fetchMeta()
             return inflater!!.inflate(R.layout.fragment_load_session_meta, container, false)
         }
 
-        private fun fetchMeta() {
+        override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+
+            loadLocalButton.setOnClickListener { _ -> next() }
+            retryButton.setOnClickListener { _ -> fetchMeta() }
+
+            fetchMeta()
+        }
+
+        fun fetchMeta() {
+            errorLayout.visibility = View.GONE
+            loadingLayout.visibility = View.VISIBLE
             DbxManager.fetchRemoteFileInfo().successUi {
-                (activity as LoadSessionActivity).onMetaFetched()
+                next()
             } failUi {
-                Snackbar.make(activity.findViewById<View>(android.R.id.content),
-                        it.message ?: "error loading meta", Snackbar.LENGTH_INDEFINITE)
-                        .setAction("retry", { _ -> fetchMeta() })
-                        .show()
+                showError(it)
             }
+        }
+
+        private fun showError(e: Exception) {
+            errorText.text = e.message
+            loadLocalButton.visibility = if (DbxManager.localFileExists) View.VISIBLE else View.GONE
+
+            loadingLayout.visibility = View.GONE
+            errorLayout.visibility = View.VISIBLE
+        }
+
+        fun next() {
+            (activity as LoadSessionActivity).onMetaFetched()
         }
     }
 

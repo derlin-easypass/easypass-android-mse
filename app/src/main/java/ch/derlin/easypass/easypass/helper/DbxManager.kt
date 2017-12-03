@@ -50,6 +50,9 @@ object DbxManager {
         Preferences(App.appContext)
     }
 
+    var isInSync = false
+        private set
+
     fun fetchRemoteFileInfo(): Promise<Boolean, Exception> {
 
         val deferred = deferred<Boolean, Exception>()
@@ -63,38 +66,15 @@ object DbxManager {
                 try {
                     metadata = client.files().getMetadata(remoteFilePath) as FileMetadata
                     metaFetched = true
+                    isInSync = metadata?.rev.equals(prefs.revision)
+                    deferred.resolve(isInSync)
                 } catch (e: GetMetadataErrorException) {
                     // session does not exist
-                    // TODO ?
-                } finally {
-                    deferred.resolve(metadata != null)
-                }
-
-            }
-        }
-        return deferred.promise
-    }
-
-    fun openSession(password: String): Promise<Boolean, Exception> {
-
-        val deferred = deferred<Boolean, Exception>()
-        task {
-            val version = prefs.revision
-
-            if (localFileExists) {
-                loadCachedFile(password)
-                if (metadata != null && metadata!!.rev != version)
-                    loadSession(password, deferred)
-                else deferred.resolve(true)
-
-
-            } else {
-                if (metadata == null) {
-                    // new account
-                    accounts = Accounts(password, remoteFilePath)
-                    deferred.resolve(true)
-                } else {
-                    loadSession(password, deferred)
+                    prefs.cachedPassword = null // ensure it is clean
+                    isInSync = prefs.revision == null
+                    prefs.revision = null
+                    metaFetched = true // flag for isNewSession
+                    deferred.resolve(isInSync)
                 }
             }
         } fail {
@@ -105,11 +85,46 @@ object DbxManager {
     }
 
 
+    fun openSession(password: String): Promise<Boolean, Exception> {
+
+        val deferred = deferred<Boolean, Exception>()
+        task {
+
+            if (isNewSession) {
+                // new account
+                accounts = Accounts(password, remoteFilePath)
+                deferred.resolve(true)
+
+            } else if (localFileExists) {
+                loadCachedFile(password)
+                isInSync = metadata?.rev == prefs.revision
+
+                if (isInSync) loadSession(password, deferred)
+                else deferred.resolve(true)
+
+            } else {
+                if (metaFetched) {
+                    // no cached file, but ok, we have the connection
+                    // (at least we should since we have fetched the metadata)
+                    loadSession(password, deferred)
+                } else {
+                    deferred.reject(Exception("Missing metadata (no network?) and offline mode not available (no cached file)"))
+                }
+
+            }
+        } fail {
+            deferred.reject(it)
+        }
+
+        return deferred.promise
+    }
+
     fun saveAccounts(): Promise<Boolean, Exception> {
         assert(this.accounts != null)
 
         val deferred = deferred<Boolean, Exception>()
         task {
+            Timber.d("begin save accounts %s", Thread.currentThread())
             val tempFile = "lala"
             // serialize accounts to private file
             App.appContext.openFileOutput(tempFile, Context.MODE_PRIVATE).use { out ->
@@ -131,6 +146,7 @@ object DbxManager {
 
             prefs.revision = metadata!!.rev
             deferred.resolve(true)
+            Timber.d("end save accounts %s", Thread.currentThread())
         } fail {
             val ex = it
             Timber.d(it)
@@ -161,6 +177,7 @@ object DbxManager {
                 Timber.d("remote session loaded: rev: %s", metadata!!.rev)
             }
 
+            isInSync = true
             deferred.resolve(true)
 
         } catch (e: Exception) {

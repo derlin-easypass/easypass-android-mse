@@ -6,8 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import ch.derlin.easypass.easypass.data.Account
 import ch.derlin.easypass.easypass.helper.DbxManager
+import ch.derlin.easypass.easypass.helper.NetworkStatus
+import timber.log.Timber
 
 /**
  * Created by Lin on 16.11.17.
@@ -80,10 +83,14 @@ class AccountAdapter(var accounts: MutableList<Account>) :
                 if (item.isFavorite) R.drawable.ic_pinned_on else R.drawable.ic_pinned_off)
 
         holder.favoriteIcon.setOnClickListener({ v ->
-            item.isFavorite = !item.isFavorite
-            doSort()
-            notifyDataSetChanged()
-            DbxManager.saveAccounts() // TODO
+            if(NetworkStatus.isConnected ?: false) {
+                item.isFavorite = !item.isFavorite
+                doSort()
+                notifyDataSetChanged()
+                DbxManager.saveAccounts() // TODO
+            }else{
+                Timber.d("trying to update favorite when no network available.")
+            }
         })
 
         holder.view.setOnClickListener(onCLick)
