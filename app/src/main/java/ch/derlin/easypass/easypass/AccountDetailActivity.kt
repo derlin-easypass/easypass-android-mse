@@ -1,10 +1,11 @@
 package ch.derlin.easypass.easypass
 
-import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.MenuItem
+import android.widget.Toast
 import ch.derlin.easypass.easypass.data.Account
+import ch.derlin.easypass.easypass.helper.NetworkStatus
 import ch.derlin.easypass.easypass.helper.SecureActivity
 import kotlinx.android.synthetic.main.activity_account_detail.*
 
@@ -33,34 +34,30 @@ class AccountDetailActivity : SecureActivity() {
 
         val extras = intent.extras
         if (extras != null) {
-            selectedOperation = extras.getString("operation")
+            selectedOperation = extras.getString(BUNDLE_OPERATION_KEY)
 
-            if (selectedOperation == "edit" || selectedOperation == "show") {
-                selectedAccount = intent.getParcelableExtra("account")
+            if (selectedOperation == OPERATION_EDIT || selectedOperation == OPERATION_SHOW) {
+                selectedAccount = intent.getParcelableExtra(BUNDLE_ACCOUNT_KEY)
             }
         }
 
-        // savedInstanceState is non-null when there is fragment state
-        // saved from previous configurations of this activity
-        // (e.g. when rotating the screen from portrait to landscape).
-        // In this case, the fragment will automatically be re-added
-        // to its container so we don't need to manually add it.
-        // For more information, see the Fragments API guide at:
-        //
-        // http://developer.android.com/guide/components/fragments.html
-        //
         if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity
-            // using a fragment transaction.
-            switchFragment(if (selectedOperation == "show")
+            // using a fragment transaction only the first time
+            switchFragment(if (selectedOperation == OPERATION_SHOW)
                 AccountDetailFragment() else AccountEditFragment())
         }
     }
 
     fun editAccount(): Boolean {
-        switchFragment(AccountEditFragment())
-        shouldGoBackToEditView = true
-        return true
+        if (NetworkStatus.isInternetAvailable()) {
+            switchFragment(AccountEditFragment())
+            shouldGoBackToEditView = true
+            return true
+        } else {
+            Toast.makeText(this, "no internet connection available.", Toast.LENGTH_SHORT).show()
+            return false
+        }
     }
 
     private fun switchFragment(f: Fragment) {
@@ -86,6 +83,7 @@ class AccountDetailActivity : SecureActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+
     override fun onBackPressed() {
         if (shouldGoBackToEditView) {
             switchFragment(AccountDetailFragment())
@@ -93,6 +91,14 @@ class AccountDetailActivity : SecureActivity() {
         } else {
             super.onBackPressed()
         }
+    }
+
+    companion object {
+        val BUNDLE_ACCOUNT_KEY = "account"
+        val BUNDLE_OPERATION_KEY = "operation"
+        val OPERATION_SHOW = "show"
+        val OPERATION_EDIT = "edit"
+        val OPERATION_NEW = "new"
     }
 
 }

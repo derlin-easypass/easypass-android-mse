@@ -5,7 +5,8 @@ import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 import com.google.gson.annotations.Expose
 import kotlinx.android.parcel.Parcelize
-import java.util.ArrayList
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 /**
@@ -25,7 +26,7 @@ data class Account(
         @Expose @SerializedName("email") var email: String,
         @Expose @SerializedName("password") var password: String,
         @Expose @SerializedName("notes") var notes: String = "",
-        @Expose @SerializedName("creation date") var creationDate: String = "",
+        @Expose @SerializedName("creation date") var creationDate: String = Account.now,
         @Expose @SerializedName("modification date") var modificationDate: String = "",
         @Expose @SerializedName("favorite") var isFavorite: Boolean = false) : Parcelable {
 
@@ -58,6 +59,8 @@ data class Account(
         val nameComparatorDesc = Comparator<Account> { a1, a2 -> a2.name.compareTo(a1.name, true) }
         val modifiedComparatorAsc = Comparator<Account> { a1, a2 -> a1.modificationDate.compareTo(a2.modificationDate, true) }
         val modifiedComparatorDesc = Comparator<Account> { a1, a2 -> a2.modificationDate.compareTo(a1.modificationDate, true) }
+        val now: String
+            get() = SimpleDateFormat("yyyy-MM-dd' 'HH:mm", Locale.FRENCH).format(Date())
     }
 }
 

@@ -8,7 +8,6 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
 import android.widget.Toast
 import ch.derlin.easypass.easypass.data.Account
 import ch.derlin.easypass.easypass.helper.DbxManager
@@ -16,7 +15,6 @@ import kotlinx.android.synthetic.main.account_edit.*
 import kotlinx.android.synthetic.main.activity_account_detail.*
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
-import java.util.*
 
 /**
  * A fragment representing a single Account detail screen.
@@ -34,10 +32,9 @@ class AccountEditFragment : Fragment() {
      * The dummy content this fragment is presenting.
      */
     private var mItem: Account? = null
-    private lateinit var showPassCheckbox: CheckBox
     private var originalAccountIndex = -1
 
-    private var progressbarVisible: Boolean
+    private var working: Boolean
         get() = progressBar.visibility == View.VISIBLE
         set(value) = progressBar.setVisibility(if (value) View.VISIBLE else View.INVISIBLE)
 
@@ -59,7 +56,7 @@ class AccountEditFragment : Fragment() {
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        progressbarVisible = false
+        working = false
 
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
@@ -79,9 +76,8 @@ class AccountEditFragment : Fragment() {
             }
         })
 
-        // TODO
-        button_edit_save.setOnClickListener { activity.finish() }
-        button_edit_cancel.setOnClickListener { activity.finish() }
+        button_edit_save.setOnClickListener { saveAccount() }
+        button_edit_cancel.setOnClickListener { activity.onBackPressed() }
 
         (activity as AccountDetailActivity).fab.setImageResource(R.drawable.ic_save_24dp)
         (activity as AccountDetailActivity).fab.setOnClickListener { _ ->
@@ -91,23 +87,30 @@ class AccountEditFragment : Fragment() {
 
 
     private fun saveAccount() {
+
         val newAccount = getAccount()
 
         // check that something has indeed changed
-        if (!newAccount.isDifferentFrom(mItem!!)) {
+        if (mItem != null && !newAccount.isDifferentFrom(mItem!!)) {
             Toast.makeText(activity, "nothing to save", Toast.LENGTH_SHORT).show()
             return
         }
 
         // ensure there are no duplicate names in the account list
-        if (newAccount.name != mItem!!.name &&
-                DbxManager.accounts!!.find { acc -> acc.name == newAccount.name } != null) {
+        if (newAccount.name != mItem?.name &&
+                DbxManager.accounts!!.find { acc ->
+                    acc.name.equals(newAccount.name, ignoreCase = true)
+                } != null) {
             Toast.makeText(activity, "an account with this name already exists", Toast.LENGTH_LONG).show()
             return
         }
 
         // set modification date to now
-        newAccount.modificationDate = Date().toString()
+        newAccount.modificationDate = Account.now
+
+        // ok, now it become critical
+        if(working) return
+        working = true
 
         // update accounts
         if (originalAccountIndex > -1) {
@@ -118,7 +121,6 @@ class AccountEditFragment : Fragment() {
         }
 
         // try save
-        progressbarVisible = true
         DbxManager.saveAccounts().successUi {
             // saved ok, end the edit activity
             Toast.makeText(activity, "Saved!", Toast.LENGTH_SHORT).show()
@@ -127,7 +129,7 @@ class AccountEditFragment : Fragment() {
 
         } failUi {
             // failed ... oups
-            progressbarVisible = false
+            working = false
             // undo !
             if (originalAccountIndex >= -1) {
                 DbxManager.accounts!![originalAccountIndex] = mItem!!
@@ -149,20 +151,11 @@ class AccountEditFragment : Fragment() {
                     details_password.text.toString(),
                     details_notes.text.toString())
 
-
-    override fun onSaveInstanceState(outState: Bundle?) {
-        super.onSaveInstanceState(outState)
-        outState?.putBoolean(BUNDLE_CHECKBOX_STATE, showPassCheckbox.isChecked)
-    }
-
-
     companion object {
         /**
          * The fragment argument representing the item ID that this fragment
          * represents.
          */
         val ARG_ACCOUNT = "parcelable_account"
-        val BUNDLE_CHECKBOX_STATE = "showpass_checked"
-        val HIDDEN_PASSWORD = "********"
     }
 }

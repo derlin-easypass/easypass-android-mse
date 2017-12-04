@@ -132,6 +132,18 @@ class LoadSessionActivity : AppCompatActivity() {
         private lateinit var mPrefs: Preferences
         private var mPassword: String? = null
 
+        private var working: Boolean
+            get() = progressBar.visibility == View.VISIBLE
+            set(value) = if (value) {
+                // show progressbar and disable the button
+                progressBar.visibility = View.VISIBLE
+                loginButton.isEnabled = false
+            } else {
+                progressBar.visibility = View.INVISIBLE
+                loginButton.isEnabled = true
+            }
+
+
         override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             super.onCreateView(inflater, container, savedInstanceState)
             (activity as AppCompatActivity).supportActionBar?.show()
@@ -203,11 +215,12 @@ class LoadSessionActivity : AppCompatActivity() {
         }
 
         private fun decryptSession() {
+            working = true
             DbxManager.openSession(mPassword!!).successUi {
                 (activity as LoadSessionActivity).onSessionOpened()
             } failUi {
                 val ex = it
-                progressBar.visibility = View.INVISIBLE
+                working = false
                 if (ex is JsonManager.WrongCredentialsException) {
                     // remove wrong credentials
                     CachedCredentials.clearPassword()
@@ -221,7 +234,7 @@ class LoadSessionActivity : AppCompatActivity() {
 
         fun savePasswordAndDecrypt() {
             try {
-                progressBar.visibility = View.VISIBLE
+                working = true
                 CachedCredentials.savePassword(mPassword!!)
                 decryptSession()
             } catch (e: UserNotAuthenticatedException) {
@@ -231,7 +244,7 @@ class LoadSessionActivity : AppCompatActivity() {
 
         fun getPasswordsFromFingerprint() {
             try {
-                progressBar.visibility = View.VISIBLE
+                working = true
                 mPassword = CachedCredentials.getPassword()
                 passwordField.setText(mPassword)
                 decryptSession()

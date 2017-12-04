@@ -57,20 +57,29 @@
             style="@style/details_label"
             android:text="@string/account_password_txt" />
 
-        <TextView
-            style="@style/details_value"
-            android:id="@+id/details_password" />
+        <LinearLayout
+            android:padding="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill_horizontal"
+            android:orientation="horizontal">
 
-        <!--show password-->
-        <CheckBox
-            style="@style/details_font"
-            android:id="@+id/details_show_password"
-            android:layout_columnSpan="2"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="@string/account_show_passwd_txt"
+            <TextView
+                style="@style/details_value"
+                android:id="@+id/details_password"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
 
-            />
+            <ImageButton
+                android:id="@+id/details_show_password"
+                android:layout_marginEnd="15dp"
+                android:background="@drawable/ic_visibility_on_24dp"
+                android:backgroundTint="@color/colorAccent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="toggle password view"/>
+        </LinearLayout>
 
         <!--Created on-->
         <TextView

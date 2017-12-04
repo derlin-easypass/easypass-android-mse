@@ -70,10 +70,8 @@ class AccountListActivity : SecureActivity() {
         setContentView(R.layout.activity_account_list)
         setSupportActionBar(toolbar)
 
-        fab.setOnClickListener { view ->
-            newAccount()
-            // Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-            //         .setAction("Action", null).show()
+        fab.setOnClickListener {
+            view -> openDetailActivity(null, AccountDetailActivity.OPERATION_NEW)
         }
 
         syncButton.setOnClickListener { _ -> restartApp() }
@@ -96,7 +94,7 @@ class AccountListActivity : SecureActivity() {
 
     override fun onResume() {
         super.onResume()
-        val connected = NetworkStatus.isInternetAvailable(this)
+        val connected = NetworkStatus.isInternetAvailable()
         syncButton.visibility = if (!connected || DbxManager.isInSync) View.GONE else View.VISIBLE
         updateConnectivityViews(connected)
         mNetworkChangeListener.registerSelf(this)
@@ -172,7 +170,11 @@ class AccountListActivity : SecureActivity() {
             R.id.copy_email_btn -> copyToClipboard(selectedAccount!!.email, "'${selectedAccount!!.email}' copied!")
             R.id.view_details_btn -> {
                 bottomSheetDialog!!.dismiss()
-                showDetails(selectedAccount!!)
+                openDetailActivity(selectedAccount!!, AccountDetailActivity.OPERATION_SHOW)
+            }
+            R.id.view_edit_btn -> {
+                bottomSheetDialog!!.dismiss()
+                openDetailActivity(selectedAccount!!, AccountDetailActivity.OPERATION_EDIT)
             }
             else -> Toast.makeText(this, "something clicked", Toast.LENGTH_SHORT).show()
         }
@@ -190,46 +192,11 @@ class AccountListActivity : SecureActivity() {
         }
     }
 
-    private fun newAccount(): Boolean {
-        if (mTwoPane) {
-            val arguments = Bundle()
-            val fragment = AccountEditFragment()
-            fragment.arguments = arguments
-            supportFragmentManager.beginTransaction()
-                    .replace(R.id.accountDetailContainer, fragment)
-                    .commit()
-        } else {
-            val context = this
-            val intent = Intent(context, AccountDetailActivity::class.java)
-            intent.putExtra("operation","new");
-            context.startActivity(intent)
-        }
-        return true
-    }
 
-    private fun editAccount(item: Account): Boolean {
+    private fun openDetailActivity(item: Account?, operation: String): Boolean {
         if (mTwoPane) {
             val arguments = Bundle()
-            arguments.putParcelable("account", item)
-            val fragment = AccountEditFragment()
-            fragment.arguments = arguments
-            supportFragmentManager.beginTransaction()
-                    .replace(R.id.accountDetailContainer, fragment)
-                    .commit()
-        } else {
-            val context = this
-            val intent = Intent(context, AccountDetailActivity::class.java)
-            intent.putExtra("operation","edit");
-            intent.putExtra("account", item)
-            context.startActivity(intent)
-        }
-        return true
-    }
-
-    private fun showDetails(item: Account): Boolean {
-        if (mTwoPane) {
-            val arguments = Bundle()
-            arguments.putParcelable("account", item)
+            arguments.putParcelable(AccountDetailActivity.BUNDLE_OPERATION_KEY, item)
             val fragment = AccountDetailFragment()
             fragment.arguments = arguments
             supportFragmentManager.beginTransaction()
@@ -238,8 +205,8 @@ class AccountListActivity : SecureActivity() {
         } else {
             val context = this
             val intent = Intent(context, AccountDetailActivity::class.java)
-            intent.putExtra("operation","show");
-            intent.putExtra("account", item)
+            intent.putExtra(AccountDetailActivity.BUNDLE_OPERATION_KEY, operation);
+            intent.putExtra(AccountDetailActivity.BUNDLE_ACCOUNT_KEY, item)
             context.startActivity(intent)
         }
         return true
@@ -258,7 +225,7 @@ class AccountListActivity : SecureActivity() {
 
         mAdapter.onLongClick = View.OnLongClickListener { v ->
             val position = recyclerView.getChildAdapterPosition(v)
-            showDetails(mAdapter.itemAtPosition(position))
+            openDetailActivity(mAdapter.itemAtPosition(position), AccountDetailActivity.OPERATION_SHOW)
         }
 
         val swipeHandler = object : SwipeToDeleteCallback(this) {

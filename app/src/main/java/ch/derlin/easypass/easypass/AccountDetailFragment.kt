@@ -29,6 +29,10 @@ class AccountDetailFragment : Fragment() {
      */
     private var mItem: Account? = null
     private lateinit var showPassCheckbox: CheckBox
+    private var isPasswordShowed = false
+
+    private lateinit var password: String
+    private lateinit var hiddenPassword: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,23 +67,17 @@ class AccountDetailFragment : Fragment() {
             details_modified_date.text = mItem!!.modificationDate
 
             // handle password
-            val password = mItem!!.password
-            val hiddenPassword = if (password.isEmpty()) "" else HIDDEN_PASSWORD
+            password = mItem!!.password
+            hiddenPassword = if (password.isEmpty()) "" else HIDDEN_PASSWORD
+
+            isPasswordShowed = true // (toggle will toggle the state back to false)
+            togglePassword()
 
             // register listener on the show password checkbox
-            details_show_password.setOnCheckedChangeListener { compoundButton, checked ->
-                details_password.text = if (checked) password else hiddenPassword
-            }
-
-            // check if the checkbox state was previously saved
-            if (savedInstanceState?.getBoolean(BUNDLE_CHECKBOX_STATE) ?: false) {
-                showPassCheckbox.isChecked = true
-                details_password.text = password
-            } else {
-                details_password.text = hiddenPassword
-            }
+            details_show_password.setOnClickListener { compoundButton -> togglePassword() }
         }
 
+        // handle the fab icon + action
         (activity as AccountDetailActivity).fab.setImageResource(R.drawable.ic_mode_edit_24dp)
         (activity as AccountDetailActivity).fab.setOnClickListener { _ ->
             (activity as AccountDetailActivity).editAccount()
@@ -87,11 +85,13 @@ class AccountDetailFragment : Fragment() {
 
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
-        super.onSaveInstanceState(outState)
-        outState?.putBoolean(BUNDLE_CHECKBOX_STATE, showPassCheckbox.isChecked)
+    private fun togglePassword() {
+        isPasswordShowed = !isPasswordShowed
+        details_password.text = if (isPasswordShowed) mItem!!.password else hiddenPassword
+        details_show_password.background = activity.getDrawable(
+                if (isPasswordShowed) R.drawable.ic_visibility_on_24dp
+                else R.drawable.ic_visibility_off_24dp)
     }
-
 
     companion object {
         /**
