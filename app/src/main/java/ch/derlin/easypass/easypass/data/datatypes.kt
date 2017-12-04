@@ -29,6 +29,14 @@ data class Account(
         @Expose @SerializedName("modification date") var modificationDate: String = "",
         @Expose @SerializedName("favorite") var isFavorite: Boolean = false) : Parcelable {
 
+    init {
+        // trim
+        name = name.trim()
+        pseudo = pseudo.trim()
+        email = email.trim()
+        notes = notes.trim()
+    }
+
     private var _uid = 0L
 
     val uid: Long
@@ -36,6 +44,13 @@ data class Account(
             if (_uid == 0L) _uid = name.hashCode().toLong()
             return _uid
         }
+
+    fun isDifferentFrom(acc: Account): Boolean =
+            !this.name.equals(acc.name, ignoreCase = true) ||
+                    !this.pseudo.equals(acc.pseudo, ignoreCase = true) ||
+                    !this.email.equals(acc.email, ignoreCase = true) ||
+                    !this.password.equals(acc.password, ignoreCase = true) ||
+                    !this.notes.equals(acc.notes, ignoreCase = true)
 
 
     companion object {

@@ -2,8 +2,8 @@ package ch.derlin.easypass.easypass
 
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import android.view.MenuItem
-import ch.derlin.easypass.easypass.R.styleable.FloatingActionButton
 import ch.derlin.easypass.easypass.data.Account
 import ch.derlin.easypass.easypass.helper.SecureActivity
 import kotlinx.android.synthetic.main.activity_account_detail.*
@@ -16,20 +16,16 @@ import kotlinx.android.synthetic.main.activity_account_detail.*
  */
 class AccountDetailActivity : SecureActivity() {
 
-    private var selectedAccount: Account? = null
+    var selectedAccount: Account? = null
     private var selectedOperation: String? = null
+    private var shouldGoBackToEditView = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_account_detail)
         setSupportActionBar(toolbar)
 
-        fab.setOnClickListener {
-            view -> editAccount()
-            fab.hide()
-            // Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
-            //        .setAction("Action", null).show()
-        }
+        fab.setOnClickListener { view -> editAccount() }
 
         // Show the Up button in the action bar.
         val actionBar = supportActionBar
@@ -39,7 +35,7 @@ class AccountDetailActivity : SecureActivity() {
         if (extras != null) {
             selectedOperation = extras.getString("operation")
 
-            if(selectedOperation == "edit" || selectedOperation == "show") {
+            if (selectedOperation == "edit" || selectedOperation == "show") {
                 selectedAccount = intent.getParcelableExtra("account")
             }
         }
@@ -56,54 +52,47 @@ class AccountDetailActivity : SecureActivity() {
         if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
-            val arguments = Bundle()
-
-            if(selectedOperation == "new" || selectedOperation == "edit") {
-                fab.hide()
-                arguments.putParcelable(AccountEditFragment.ARG_ACCOUNT, selectedAccount)
-                val fragment = AccountEditFragment()
-                fragment.arguments = arguments
-                supportFragmentManager.beginTransaction()
-                        .add(R.id.accountDetailContainer, fragment)
-                        .commit()
-            }
-            else if(selectedOperation == "show") {
-                fab.show()
-                arguments.putParcelable(AccountDetailFragment.ARG_ACCOUNT, selectedAccount)
-                val fragment = AccountDetailFragment()
-                fragment.arguments = arguments
-                supportFragmentManager.beginTransaction()
-                        .add(R.id.accountDetailContainer, fragment)
-                        .commit()
-            }
+            switchFragment(if (selectedOperation == "show")
+                AccountDetailFragment() else AccountEditFragment())
         }
     }
 
-    private fun editAccount(): Boolean {
-
-        val arguments = Bundle()
-        arguments.putParcelable(AccountEditFragment.ARG_ACCOUNT, selectedAccount)
-        val fragment = AccountEditFragment()
-        fragment.arguments = arguments
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.accountDetailContainer, fragment)
-                .commit()
-
+    fun editAccount(): Boolean {
+        switchFragment(AccountEditFragment())
+        shouldGoBackToEditView = true
         return true
     }
 
+    private fun switchFragment(f: Fragment) {
+        var arguments: Bundle? = null
+
+        if (selectedAccount != null) {
+            arguments = Bundle()
+            arguments.putParcelable(AccountEditFragment.ARG_ACCOUNT, selectedAccount)
+        }
+
+        f.arguments = arguments
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.accountDetailContainer, f)
+        transaction.commit()
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        if (id == android.R.id.home) {
-            // This ID represents the Home or Up button. In the case of this
-            // activity, the Up button is shown. For
-            // more details, see the Navigation pattern on Android Design:
-            //
-            // http://developer.android.com/design/patterns/navigation.html#up-vs-back
-            //
-            navigateUpTo(Intent(this, AccountListActivity::class.java))
+        if (item.itemId == android.R.id.home) {
+            this.onBackPressed()
+            //navigateUpTo(Intent(this, AccountListActivity::class.java))
             return true
         }
         return super.onOptionsItemSelected(item)
     }
+
+    override fun onBackPressed() {
+        if (shouldGoBackToEditView) {
+            switchFragment(AccountDetailFragment())
+            shouldGoBackToEditView = false
+        } else {
+            super.onBackPressed()
+        }
+    }
+
 }

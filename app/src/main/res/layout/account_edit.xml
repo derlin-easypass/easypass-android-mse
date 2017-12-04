@@ -4,19 +4,30 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
+
     <!--gridlayout with two columns-->
     <GridLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_marginRight="4dp"
         android:columnCount="2"
+        android:orientation="horizontal"
         android:useDefaultMargins="false">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_columnSpan="2"
+            android:layout_gravity="fill_horizontal"
+            android:indeterminate="true"
+            android:visibility="visible" />
 
         <!--infos header-->
         <TextView
-            android:layout_columnSpan="2"
             style="@style/header"
+            android:layout_columnSpan="2"
             android:text="@string/account_infos_header" />
 
         <View
@@ -27,55 +38,59 @@
         <!--name-->
         <TextView
             style="@style/details_label"
+            android:labelFor="@id/details_name"
             android:text="@string/account_name_txt" />
 
         <EditText
-            style="@style/details_edit_value"
             android:id="@+id/details_name"
-            android:maxLines="1"
+            style="@style/details_edit_value"
             android:inputType="text"
+            android:maxLines="1"
             android:scrollHorizontally="true" />
 
         <!--pseudo-->
         <TextView
             style="@style/details_label"
+            android:labelFor="@id/details_pseudo"
             android:text="@string/account_pseudo_txt" />
 
         <EditText
-            style="@style/details_edit_value"
             android:id="@+id/details_pseudo"
-            android:maxLines="1"
+            style="@style/details_edit_value"
             android:inputType="text"
+            android:maxLines="1"
             android:scrollHorizontally="true" />
 
         <!--email-->
         <TextView
             style="@style/details_label"
+            android:labelFor="@id/details_email"
             android:text="@string/account_email_txt" />
 
         <EditText
-            style="@style/details_edit_value"
             android:id="@+id/details_email"
+            style="@style/details_edit_value"
+            android:inputType="textEmailAddress"
             android:maxLines="1"
-            android:inputType="text"
             android:scrollHorizontally="true" />
 
         <!--password-->
         <TextView
             style="@style/details_label"
+            android:labelFor="@id/details_password"
             android:text="@string/account_password_txt" />
 
         <EditText
-            style="@style/details_edit_value"
             android:id="@+id/details_password"
-            android:maxLines="1"
+            style="@style/details_edit_value"
             android:inputType="textPassword"
+            android:maxLines="1"
             android:scrollHorizontally="true" />
 
         <!--show password-->
         <CheckBox
-            style="@style/details_font"
             android:id="@+id/details_show_password"
+            style="@style/details_font"
             android:layout_columnSpan="2"
             android:layout_gravity="center"
             android:gravity="center"
@@ -87,43 +102,46 @@
         <TextView
             style="@style/header"
             android:layout_columnSpan="2"
+            android:labelFor="@id/details_notes"
             android:text="@string/account_notes_txt" />
 
         <View
             style="@style/divider"
-            android:layout_marginBottom="10dp"
-            android:layout_columnSpan="2" />
+            android:layout_columnSpan="2"
+            android:layout_marginBottom="10dp" />
 
 
         <!--notes field-->
-        <TextView
-            android:layout_columnSpan="2"
+        <EditText
             android:id="@+id/details_notes"
             style="@style/details_font"
+            android:layout_columnSpan="2"
+            android:layout_gravity="fill_horizontal"
+            android:inputType="textMultiLine"
             android:padding="5dp" />
 
         <View
             style="@style/divider"
-            android:layout_marginBottom="10dp"
-            android:layout_columnSpan="2" />
+            android:layout_columnSpan="2"
+            android:layout_marginBottom="10dp" />
 
         <!--metadata field-->
         <TextView
-            android:layout_columnSpan="2"
             android:id="@+id/details_metadata"
             style="@style/details_font"
+            android:layout_columnSpan="2"
             android:padding="5dp" />
 
         <Button
             android:id="@+id/button_edit_save"
-            android:layout_height="wrap_content"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Save" />
 
         <Button
             android:id="@+id/button_edit_cancel"
-            android:layout_height="wrap_content"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Cancel" />
 
     </GridLayout>

@@ -17,6 +17,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import ch.derlin.easypass.easypass.data.JsonManager
 import ch.derlin.easypass.easypass.helper.CachedCredentials
 import ch.derlin.easypass.easypass.helper.DbxManager
 import ch.derlin.easypass.easypass.helper.NetworkStatus
@@ -205,11 +206,16 @@ class LoadSessionActivity : AppCompatActivity() {
             DbxManager.openSession(mPassword!!).successUi {
                 (activity as LoadSessionActivity).onSessionOpened()
             } failUi {
-                // remove wrong credentials
-                CachedCredentials.clearPassword()
-                loginButton.isEnabled = false
+                val ex = it
                 progressBar.visibility = View.INVISIBLE
-                Toast.makeText(activity, "Wrong credentials", Toast.LENGTH_LONG).show()
+                if (ex is JsonManager.WrongCredentialsException) {
+                    // remove wrong credentials
+                    CachedCredentials.clearPassword()
+                    loginButton.isEnabled = false
+                    Toast.makeText(activity, "Wrong credentials", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(activity, "An error occurred: " + ex.message, Toast.LENGTH_LONG).show()
+                }
             }
         }
 

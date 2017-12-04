@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
 import ch.derlin.easypass.easypass.data.Account
+import kotlinx.android.synthetic.main.account_detail.*
 import kotlinx.android.synthetic.main.activity_account_detail.*
 
 /**
@@ -45,39 +46,45 @@ class AccountDetailFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View? =
+            inflater!!.inflate(R.layout.account_detail, container, false)
 
-        val rootView = inflater!!.inflate(R.layout.account_detail, container, false)
 
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
 
-            rootView.findViewById<TextView>(R.id.details_name).text = mItem!!.name
-            rootView.findViewById<TextView>(R.id.details_email).text = mItem!!.email
-            rootView.findViewById<TextView>(R.id.details_pseudo).text = mItem!!.pseudo
-            rootView.findViewById<TextView>(R.id.details_notes).text = mItem!!.notes
+            details_name.text = mItem!!.name
+            details_email.text = mItem!!.email
+            details_pseudo.text = mItem!!.pseudo
+            details_notes.text = mItem!!.notes
+            details_created_date.text = mItem!!.creationDate
+            details_modified_date.text = mItem!!.modificationDate
 
             // handle password
             val password = mItem!!.password
             val hiddenPassword = if (password.isEmpty()) "" else HIDDEN_PASSWORD
-            val passwordField = rootView.findViewById<TextView>(R.id.details_password)
 
             // register listener on the show password checkbox
-            showPassCheckbox = rootView.findViewById<CheckBox>(R.id.details_show_password)
-            showPassCheckbox.setOnCheckedChangeListener {
-                compoundButton, checked -> passwordField.text = if(checked) password else hiddenPassword
+            details_show_password.setOnCheckedChangeListener { compoundButton, checked ->
+                details_password.text = if (checked) password else hiddenPassword
             }
 
             // check if the checkbox state was previously saved
-            if(savedInstanceState != null && savedInstanceState.getBoolean(BUNDLE_CHECKBOX_STATE)){
+            if (savedInstanceState?.getBoolean(BUNDLE_CHECKBOX_STATE) ?: false) {
                 showPassCheckbox.isChecked = true
-                passwordField.text = password
-            }else{
-                passwordField.text = hiddenPassword
+                details_password.text = password
+            } else {
+                details_password.text = hiddenPassword
             }
         }
 
-        return rootView
+        (activity as AccountDetailActivity).fab.setImageResource(R.drawable.ic_mode_edit_24dp)
+        (activity as AccountDetailActivity).fab.setOnClickListener { _ ->
+            (activity as AccountDetailActivity).editAccount()
+        }
+
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
