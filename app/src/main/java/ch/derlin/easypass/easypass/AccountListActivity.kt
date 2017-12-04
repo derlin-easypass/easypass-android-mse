@@ -191,16 +191,45 @@ class AccountListActivity : SecureActivity() {
     }
 
     private fun newAccount(): Boolean {
-        val context = this
-        val intent = Intent(context, AccountNewActivity::class.java)
-        context.startActivity(intent)
+        if (mTwoPane) {
+            val arguments = Bundle()
+            val fragment = AccountEditFragment()
+            fragment.arguments = arguments
+            supportFragmentManager.beginTransaction()
+                    .replace(R.id.accountDetailContainer, fragment)
+                    .commit()
+        } else {
+            val context = this
+            val intent = Intent(context, AccountDetailActivity::class.java)
+            intent.putExtra("operation","new");
+            context.startActivity(intent)
+        }
+        return true
+    }
+
+    private fun editAccount(item: Account): Boolean {
+        if (mTwoPane) {
+            val arguments = Bundle()
+            arguments.putParcelable("account", item)
+            val fragment = AccountEditFragment()
+            fragment.arguments = arguments
+            supportFragmentManager.beginTransaction()
+                    .replace(R.id.accountDetailContainer, fragment)
+                    .commit()
+        } else {
+            val context = this
+            val intent = Intent(context, AccountDetailActivity::class.java)
+            intent.putExtra("operation","edit");
+            intent.putExtra("account", item)
+            context.startActivity(intent)
+        }
         return true
     }
 
     private fun showDetails(item: Account): Boolean {
         if (mTwoPane) {
             val arguments = Bundle()
-            arguments.putParcelable(AccountDetailFragment.ARG_ACCOUNT, item)
+            arguments.putParcelable("account", item)
             val fragment = AccountDetailFragment()
             fragment.arguments = arguments
             supportFragmentManager.beginTransaction()
@@ -209,7 +238,8 @@ class AccountListActivity : SecureActivity() {
         } else {
             val context = this
             val intent = Intent(context, AccountDetailActivity::class.java)
-            intent.putExtra(AccountDetailFragment.ARG_ACCOUNT, item)
+            intent.putExtra("operation","show");
+            intent.putExtra("account", item)
             context.startActivity(intent)
         }
         return true

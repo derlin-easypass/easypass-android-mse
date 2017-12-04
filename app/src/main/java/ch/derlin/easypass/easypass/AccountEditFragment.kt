@@ -1,14 +1,23 @@
 package ch.derlin.easypass.easypass
 
+import android.content.Intent
 import android.support.design.widget.CollapsingToolbarLayout
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
 import ch.derlin.easypass.easypass.data.Account
+import ch.derlin.easypass.easypass.helper.DbxManager
+import kotlinx.android.synthetic.main.activity_account_list.*
+import nl.komponents.kovenant.ui.alwaysUi
+import nl.komponents.kovenant.ui.failUi
+import nl.komponents.kovenant.ui.successUi
+import timber.log.Timber
 
 /**
  * A fragment representing a single Account detail screen.
@@ -31,18 +40,18 @@ class AccountEditFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        if (arguments.containsKey(ARG_ACCOUNT)) {
-//            // Load the dummy content specified by the fragment
-//            // arguments. In a real-world scenario, use a Loader
-//            // to load content from a content provider.
-//            mItem = arguments.getParcelable(ARG_ACCOUNT)
-//
+        if (arguments.containsKey(ARG_ACCOUNT)) {
+            // Load the dummy content specified by the fragment
+            // arguments. In a real-world scenario, use a Loader
+            // to load content from a content provider.
+            mItem = arguments.getParcelable(ARG_ACCOUNT)
+
 //            val activity = this.activity
 //            val appBarLayout = activity.findViewById<View>(R.id.toolbar_layout) as CollapsingToolbarLayout
 //            if (appBarLayout != null) {
 //                appBarLayout.title = mItem!!.name
 //            }
-//        }
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
@@ -56,26 +65,42 @@ class AccountEditFragment : Fragment() {
             rootView.findViewById<TextView>(R.id.details_name).text = mItem!!.name
             rootView.findViewById<TextView>(R.id.details_email).text = mItem!!.email
             rootView.findViewById<TextView>(R.id.details_pseudo).text = mItem!!.pseudo
+            rootView.findViewById<TextView>(R.id.details_password).text = mItem!!.password
             rootView.findViewById<TextView>(R.id.details_notes).text = mItem!!.notes
-
             // handle password
-            val password = mItem!!.password
-            val hiddenPassword = if (password.isEmpty()) "" else HIDDEN_PASSWORD
-            val passwordField = rootView.findViewById<TextView>(R.id.details_password)
+            //val password = mItem!!.password
+//            val hiddenPassword = if (password.isEmpty()) "" else HIDDEN_PASSWORD
+//            val passwordField = rootView.findViewById<TextView>(R.id.details_password)
+//
+//            // register listener on the show password checkbox
+//            showPassCheckbox = rootView.findViewById<CheckBox>(R.id.details_show_password)
+//            showPassCheckbox.setOnCheckedChangeListener {
+//                compoundButton, checked -> passwordField.text = if(checked) password else hiddenPassword
+//            }
+//
+//            // check if the checkbox state was previously saved
+//            if(savedInstanceState != null && savedInstanceState.getBoolean(BUNDLE_CHECKBOX_STATE)){
+//                showPassCheckbox.isChecked = true
+//                passwordField.text = password
+//            }else{
+//                passwordField.text = hiddenPassword
+//            }
+        }
 
-            // register listener on the show password checkbox
-            showPassCheckbox = rootView.findViewById<CheckBox>(R.id.details_show_password)
-            showPassCheckbox.setOnCheckedChangeListener {
-                compoundButton, checked -> passwordField.text = if(checked) password else hiddenPassword
-            }
+        rootView.findViewById<Button>(R.id.button_edit_save).setOnClickListener {
 
-            // check if the checkbox state was previously saved
-            if(savedInstanceState != null && savedInstanceState.getBoolean(BUNDLE_CHECKBOX_STATE)){
-                showPassCheckbox.isChecked = true
-                passwordField.text = password
-            }else{
-                passwordField.text = hiddenPassword
-            }
+            val name = rootView.findViewById<TextView>(R.id.details_name).text.toString()
+            val pseudo = rootView.findViewById<TextView>(R.id.details_pseudo).text.toString()
+            val email = rootView.findViewById<TextView>(R.id.details_email).text.toString()
+            val password = rootView.findViewById<TextView>(R.id.details_password).text.toString()
+            val notes = rootView.findViewById<TextView>(R.id.details_notes).text.toString()
+
+            getActivity().finish();
+        }
+
+
+        rootView.findViewById<Button>(R.id.button_edit_cancel).setOnClickListener {
+            getActivity().finish();
         }
 
         return rootView
@@ -85,7 +110,6 @@ class AccountEditFragment : Fragment() {
         super.onSaveInstanceState(outState)
         outState?.putBoolean(BUNDLE_CHECKBOX_STATE, showPassCheckbox.isChecked)
     }
-
 
     companion object {
         /**

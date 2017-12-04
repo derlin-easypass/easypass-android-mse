@@ -31,7 +31,7 @@
 
         <EditText
             style="@style/details_edit_value"
-            android:id="@+id/edit_name"
+            android:id="@+id/details_name"
             android:maxLines="1"
             android:inputType="text"
             android:scrollHorizontally="true" />
@@ -43,7 +43,7 @@
 
         <EditText
             style="@style/details_edit_value"
-            android:id="@+id/edit_pseudo"
+            android:id="@+id/details_pseudo"
             android:maxLines="1"
             android:inputType="text"
             android:scrollHorizontally="true" />
@@ -55,7 +55,7 @@
 
         <EditText
             style="@style/details_edit_value"
-            android:id="@+id/edit_email"
+            android:id="@+id/details_email"
             android:maxLines="1"
             android:inputType="text"
             android:scrollHorizontally="true" />
@@ -67,7 +67,7 @@
 
         <EditText
             style="@style/details_edit_value"
-            android:id="@+id/edit_password"
+            android:id="@+id/details_password"
             android:maxLines="1"
             android:inputType="textPassword"
             android:scrollHorizontally="true" />

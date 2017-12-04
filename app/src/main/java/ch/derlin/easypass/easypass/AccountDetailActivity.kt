@@ -3,6 +3,7 @@ package ch.derlin.easypass.easypass
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import ch.derlin.easypass.easypass.R.styleable.FloatingActionButton
 import ch.derlin.easypass.easypass.data.Account
 import ch.derlin.easypass.easypass.helper.SecureActivity
 import kotlinx.android.synthetic.main.activity_account_detail.*
@@ -16,14 +17,16 @@ import kotlinx.android.synthetic.main.activity_account_detail.*
 class AccountDetailActivity : SecureActivity() {
 
     private var selectedAccount: Account? = null
+    private var selectedOperation: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_account_detail)
         setSupportActionBar(toolbar)
 
-        selectedAccount = intent.getParcelableExtra(AccountDetailFragment.ARG_ACCOUNT)
-        fab.setOnClickListener { view -> editAccount()
+        fab.setOnClickListener {
+            view -> editAccount()
+            fab.hide()
             // Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
             //        .setAction("Action", null).show()
         }
@@ -31,6 +34,15 @@ class AccountDetailActivity : SecureActivity() {
         // Show the Up button in the action bar.
         val actionBar = supportActionBar
         actionBar?.setDisplayHomeAsUpEnabled(true)
+
+        val extras = intent.extras
+        if (extras != null) {
+            selectedOperation = extras.getString("operation")
+
+            if(selectedOperation == "edit" || selectedOperation == "show") {
+                selectedAccount = intent.getParcelableExtra("account")
+            }
+        }
 
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity
@@ -45,21 +57,38 @@ class AccountDetailActivity : SecureActivity() {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             val arguments = Bundle()
-            arguments.putParcelable(AccountDetailFragment.ARG_ACCOUNT,
-                    intent.getParcelableExtra(AccountDetailFragment.ARG_ACCOUNT))
-            val fragment = AccountDetailFragment()
-            fragment.arguments = arguments
-            supportFragmentManager.beginTransaction()
-                    .add(R.id.accountDetailContainer, fragment)
-                    .commit()
+
+            if(selectedOperation == "new" || selectedOperation == "edit") {
+                fab.hide()
+                arguments.putParcelable(AccountEditFragment.ARG_ACCOUNT, selectedAccount)
+                val fragment = AccountEditFragment()
+                fragment.arguments = arguments
+                supportFragmentManager.beginTransaction()
+                        .add(R.id.accountDetailContainer, fragment)
+                        .commit()
+            }
+            else if(selectedOperation == "show") {
+                fab.show()
+                arguments.putParcelable(AccountDetailFragment.ARG_ACCOUNT, selectedAccount)
+                val fragment = AccountDetailFragment()
+                fragment.arguments = arguments
+                supportFragmentManager.beginTransaction()
+                        .add(R.id.accountDetailContainer, fragment)
+                        .commit()
+            }
         }
     }
 
     private fun editAccount(): Boolean {
-        val context = this
-        val intent = Intent(context, AccountEditActivity::class.java)
-        intent.putExtra(AccountDetailFragment.ARG_ACCOUNT, selectedAccount)
-        context.startActivity(intent)
+
+        val arguments = Bundle()
+        arguments.putParcelable(AccountEditFragment.ARG_ACCOUNT, selectedAccount)
+        val fragment = AccountEditFragment()
+        fragment.arguments = arguments
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.accountDetailContainer, fragment)
+                .commit()
+
         return true
     }
 
