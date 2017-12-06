@@ -25,7 +25,7 @@
         android:id="@+id/copy_pass_btn"
         style="@style/bottom_sheet_buttons"
         android:onClick="bottomSheetClicked"
-        android:drawableStart="@drawable/ic_content_copy_24dp"
+        android:drawableStart="@drawable/ic_content_copy"
         android:drawableTint="@android:color/darker_gray"
         android:text="Copy Password" />
 
@@ -33,7 +33,7 @@
         android:id="@+id/copy_username_btn"
         style="@style/bottom_sheet_buttons"
         android:onClick="bottomSheetClicked"
-        android:drawableStart="@drawable/ic_content_copy_24dp"
+        android:drawableStart="@drawable/ic_content_copy"
         android:textAllCaps="false"
         android:text="@string/fmt_copy_xx" />
 
@@ -41,7 +41,7 @@
         android:id="@+id/copy_email_btn"
         style="@style/bottom_sheet_buttons"
         android:onClick="bottomSheetClicked"
-        android:drawableStart="@drawable/ic_content_copy_24dp"
+        android:drawableStart="@drawable/ic_content_copy"
         android:textAllCaps="false"
         android:text="@string/fmt_copy_xx" />
 
@@ -49,14 +49,14 @@
         android:id="@+id/view_details_btn"
         style="@style/bottom_sheet_buttons"
         android:onClick="bottomSheetClicked"
-        android:drawableStart="@drawable/ic_visibility_on_24dp"
+        android:drawableStart="@drawable/ic_visibility_on"
         android:text="view details" />
 
     <Button
         android:id="@+id/view_edit_btn"
         style="@style/bottom_sheet_buttons"
         android:onClick="bottomSheetClicked"
-        android:drawableStart="@drawable/ic_mode_edit_24dp"
+        android:drawableStart="@drawable/ic_mode_edit"
         android:text="edit" />
 
 </LinearLayout>

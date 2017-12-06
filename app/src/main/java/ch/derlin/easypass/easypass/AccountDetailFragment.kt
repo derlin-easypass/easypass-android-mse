@@ -1,13 +1,11 @@
 package ch.derlin.easypass.easypass
 
-import android.support.design.widget.CollapsingToolbarLayout
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
-import android.widget.TextView
 import ch.derlin.easypass.easypass.data.Account
 import kotlinx.android.synthetic.main.account_detail.*
 import kotlinx.android.synthetic.main.activity_account_detail.*
@@ -78,7 +76,7 @@ class AccountDetailFragment : Fragment() {
         }
 
         // handle the fab icon + action
-        (activity as AccountDetailActivity).fab.setImageResource(R.drawable.ic_mode_edit_24dp)
+        (activity as AccountDetailActivity).fab.setImageResource(R.drawable.ic_mode_edit)
         (activity as AccountDetailActivity).fab.setOnClickListener { _ ->
             (activity as AccountDetailActivity).editAccount()
         }
@@ -89,8 +87,8 @@ class AccountDetailFragment : Fragment() {
         isPasswordShowed = !isPasswordShowed
         details_password.text = if (isPasswordShowed) mItem!!.password else hiddenPassword
         details_show_password.background = activity.getDrawable(
-                if (isPasswordShowed) R.drawable.ic_visibility_on_24dp
-                else R.drawable.ic_visibility_off_24dp)
+                if (isPasswordShowed) R.drawable.ic_visibility_on
+                else R.drawable.ic_visibility_off)
     }
 
     companion object {

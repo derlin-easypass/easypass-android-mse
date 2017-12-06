@@ -79,7 +79,7 @@ class AccountEditFragment : Fragment() {
         button_edit_save.setOnClickListener { saveAccount() }
         button_edit_cancel.setOnClickListener { activity.onBackPressed() }
 
-        (activity as AccountDetailActivity).fab.setImageResource(R.drawable.ic_save_24dp)
+        (activity as AccountDetailActivity).fab.setImageResource(R.drawable.ic_save)
         (activity as AccountDetailActivity).fab.setOnClickListener { _ ->
             saveAccount()
         }
