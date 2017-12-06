@@ -53,6 +53,13 @@ data class Account(
                     !this.password.equals(acc.password, ignoreCase = true) ||
                     !this.notes.equals(acc.notes, ignoreCase = true)
 
+    val isValid: Boolean
+        get() = name.isNotBlank()
+
+    fun toggleFavorite() {
+        this.isFavorite = !this.isFavorite
+    }
+
 
     companion object {
         val nameComparatorAsc = Comparator<Account> { a1, a2 -> a1.name.compareTo(a2.name, true) }

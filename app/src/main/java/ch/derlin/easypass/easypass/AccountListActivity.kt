@@ -60,7 +60,7 @@ class AccountListActivity : SecureActivity() {
         }
     }
 
-    private var progressbarVisible: Boolean
+    private var working: Boolean
         set(value) = progressBar.setVisibility(if (value) View.VISIBLE else View.INVISIBLE)
         get() = progressBar.visibility == View.VISIBLE
 
@@ -70,8 +70,8 @@ class AccountListActivity : SecureActivity() {
         setContentView(R.layout.activity_account_list)
         setSupportActionBar(toolbar)
 
-        fab.setOnClickListener {
-            view -> openDetailActivity(null, AccountDetailActivity.OPERATION_NEW)
+        fab.setOnClickListener { view ->
+            openDetailActivity(null, AccountDetailActivity.OPERATION_NEW)
         }
 
         syncButton.setOnClickListener { _ -> restartApp() }
@@ -218,32 +218,48 @@ class AccountListActivity : SecureActivity() {
         recyclerView.adapter = mAdapter
         //recyclerView.layoutManager.isItemPrefetchEnabled = false
 
-        mAdapter.onCLick = View.OnClickListener { v ->
-            val position = recyclerView.getChildAdapterPosition(v)
-            showBottomSheet(mAdapter.itemAtPosition(position))
+        mAdapter.onClick = { account ->
+            showBottomSheet(account)
         }
 
-        mAdapter.onLongClick = View.OnLongClickListener { v ->
-            val position = recyclerView.getChildAdapterPosition(v)
-            openDetailActivity(mAdapter.itemAtPosition(position), AccountDetailActivity.OPERATION_SHOW)
+        mAdapter.onLongClick = { account ->
+            openDetailActivity(account, AccountDetailActivity.OPERATION_SHOW)
+        }
+
+        mAdapter.onFavoriteClick = { holder, account ->
+            if (NetworkStatus.isConnected ?: false) {
+                working = true
+                account.toggleFavorite()
+                mAdapter.resetAndNotify()
+                DbxManager.saveAccounts()
+                        .alwaysUi { working = false }
+                        .failUi {
+                            account.toggleFavorite()
+                            mAdapter.resetAndNotify()
+                            Toast.makeText(this, "error: " + it, Toast.LENGTH_LONG).show()
+                        }
+            } else {
+                Timber.d("trying to update favorite when no network available.")
+                Toast.makeText(this, "action not available in offline mode", Toast.LENGTH_SHORT).show()
+            }
         }
 
         val swipeHandler = object : SwipeToDeleteCallback(this) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder?, direction: Int) {
                 val item = mAdapter.removeAt(viewHolder!!.adapterPosition)
-                progressbarVisible = true
+                working = true
 
                 DbxManager.saveAccounts()
-                        .alwaysUi { progressbarVisible = false }
+                        .alwaysUi { working = false }
                         .successUi {
                             Timber.d("removed account: %s", item)
                             Snackbar.make(fab, "Account deleted", Snackbar.LENGTH_LONG)
                                     .setAction("undo", { _ ->
+                                        working = true
                                         mAdapter.add(item)
-                                        progressbarVisible = true
                                         DbxManager.saveAccounts()
                                                 // TODO: what if it fails
-                                                .alwaysUi { progressBar.visibility = View.INVISIBLE }
+                                                .alwaysUi { working = false }
                                                 .failUi { showToast("Failed to undo changes !") }
                                     })
                                     .show()
@@ -266,7 +282,7 @@ class AccountListActivity : SecureActivity() {
     }
 
     private fun syncWithRemote() {
-        progressbarVisible = true
+        working = true
         DbxManager.fetchRemoteFileInfo().successUi {
             val inSync = it
             if (!inSync) {
@@ -277,7 +293,7 @@ class AccountListActivity : SecureActivity() {
 //                        .show()
             }
         } alwaysUi {
-            progressbarVisible = false
+            working = false
         }
     }
 

@@ -96,11 +96,16 @@ class AccountEditFragment : Fragment() {
             return
         }
 
+        // ensure the name is valid
+        if (!newAccount.isValid) {
+            Toast.makeText(activity, "The account name is mandatory", Toast.LENGTH_SHORT).show()
+        }
+
         // ensure there are no duplicate names in the account list
         if (newAccount.name != mItem?.name &&
-                DbxManager.accounts!!.find { acc ->
+                DbxManager.accounts!!.indexOfFirst { acc ->
                     acc.name.equals(newAccount.name, ignoreCase = true)
-                } != null) {
+                } > -1) {
             Toast.makeText(activity, "an account with this name already exists", Toast.LENGTH_LONG).show()
             return
         }
@@ -109,7 +114,7 @@ class AccountEditFragment : Fragment() {
         newAccount.modificationDate = Account.now
 
         // ok, now it become critical
-        if(working) return
+        if (working) return
         working = true
 
         // update accounts

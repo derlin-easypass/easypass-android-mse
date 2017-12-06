@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
 import ch.derlin.easypass.easypass.data.Account
 import ch.derlin.easypass.easypass.helper.DbxManager
 import ch.derlin.easypass.easypass.helper.NetworkStatus
@@ -44,8 +43,9 @@ class AccountAdapter(var accounts: MutableList<Account>) :
             field = value; doSort(); notifyDataSetChanged()
         }
 
-    var onCLick: View.OnClickListener? = null
-    var onLongClick: View.OnLongClickListener? = null
+    var onClick: ((Account) -> Unit)? = null
+    var onLongClick: ((Account) -> Unit)? = null
+    var onFavoriteClick: ((ViewHolder, Account) -> Unit)? = null
 
     private var comparatorWrapper = Comparator<Account> { a1: Account, a2: Account ->
         if (a1.isFavorite == a2.isFavorite) {
@@ -81,20 +81,9 @@ class AccountAdapter(var accounts: MutableList<Account>) :
         holder.subtitleView.text = item.modificationDate
         holder.favoriteIcon.setBackgroundResource(
                 if (item.isFavorite) R.drawable.ic_pinned_on else R.drawable.ic_pinned_off)
-
-        holder.favoriteIcon.setOnClickListener({ v ->
-            if(NetworkStatus.isConnected ?: false) {
-                item.isFavorite = !item.isFavorite
-                doSort()
-                notifyDataSetChanged()
-                DbxManager.saveAccounts() // TODO
-            }else{
-                Timber.d("trying to update favorite when no network available.")
-            }
-        })
-
-        holder.view.setOnClickListener(onCLick)
-        holder.view.setOnLongClickListener(onLongClick)
+        holder.view.setOnClickListener { _ -> onClick?.invoke(item) }
+        holder.view.setOnLongClickListener { _ -> onLongClick?.invoke(item); true }
+        holder.favoriteIcon.setOnClickListener { _ -> onFavoriteClick?.invoke(holder, item) }
     }
 
     override fun getItemCount(): Int = filtered.size
@@ -135,7 +124,7 @@ class AccountAdapter(var accounts: MutableList<Account>) :
         else accounts.filter { i -> i.name.toLowerCase().contains(lastSearch) }.toMutableList()
     }
 
-    private fun resetAndNotify() {
+    fun resetAndNotify() {
         doFilter()
         doSort()
         notifyDataSetChanged()
