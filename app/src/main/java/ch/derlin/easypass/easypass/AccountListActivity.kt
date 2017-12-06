@@ -1,5 +1,6 @@
 package ch.derlin.easypass.easypass
 
+import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -85,6 +86,18 @@ class AccountListActivity : SecureActivity() {
             // activity should be in two-pane mode.
             mTwoPane = true
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == DETAIL_ACTIVITY_REQUEST_CODE) {
+            if (data?.getBooleanExtra(AccountDetailActivity.RETURN_MODIFIED, false) ?: false) {
+                // update the list in case of modification
+                mAdapter.replaceAll(DbxManager.accounts!!)
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
+
     }
 
     override fun onPause() {
@@ -207,7 +220,7 @@ class AccountListActivity : SecureActivity() {
             val intent = Intent(context, AccountDetailActivity::class.java)
             intent.putExtra(AccountDetailActivity.BUNDLE_OPERATION_KEY, operation);
             intent.putExtra(AccountDetailActivity.BUNDLE_ACCOUNT_KEY, item)
-            context.startActivity(intent)
+            context.startActivityForResult(intent, DETAIL_ACTIVITY_REQUEST_CODE)
         }
         return true
     }
@@ -300,5 +313,9 @@ class AccountListActivity : SecureActivity() {
     private fun updateConnectivityViews(connectionAvailable: Boolean) {
         mOfflineIndicator?.isVisible = !connectionAvailable
         fab.isEnabled = connectionAvailable
+    }
+
+    companion object {
+        val DETAIL_ACTIVITY_REQUEST_CODE = 1984
     }
 }

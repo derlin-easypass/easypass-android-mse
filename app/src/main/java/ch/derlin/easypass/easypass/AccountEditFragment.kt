@@ -129,7 +129,7 @@ class AccountEditFragment : Fragment() {
         DbxManager.saveAccounts().successUi {
             // saved ok, end the edit activity
             Toast.makeText(activity, "Saved!", Toast.LENGTH_SHORT).show()
-            (activity as AccountDetailActivity).selectedAccount = newAccount
+            (activity as AccountDetailActivity).setUpdatedAccount(newAccount)
             activity.onBackPressed()
 
         } failUi {

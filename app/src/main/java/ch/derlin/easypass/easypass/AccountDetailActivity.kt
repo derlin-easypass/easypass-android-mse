@@ -1,5 +1,6 @@
 package ch.derlin.easypass.easypass
 
+import android.app.Activity
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.MenuItem
@@ -8,6 +9,8 @@ import ch.derlin.easypass.easypass.data.Account
 import ch.derlin.easypass.easypass.helper.NetworkStatus
 import ch.derlin.easypass.easypass.helper.SecureActivity
 import kotlinx.android.synthetic.main.activity_account_detail.*
+import android.content.Intent
+
 
 /**
  * An activity representing a single Account detail screen. This
@@ -20,6 +23,7 @@ class AccountDetailActivity : SecureActivity() {
     var selectedAccount: Account? = null
     private var selectedOperation: String? = null
     private var shouldGoBackToEditView = false
+    private var accountModified = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +64,11 @@ class AccountDetailActivity : SecureActivity() {
         }
     }
 
+    fun setUpdatedAccount(account: Account) {
+        selectedAccount = account
+        accountModified = true
+    }
+
     private fun switchFragment(f: Fragment) {
         var arguments: Bundle? = null
 
@@ -89,7 +98,10 @@ class AccountDetailActivity : SecureActivity() {
             switchFragment(AccountDetailFragment())
             shouldGoBackToEditView = false
         } else {
-            super.onBackPressed()
+            val returnIntent = Intent()
+            returnIntent.putExtra("modified", accountModified)
+            setResult(Activity.RESULT_OK, returnIntent)
+            finish()
         }
     }
 
@@ -99,6 +111,7 @@ class AccountDetailActivity : SecureActivity() {
         val OPERATION_SHOW = "show"
         val OPERATION_EDIT = "edit"
         val OPERATION_NEW = "new"
+        val RETURN_MODIFIED = "modified"
     }
 
 }
