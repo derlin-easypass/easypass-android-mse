@@ -49,6 +49,7 @@
             android:name=".AccountDetailActivity"
             android:label="@string/title_account_detail"
             android:parentActivityName=".AccountListActivity"
+            android:windowSoftInputMode="adjustPan"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

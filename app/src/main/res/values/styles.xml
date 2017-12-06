@@ -59,8 +59,6 @@
     </style>
     <style name="details_edit_value" parent="details_value">
         <item name="android:textIsSelectable">false</item>
-        <item name="android:focusable">true</item>
-        <item name="android:focusableInTouchMode">true</item>
     </style>
 
 

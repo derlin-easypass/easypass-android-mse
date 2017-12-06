@@ -47,7 +47,10 @@
             style="@style/details_edit_value"
             android:inputType="text"
             android:maxLines="1"
-            android:scrollHorizontally="true" />
+            android:nextFocusForward="@id/details_pseudo"
+            android:scrollHorizontally="true">
+            <requestFocus />
+        </EditText>
 
         <!--pseudo-->
         <TextView
@@ -60,6 +63,7 @@
             style="@style/details_edit_value"
             android:inputType="text"
             android:maxLines="1"
+            android:nextFocusForward="@id/details_email"
             android:scrollHorizontally="true" />
 
         <!--email-->
@@ -72,6 +76,7 @@
             android:id="@+id/details_email"
             style="@style/details_edit_value"
             android:inputType="textEmailAddress"
+            android:nextFocusForward="@id/details_password"
             android:maxLines="1"
             android:scrollHorizontally="true" />
 
@@ -92,6 +97,7 @@
                 android:id="@+id/details_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:nextFocusForward="@id/details_notes"
                 android:hint="Password"
                 android:inputType="textPassword" />
 
@@ -116,7 +122,8 @@
             style="@style/details_font"
             android:layout_columnSpan="2"
             android:layout_gravity="fill_horizontal"
-            android:inputType="textMultiLine"
+            android:inputType="text"
+            android:imeOptions="actionGo"
             android:padding="5dp" />
 
         <View

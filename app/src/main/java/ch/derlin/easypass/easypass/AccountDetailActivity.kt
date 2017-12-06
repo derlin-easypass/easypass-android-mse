@@ -1,6 +1,7 @@
 package ch.derlin.easypass.easypass
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.MenuItem
@@ -9,7 +10,6 @@ import ch.derlin.easypass.easypass.data.Account
 import ch.derlin.easypass.easypass.helper.NetworkStatus
 import ch.derlin.easypass.easypass.helper.SecureActivity
 import kotlinx.android.synthetic.main.activity_account_detail.*
-import android.content.Intent
 
 
 /**
@@ -45,6 +45,7 @@ class AccountDetailActivity : SecureActivity() {
             }
         }
 
+        app_bar.setExpanded(selectedOperation == OPERATION_SHOW, false)
         if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction only the first time
@@ -58,6 +59,7 @@ class AccountDetailActivity : SecureActivity() {
         if (NetworkStatus.isInternetAvailable()) {
             switchFragment(AccountEditFragment())
             shouldGoBackToEditView = true
+            app_bar.setExpanded(false, true)
             return true
         } else {
             Toast.makeText(this, "no internet connection available.", Toast.LENGTH_SHORT).show()
@@ -97,6 +99,7 @@ class AccountDetailActivity : SecureActivity() {
     override fun onBackPressed() {
         if (shouldGoBackToEditView) {
             switchFragment(AccountDetailFragment())
+            app_bar.setExpanded(true, true)
             shouldGoBackToEditView = false
         } else {
             val returnIntent = Intent()
@@ -105,6 +108,7 @@ class AccountDetailActivity : SecureActivity() {
             finish()
         }
     }
+
 
     companion object {
         val BUNDLE_ACCOUNT_KEY = "account"

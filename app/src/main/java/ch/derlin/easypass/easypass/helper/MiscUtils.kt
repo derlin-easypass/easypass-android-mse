@@ -1,20 +1,15 @@
 package ch.derlin.easypass.easypass.helper
 
 import android.app.Activity
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.os.Build
 import android.text.Html
 import android.text.Spanned
-import android.content.Context.INPUT_METHOD_SERVICE
-import android.content.Intent
-import android.support.design.widget.Snackbar
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
-import android.support.v4.content.ContextCompat.startActivity
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.support.v4.app.Fragment
+import android.view.View
 
 
 /**
@@ -32,7 +27,7 @@ object MiscUtils {
         }
     }
 
-    fun Activity.dismissKeyboard() {
+    fun Activity.hideKeyboard() {
         val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         if (inputMethodManager.isAcceptingText)
             inputMethodManager.hideSoftInputFromWindow(this.currentFocus.windowToken, /*flags:*/ 0)

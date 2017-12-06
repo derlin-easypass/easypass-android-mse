@@ -16,8 +16,11 @@ import kotlinx.android.synthetic.main.account_edit.*
 import kotlinx.android.synthetic.main.activity_account_detail.*
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
+import android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT
 import android.content.Context.INPUT_METHOD_SERVICE
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import ch.derlin.easypass.easypass.helper.MiscUtils.hideKeyboard
 
 
 /**
@@ -82,6 +85,18 @@ class AccountEditFragment : Fragment() {
             }
         })
 
+        // see https://stackoverflow.com/a/39770984/2667536
+        details_notes.setHorizontallyScrolling(false)
+        details_notes.maxLines = 5
+        details_notes.setOnEditorActionListener { textView, actionId, keyEvent ->
+            if (actionId == EditorInfo.IME_ACTION_GO) {
+                saveAccount()
+                true
+            } else {
+                false
+            }
+        }
+
         button_edit_save.setOnClickListener { saveAccount() }
         button_edit_cancel.setOnClickListener { activity.onBackPressed() }
 
@@ -89,8 +104,11 @@ class AccountEditFragment : Fragment() {
         theActivity.fab.setOnClickListener { _ ->
             saveAccount()
         }
-    }
 
+
+        (activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+                .toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
+    }
 
     private fun saveAccount() {
 

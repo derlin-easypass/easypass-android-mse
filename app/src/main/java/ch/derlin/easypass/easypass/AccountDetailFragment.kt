@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import ch.derlin.easypass.easypass.data.Account
+import ch.derlin.easypass.easypass.helper.MiscUtils.hideKeyboard
 import kotlinx.android.synthetic.main.account_detail.*
 import kotlinx.android.synthetic.main.activity_account_detail.*
 
@@ -73,15 +74,16 @@ class AccountDetailFragment : Fragment() {
             details_show_password.setOnClickListener { compoundButton -> togglePassword() }
         }
 
+        val theActivity = (activity as AccountDetailActivity)
+
         // handle the fab icon + action
-        (activity as AccountDetailActivity).fab.setImageResource(R.drawable.ic_mode_edit)
-        (activity as AccountDetailActivity).fab.setOnClickListener { _ ->
-            (activity as AccountDetailActivity).editAccount()
+        theActivity.fab.setImageResource(R.drawable.ic_mode_edit)
+        theActivity.fab.setOnClickListener { _ ->
+            theActivity.editAccount()
         }
 
         // set the title
-        (activity as AccountDetailActivity).title = mItem?.name ?: "Details"
-
+        theActivity.title = mItem?.name ?: "Details"
     }
 
     private fun togglePassword() {

@@ -1,6 +1,5 @@
 package ch.derlin.easypass.easypass
 
-import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -19,7 +18,7 @@ import android.widget.TextView
 import android.widget.Toast
 import ch.derlin.easypass.easypass.data.Account
 import ch.derlin.easypass.easypass.helper.*
-import ch.derlin.easypass.easypass.helper.MiscUtils.dismissKeyboard
+import ch.derlin.easypass.easypass.helper.MiscUtils.hideKeyboard
 import ch.derlin.easypass.easypass.helper.MiscUtils.restartApp
 import kotlinx.android.synthetic.main.account_list.*
 import kotlinx.android.synthetic.main.activity_account_list.*
@@ -169,7 +168,7 @@ class AccountListActivity : SecureActivity() {
         tv.text = MiscUtils.toSpannable(getString(R.string.fmt_copy_xx).format("EMAIL", item.email))
         tv.isEnabled = item.email.isNotBlank()
 
-        dismissKeyboard()
+        hideKeyboard()
         bottomSheetDialog!!.setContentView(view)
         bottomSheetDialog!!.show()
     }
