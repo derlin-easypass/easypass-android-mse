@@ -41,10 +41,8 @@ class AccountDetailFragment : Fragment() {
             // to load content from a content provider.
             mItem = arguments.getParcelable(ARG_ACCOUNT)
 
-            if (toolbarLayout != null) {
-                toolbarLayout.title = mItem!!.name
-            }
         }
+
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
@@ -80,6 +78,9 @@ class AccountDetailFragment : Fragment() {
         (activity as AccountDetailActivity).fab.setOnClickListener { _ ->
             (activity as AccountDetailActivity).editAccount()
         }
+
+        // set the title
+        (activity as AccountDetailActivity).title = mItem?.name ?: "Details"
 
     }
 

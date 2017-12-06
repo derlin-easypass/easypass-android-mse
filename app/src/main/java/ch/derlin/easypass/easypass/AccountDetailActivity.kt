@@ -53,6 +53,7 @@ class AccountDetailActivity : SecureActivity() {
         }
     }
 
+
     fun editAccount(): Boolean {
         if (NetworkStatus.isInternetAvailable()) {
             switchFragment(AccountEditFragment())

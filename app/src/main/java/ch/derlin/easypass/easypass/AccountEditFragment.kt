@@ -1,5 +1,6 @@
 package ch.derlin.easypass.easypass
 
+import android.content.Context
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
@@ -15,6 +16,9 @@ import kotlinx.android.synthetic.main.account_edit.*
 import kotlinx.android.synthetic.main.activity_account_detail.*
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
+import android.content.Context.INPUT_METHOD_SERVICE
+import android.view.inputmethod.InputMethodManager
+
 
 /**
  * A fragment representing a single Account detail screen.
@@ -55,8 +59,10 @@ class AccountEditFragment : Fragment() {
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         working = false
+
+        val theActivity = activity as AccountDetailActivity
+        theActivity.title = if (mItem != null) "Editing ${mItem?.name}" else "New account"
 
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
@@ -79,8 +85,8 @@ class AccountEditFragment : Fragment() {
         button_edit_save.setOnClickListener { saveAccount() }
         button_edit_cancel.setOnClickListener { activity.onBackPressed() }
 
-        (activity as AccountDetailActivity).fab.setImageResource(R.drawable.ic_save)
-        (activity as AccountDetailActivity).fab.setOnClickListener { _ ->
+        theActivity.fab.setImageResource(R.drawable.ic_save)
+        theActivity.fab.setOnClickListener { _ ->
             saveAccount()
         }
     }
