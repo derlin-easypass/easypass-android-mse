@@ -106,8 +106,8 @@ class AccountEditFragment : Fragment() {
         }
 
 
-        (activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-                .toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
+//        (activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+//                .toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
     }
 
     private fun saveAccount() {
