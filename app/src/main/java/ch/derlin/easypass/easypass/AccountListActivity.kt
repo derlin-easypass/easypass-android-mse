@@ -130,7 +130,6 @@ class AccountListActivity : SecureActivity() {
                 })
         val sort = Preferences(this).sortOrder
         menu.findItem(sort).isChecked = true
-        setSortOrder(sort)
         return true
     }
 
@@ -138,18 +137,19 @@ class AccountListActivity : SecureActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         if (item?.groupId == R.id.group_menu_sort) {
             Preferences(this).sortOrder = item.itemId
-            setSortOrder(item.itemId)
+            mAdapter.comparator = getSortOrder(item.itemId)
             item?.isChecked = true
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private fun setSortOrder(itemId: Int) {
+    private fun getSortOrder(itemId: Int): Comparator<Account> {
         when (itemId) {
-            R.id.submenu_sort_title_asc -> mAdapter.comparator = Account.nameComparatorAsc
-            R.id.submenu_sort_title_desc -> mAdapter.comparator = Account.nameComparatorDesc
-            R.id.submenu_sort_year_asc -> mAdapter.comparator = Account.modifiedComparatorAsc
-            R.id.submenu_sort_year_desc -> mAdapter.comparator = Account.modifiedComparatorDesc
+            R.id.submenu_sort_title_asc -> return Account.nameComparatorAsc
+            R.id.submenu_sort_title_desc -> return Account.nameComparatorDesc
+            R.id.submenu_sort_year_asc -> return Account.modifiedComparatorAsc
+            R.id.submenu_sort_year_desc -> return Account.modifiedComparatorDesc
+            else -> return Account.nameComparatorAsc
         }
     }
 
@@ -167,6 +167,9 @@ class AccountListActivity : SecureActivity() {
         tv = view.findViewById<Button>(R.id.copy_email_btn)
         tv.text = MiscUtils.toSpannable(getString(R.string.fmt_copy_xx).format("EMAIL", item.email))
         tv.isEnabled = item.email.isNotBlank()
+
+
+        view.findViewById<Button>(R.id.view_edit_btn).isEnabled = NetworkStatus.isInternetAvailable(this)
 
         hideKeyboard()
         bottomSheetDialog!!.setContentView(view)
@@ -225,7 +228,8 @@ class AccountListActivity : SecureActivity() {
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
-        mAdapter = AccountAdapter(DbxManager.accounts!!)
+        val sort = Preferences(this).sortOrder
+        mAdapter = AccountAdapter(DbxManager.accounts!!, getSortOrder(sort))
         //mAdapter = AccountAdapter(IntRange(0, 3).map { i -> Account("name " + i, "pseudo " + i, "", "") }.toMutableList())
         recyclerView.adapter = mAdapter
         //recyclerView.layoutManager.isItemPrefetchEnabled = false

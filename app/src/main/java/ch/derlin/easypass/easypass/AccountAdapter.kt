@@ -35,10 +35,11 @@ import timber.log.Timber
  * the end...
  */
 
-class AccountAdapter(var accounts: MutableList<Account>) :
+class AccountAdapter(var accounts: MutableList<Account>,
+                     defaultComparator: Comparator<Account> = Account.nameComparatorAsc) :
         RecyclerView.Adapter<AccountAdapter.ViewHolder>() {
 
-    var comparator: Comparator<Account> = Account.nameComparatorAsc
+    var comparator: Comparator<Account> = defaultComparator
         set(value) {
             field = value; doSort(); notifyDataSetChanged()
         }
