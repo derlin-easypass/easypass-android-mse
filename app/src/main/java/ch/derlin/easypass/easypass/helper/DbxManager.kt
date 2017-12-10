@@ -17,6 +17,8 @@ import nl.komponents.kovenant.deferred
 import nl.komponents.kovenant.task
 import timber.log.Timber
 import java.io.FileInputStream
+import java.io.File
+
 
 /**
  * Created by Lin on 24.11.17.
@@ -82,6 +84,14 @@ object DbxManager {
         }
 
         return deferred.promise
+    }
+
+    fun removeLocalFile(): Boolean{
+        val localFile = File(App.appContext.filesDir.getAbsolutePath(), localFileName)
+        val ok = localFile.delete()
+        Timber.d("""removed local file ? $ok""")
+        prefs.revision = null
+        return ok
     }
 
 

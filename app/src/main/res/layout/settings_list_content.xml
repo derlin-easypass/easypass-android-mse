@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/account_list_item_bg"
+    android:paddingStart="20dip"
+    android:paddingEnd="20dip"
+    android:paddingTop="7dip"
+    android:paddingBottom="7dip"
+    android:foreground="?android:attr/selectableItemBackground">
+
+
+    <ImageButton
+        android:id="@+id/icon"
+        android:layout_width="25dip"
+        android:layout_height="25dip"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="5dip"
+        android:backgroundTint="#999"
+        android:layout_marginEnd="5dip"
+        android:background="@drawable/ic_dropbox" />
+
+    <TextView
+        android:id="@+id/title"
+        style="@android:style/TextAppearance.Material.Large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@id/icon"
+        android:layout_marginBottom="1dip"
+        android:layout_marginStart="5dip"
+        android:text="Dropbox" />
+
+    <TextView
+        android:id="@+id/subtitle"
+        style="@android:style/TextAppearance.Material.Body1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#666"
+        android:layout_below="@id/title"
+        android:layout_toEndOf="@id/icon"
+        android:layout_marginStart="5dip"
+        android:text="clear password from sfsadfafd" />
+
+
+</RelativeLayout>

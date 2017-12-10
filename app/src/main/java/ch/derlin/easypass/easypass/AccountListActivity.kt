@@ -139,8 +139,16 @@ class AccountListActivity : SecureActivity() {
             Preferences(this).sortOrder = item.itemId
             mAdapter.comparator = getSortOrder(item.itemId)
             item?.isChecked = true
+            return true
+        } else {
+            when (item?.itemId) {
+                R.id.action_settings -> startActivity(Intent(this, SettingsActivity::class.java))
+                R.id.action_sync -> syncWithRemote()
+                else -> return super.onOptionsItemSelected(item)
+            }
+            return true
         }
-        return super.onOptionsItemSelected(item);
+
     }
 
     private fun getSortOrder(itemId: Int): Comparator<Account> {
@@ -299,7 +307,9 @@ class AccountListActivity : SecureActivity() {
 
     private fun syncWithRemote() {
         working = true
-        DbxManager.fetchRemoteFileInfo().successUi {
+        DbxManager.fetchRemoteFileInfo().alwaysUi {
+            working = false
+        } successUi {
             val inSync = it
             if (!inSync) {
                 syncButton.visibility = View.VISIBLE
@@ -308,8 +318,8 @@ class AccountListActivity : SecureActivity() {
 //                                { _ -> restartApp() })
 //                        .show()
             }
-        } alwaysUi {
-            working = false
+        } failUi {
+            Snackbar.make(fab, "Sync error: " + it.message, Snackbar.LENGTH_SHORT).show()
         }
     }
 

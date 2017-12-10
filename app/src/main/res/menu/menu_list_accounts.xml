@@ -37,7 +37,18 @@
     <item
         android:id="@+id/action_offline"
         android:icon="@drawable/ic_cloud_off"
-        app:showAsAction="ifRoom"
+        app:showAsAction="always"
         android:title="Offline"/>
+
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/ic_settings"
+        app:showAsAction="never"
+        android:title="Settings"/>
+
+    <item android:id="@+id/action_sync"
+        android:icon="@android:drawable/ic_popup_sync"
+        android:title="Sync"
+        app:showAsAction="never" />
 
 </menu>

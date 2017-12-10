@@ -44,4 +44,7 @@ object MiscUtils {
 
         System.exit(0)
     }
+
+    fun Activity.rootView(): View = findViewById(android.R.id.content)
+
 }

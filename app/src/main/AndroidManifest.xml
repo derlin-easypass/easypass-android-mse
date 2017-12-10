@@ -6,9 +6,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:name=".App"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
@@ -16,10 +16,10 @@
         <activity android:name=".StartActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
 
         <!-- dropbox activity -->
         <activity
@@ -28,35 +28,38 @@
             android:launchMode="singleTask"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
+
                 <!-- Change this to be db- followed by your app key -->
                 <data android:scheme="@string/dbx_app_key_manifest" />
+
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".LoadSessionActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:label="@string/title_activity_load" />
+        <activity
+            android:name=".LoadSessionActivity"
+            android:label="@string/title_activity_load"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".AccountListActivity"
             android:label="@string/title_account_list"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".AccountDetailActivity"
             android:label="@string/title_account_detail"
             android:parentActivityName=".AccountListActivity"
-            android:windowSoftInputMode="adjustPan"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ch.derlin.easypass.easypass.AccountListActivity" />
         </activity>
-
-
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
