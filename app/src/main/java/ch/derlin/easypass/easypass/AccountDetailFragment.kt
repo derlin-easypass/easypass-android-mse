@@ -5,9 +5,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
 import ch.derlin.easypass.easypass.data.Account
-import ch.derlin.easypass.easypass.helper.MiscUtils.hideKeyboard
 import kotlinx.android.synthetic.main.account_detail.*
 import kotlinx.android.synthetic.main.activity_account_detail.*
 
@@ -27,7 +25,6 @@ class AccountDetailFragment : Fragment() {
      * The dummy content this fragment is presenting.
      */
     private var mItem: Account? = null
-    private lateinit var showPassCheckbox: CheckBox
     private var isPasswordShowed = false
 
     private lateinit var password: String

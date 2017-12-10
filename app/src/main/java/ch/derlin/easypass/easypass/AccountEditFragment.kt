@@ -1,6 +1,5 @@
 package ch.derlin.easypass.easypass
 
-import android.content.Context
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
@@ -9,6 +8,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import ch.derlin.easypass.easypass.data.Account
 import ch.derlin.easypass.easypass.helper.DbxManager
@@ -16,11 +16,6 @@ import kotlinx.android.synthetic.main.account_edit.*
 import kotlinx.android.synthetic.main.activity_account_detail.*
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
-import android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT
-import android.content.Context.INPUT_METHOD_SERVICE
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
-import ch.derlin.easypass.easypass.helper.MiscUtils.hideKeyboard
 
 
 /**
