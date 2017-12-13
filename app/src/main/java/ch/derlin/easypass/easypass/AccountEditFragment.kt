@@ -1,6 +1,6 @@
 package ch.derlin.easypass.easypass
 
-import android.content.Context
+import android.app.AlertDialog
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
@@ -9,18 +9,15 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import ch.derlin.easypass.easypass.data.Account
 import ch.derlin.easypass.easypass.helper.DbxManager
 import kotlinx.android.synthetic.main.account_edit.*
 import kotlinx.android.synthetic.main.activity_account_detail.*
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
-import android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT
-import android.content.Context.INPUT_METHOD_SERVICE
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
-import ch.derlin.easypass.easypass.helper.MiscUtils.hideKeyboard
+import android.content.DialogInterface
+import android.widget.*
 
 
 /**
@@ -33,6 +30,7 @@ import ch.derlin.easypass.easypass.helper.MiscUtils.hideKeyboard
  * Mandatory empty constructor for the fragment manager to instantiate the
  * fragment (e.g. upon screen orientation changes).
  */
+
 class AccountEditFragment : Fragment() {
 
     /**
@@ -97,6 +95,10 @@ class AccountEditFragment : Fragment() {
             }
         }
 
+        // open generate password dialog
+        button_generate_password.setOnClickListener { generatePassword() }
+
+        // save and cancel buttons
         button_edit_save.setOnClickListener { saveAccount() }
         button_edit_cancel.setOnClickListener { activity.onBackPressed() }
 
@@ -105,10 +107,63 @@ class AccountEditFragment : Fragment() {
             saveAccount()
         }
 
-
 //        (activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
 //                .toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
     }
+
+    private fun generatePassword() {
+
+        val dialogBuilder = AlertDialog.Builder(activity)
+        val inflater = activity.layoutInflater
+        val dialogView = inflater.inflate(R.layout.dialog_generate_password, null)
+        dialogBuilder.setView(dialogView)
+
+        val editText = dialogView.findViewById<View>(R.id.generate_password_result) as EditText
+        val edtSize = dialogView.findViewById<View>(R.id.generate_password_size) as EditText
+        val cbSpecialChars = dialogView.findViewById<View>(R.id.generate_password_special_chars) as CheckBox
+        val btnGenerate = dialogView.findViewById<View>(R.id.generate_password_button) as Button
+
+        dialogBuilder.setTitle("Generate a password")
+        editText!!.setText(details_password.text.toString())
+
+        btnGenerate.setOnClickListener({
+
+            // Add special chars
+            var chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            if(cbSpecialChars.isChecked)
+                chars += ".-_,;<>/+*ç%&/()=?'[]{}@#¬"
+
+            // Get size
+            var size = 0
+            if(edtSize.text.isNotBlank())
+                size += edtSize.text.toString().toInt()-1
+
+            // Generate password
+            var passWord = ""
+            for (i in 0..size) {
+                passWord += chars[Math.floor(Math.random() * chars.length).toInt()]
+            }
+
+            editText.setText(passWord)
+        })
+
+        dialogBuilder.setPositiveButton("Save", DialogInterface.OnClickListener { dialog, whichButton ->
+            details_password.setText(editText.text.toString())
+        })
+
+        dialogBuilder.setNegativeButton("Cancel", DialogInterface.OnClickListener { dialog, whichButton ->
+
+        })
+
+        val b = dialogBuilder.create()
+        b.show()
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        // val newFragment = GeneratePasswordDialog()
+        // newFragment.show(activity.fragmentManager, "GeneratePasswordDialog")
+    }
+
 
     private fun saveAccount() {
 

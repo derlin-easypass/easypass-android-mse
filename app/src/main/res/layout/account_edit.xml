@@ -87,6 +87,12 @@
             android:labelFor="@id/details_password"
             android:text="@string/account_password_txt" />
 
+        <Button
+            android:id="@+id/button_generate_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Generate Password" />
+
         <android.support.design.widget.TextInputLayout
             style="@style/details_edit_value"
             app:passwordToggleEnabled="true"
