@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal">
-
 
     <!--gridlayout with two columns-->
     <GridLayout
@@ -49,6 +48,7 @@
             android:maxLines="1"
             android:nextFocusForward="@id/details_pseudo"
             android:scrollHorizontally="true">
+
             <requestFocus />
         </EditText>
 
@@ -76,8 +76,8 @@
             android:id="@+id/details_email"
             style="@style/details_edit_value"
             android:inputType="textEmailAddress"
-            android:nextFocusForward="@id/details_password"
             android:maxLines="1"
+            android:nextFocusForward="@id/details_password"
             android:scrollHorizontally="true" />
 
         <!--password-->
@@ -87,27 +87,34 @@
             android:labelFor="@id/details_password"
             android:text="@string/account_password_txt" />
 
-        <Button
-            android:id="@+id/button_generate_password"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Generate Password" />
 
         <android.support.design.widget.TextInputLayout
             style="@style/details_edit_value"
-            app:passwordToggleEnabled="true"
             app:hintEnabled="false"
+            app:passwordToggleEnabled="true"
             app:passwordToggleTint="@color/colorAccent">
 
             <android.support.design.widget.TextInputEditText
                 android:id="@+id/details_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nextFocusForward="@id/details_notes"
                 android:hint="Password"
-                android:inputType="textPassword" />
+                android:inputType="textPassword"
+                android:nextFocusForward="@id/details_notes" />
 
         </android.support.design.widget.TextInputLayout>
+
+        <Button
+            android:id="@+id/button_generate_password"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_columnSpan="2"
+            android:layout_gravity="end"
+            android:drawableLeft="@drawable/ic_sync"
+            android:drawablePadding="5dip"
+            android:drawableTint="@color/colorAccent"
+            android:text="Generate Password" />
 
         <!--notes header-->
         <TextView
@@ -126,35 +133,47 @@
         <EditText
             android:id="@+id/details_notes"
             style="@style/details_font"
+            android:layout_height="wrap_content"
             android:layout_columnSpan="2"
             android:layout_gravity="fill_horizontal"
-            android:inputType="text"
             android:imeOptions="actionGo"
-            android:padding="5dp" />
+            android:inputType="text"
+            android:padding="15dp" />
 
         <View
             style="@style/divider"
             android:layout_columnSpan="2"
-            android:layout_marginBottom="10dp" />
+            android:layout_marginTop="10dp" />
 
-        <!--metadata field-->
-        <TextView
-            android:id="@+id/details_metadata"
-            style="@style/details_font"
+        <LinearLayout
+            style="?android:buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
             android:layout_columnSpan="2"
-            android:padding="5dp" />
+            android:layout_gravity="fill_vertical|fill_horizontal"
+            android:background="@drawable/account_list_item_bg"
+            android:gravity="end"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/button_edit_save"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Save" />
+            <Button
+                android:id="@+id/button_edit_cancel"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cancel"
+                android:textColor="@color/colorPrimary" />
 
-        <Button
-            android:id="@+id/button_edit_cancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Cancel" />
+            <Button
+                android:id="@+id/button_edit_save"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Save" />
+        </LinearLayout>
 
     </GridLayout>
+
 </LinearLayout>

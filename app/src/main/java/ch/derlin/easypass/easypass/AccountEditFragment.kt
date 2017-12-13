@@ -19,7 +19,11 @@ import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
 import android.view.inputmethod.EditorInfo
 import android.content.DialogInterface
+import android.graphics.Color
+import android.view.View.FOCUSABLE
 import android.widget.*
+import ch.derlin.easypass.easypass.helper.PasswordGenerator
+import com.shawnlin.numberpicker.NumberPicker
 
 
 /**
@@ -115,52 +119,32 @@ class AccountEditFragment : Fragment() {
 
     private fun generatePassword() {
 
-        val dialogBuilder = AlertDialog.Builder(activity)
-        val inflater = activity.layoutInflater
-        val dialogView = inflater.inflate(R.layout.dialog_generate_password, null)
-        dialogBuilder.setView(dialogView)
+        val dialogView = activity.layoutInflater.inflate(R.layout.dialog_generate_password, null)
 
-        val editText = dialogView.findViewById<View>(R.id.generate_password_result) as EditText
-        val edtSize = dialogView.findViewById<View>(R.id.generate_password_size) as EditText
-        val cbSpecialChars = dialogView.findViewById<View>(R.id.generate_password_special_chars) as CheckBox
-        val btnGenerate = dialogView.findViewById<View>(R.id.generate_password_button) as Button
+        val resultText = dialogView.findViewById<EditText>(R.id.generate_password_result)
+        val sizePicker = dialogView.findViewById<NumberPicker>(R.id.number_picker)
+        val specialChars = dialogView.findViewById<CheckBox>(R.id.generate_password_special_chars)
 
-        dialogBuilder.setTitle("Generate a password")
-        editText.setText(details_password.text.toString())
+        // generate action
+        dialogView.findViewById<Button>(R.id.generate_password_button).setOnClickListener {
+            resultText.setText(PasswordGenerator.generate(sizePicker.value, specialChars.isChecked))
+        }
 
-        btnGenerate.setOnClickListener({
+        // default value
+        resultText.setText(PasswordGenerator.generate(sizePicker.value, specialChars.isChecked))
 
-            // Add special chars
-            var chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            if (cbSpecialChars.isChecked)
-                chars += ".-_,;<>/+*ç%&/()=?'[]{}@#¬"
+        val dialog = AlertDialog.Builder(activity)
+                .setView(dialogView)
+                .setTitle("Generate a password")
+                .setPositiveButton("Use", { _, _ ->
+                    details_password.setText(resultText.text.toString())
+                })
+                .setNegativeButton("Cancel", { dialog, _ -> })
+                .create()
 
-            // Get size
-            var size = 0
-            if (edtSize.text.isNotBlank())
-                size += edtSize.text.toString().toInt() - 1
+        dialog.show()
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.GRAY)
 
-            // Generate password
-            var passWord = ""
-            for (i in 0..size) {
-                passWord += chars[Math.floor(Math.random() * chars.length).toInt()]
-            }
-
-            editText.setText(passWord)
-        })
-
-        dialogBuilder.setPositiveButton("Save", { _, _ ->
-            details_password.setText(editText.text.toString()) })
-
-        dialogBuilder.setNegativeButton("Cancel", { dialog, _ -> })
-
-        val b = dialogBuilder.create()
-        b.show()
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        // val newFragment = GeneratePasswordDialog()
-        // newFragment.show(activity.fragmentManager, "GeneratePasswordDialog")
     }
 
 
