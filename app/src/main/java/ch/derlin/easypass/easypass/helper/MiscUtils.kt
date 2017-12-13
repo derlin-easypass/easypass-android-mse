@@ -27,6 +27,11 @@ object MiscUtils {
         }
     }
 
+    fun Fragment.hideKeyboard() {
+        activity.hideKeyboard()
+    }
+
+
     fun Activity.hideKeyboard() {
         val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         if (inputMethodManager.isAcceptingText)

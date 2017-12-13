@@ -22,6 +22,7 @@ import android.content.DialogInterface
 import android.graphics.Color
 import android.view.View.FOCUSABLE
 import android.widget.*
+import ch.derlin.easypass.easypass.helper.MiscUtils.hideKeyboard
 import ch.derlin.easypass.easypass.helper.PasswordGenerator
 import com.shawnlin.numberpicker.NumberPicker
 
@@ -94,7 +95,7 @@ class AccountEditFragment : Fragment() {
         details_notes.maxLines = 5
         details_notes.setOnEditorActionListener { textView, actionId, keyEvent ->
             if (actionId == EditorInfo.IME_ACTION_GO) {
-                saveAccount()
+                hideKeyboard()
                 true
             } else {
                 false
