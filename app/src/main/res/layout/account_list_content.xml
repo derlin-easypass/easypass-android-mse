@@ -16,6 +16,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
+        android:layout_toEndOf="@id/account_favorite"
         android:layout_marginBottom="1dip"
         android:layout_marginStart="5dip"
         android:text="Dropbox" />
@@ -26,6 +27,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/account_title"
+        android:layout_toEndOf="@id/account_favorite"
         android:layout_marginStart="5dip"
         android:text="04.03.2014" />
 
@@ -43,7 +45,7 @@
         android:id="@+id/account_favorite"
         android:layout_width="40dip"
         android:layout_height="40dip"
-        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
         android:layout_marginEnd="5dip"
         android:background="@drawable/ic_pinned_off" />
