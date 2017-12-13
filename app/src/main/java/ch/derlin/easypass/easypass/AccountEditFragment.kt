@@ -129,9 +129,6 @@ class AccountEditFragment : Fragment() {
             return
         }
 
-        // set modification date to now
-        newAccount.modificationDate = Account.now
-
         // ok, now it become critical
         if (working) return
         working = true
@@ -168,12 +165,14 @@ class AccountEditFragment : Fragment() {
     }
 
     private fun getAccount(): Account =
-            Account(
-                    details_name.text.toString(),
-                    details_pseudo.text.toString(),
-                    details_email.text.toString(),
-                    details_password.text.toString(),
-                    details_notes.text.toString())
+            (mItem ?: Account()).copy(
+                    name = details_name.text.toString(),
+                    pseudo = details_pseudo.text.toString(),
+                    email = details_email.text.toString(),
+                    password = details_password.text.toString(),
+                    notes = details_notes.text.toString(),
+                    modificationDate = Account.now)
+
 
     companion object {
         /**

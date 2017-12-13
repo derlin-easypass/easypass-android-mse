@@ -21,10 +21,10 @@ class Accounts(var password: String, var path: String, data: SessionSerialisatio
 
 @Parcelize
 data class Account(
-        @Expose @SerializedName("name") var name: String,
-        @Expose @SerializedName("pseudo") var pseudo: String,
-        @Expose @SerializedName("email") var email: String,
-        @Expose @SerializedName("password") var password: String,
+        @Expose @SerializedName("name") var name: String = "",
+        @Expose @SerializedName("pseudo") var pseudo: String = "",
+        @Expose @SerializedName("email") var email: String = "",
+        @Expose @SerializedName("password") var password: String = "",
         @Expose @SerializedName("notes") var notes: String = "",
         @Expose @SerializedName("creation date") var creationDate: String = Account.now,
         @Expose @SerializedName("modification date") var modificationDate: String = "",
