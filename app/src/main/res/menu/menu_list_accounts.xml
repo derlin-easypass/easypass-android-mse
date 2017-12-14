@@ -7,11 +7,13 @@
         android:icon="@android:drawable/ic_menu_search"
         app:showAsAction="always"
         app:actionViewClass="android.support.v7.widget.SearchView"
+        android:iconTint="@color/colorSecondaryLight"
         android:title="Search"/>
 
     <item
         android:icon="@android:drawable/ic_menu_sort_by_size"
         app:showAsAction="always"
+        android:iconTint="@color/colorSecondaryLight"
         android:title="sort">
         <menu>
             <group
@@ -43,6 +45,7 @@
     <item
         android:id="@+id/action_settings"
         android:icon="@drawable/ic_settings"
+        android:iconTint="@color/colorSecondaryLight"
         app:showAsAction="never"
         android:title="Settings"/>
 

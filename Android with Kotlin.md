@@ -187,7 +187,7 @@ data class User(var firstName: String, var lastName: String, var age: Int): Parc
 Limitations:
 
 * `@Parcelize` requires all serialized properties to be declared in the primary constructor. Android Extensions will issue a warning on each property with a backing field declared in the class body
-*  `@Parcelize` can't be applied if some of the primary constructor parameters are not properties.
+* `@Parcelize` can't be applied if some of the primary constructor parameters are not properties.
 
 ## Coroutines
 
@@ -254,7 +254,33 @@ Currently, there is no way of customizing the thumbnail shown (i.e. screen alway
 
 
 
+
+# Android tips
+
+### Ripple effect with custom background
+
+As explained [here](https://stackoverflow.com/a/44161732/2667536), set your custom background in the backgroun and the ripple attribute on the foreground:
+
+```xml
+<Button 
+	android:background="@drawable/custom_button_disable_fill"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    ...
+/>
+```
+
+
+
+
+
+
+
+
+
+
 TODO: 
 
 * login again after some time in the background
-* ​
+
+  ​

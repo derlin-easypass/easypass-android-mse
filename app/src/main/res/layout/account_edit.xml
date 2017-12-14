@@ -92,7 +92,7 @@
             style="@style/details_edit_value"
             app:hintEnabled="false"
             app:passwordToggleEnabled="true"
-            app:passwordToggleTint="@color/colorAccent">
+            app:passwordToggleTint="@color/colorSecondary">
 
             <android.support.design.widget.TextInputEditText
                 android:id="@+id/details_password"
@@ -113,7 +113,7 @@
             android:layout_gravity="end"
             android:drawableLeft="@drawable/ic_sync"
             android:drawablePadding="5dip"
-            android:drawableTint="@color/colorAccent"
+            android:drawableTint="@color/colorSecondary"
             android:text="Generate Password" />
 
         <!--notes header-->
@@ -168,6 +168,7 @@
             <Button
                 android:id="@+id/button_edit_save"
                 style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:textColor="@color/colorSecondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

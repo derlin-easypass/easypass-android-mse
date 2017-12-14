@@ -14,7 +14,7 @@
         style="@android:style/TextAppearance.Material.Large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/colorAccent"
+        android:textColor="@color/colorSecondary"
         android:textStyle="bold"
         android:layout_marginBottom="1dip"
         android:layout_marginStart="5dip"

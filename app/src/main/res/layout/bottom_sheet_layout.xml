@@ -26,7 +26,6 @@
         style="@style/bottom_sheet_buttons"
         android:onClick="bottomSheetClicked"
         android:drawableStart="@drawable/ic_content_copy"
-        android:drawableTint="@android:color/darker_gray"
         android:text="Copy Password" />
 
     <Button

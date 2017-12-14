@@ -5,7 +5,13 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/colorSecondaryLight</item>
+
+        <!--infos: https://medium.com/google-developers/theming-with-appcompat-1a292b754b35-->
+        <!-- editText border color on edit -->
+        <!--<item name="colorControlActivated">@color/colorSecondaryLight</item>-->
+        <!--ripple color-->
+        <item name="colorControlHighlight">@color/colorRipple</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -25,6 +31,7 @@
         <item name="android:textStyle">bold</item>
         <item name="android:layout_marginTop">4dp</item>
         <item name="android:padding">10dp</item>
+        <item name="android:textColor">@color/colorSecondary</item>
     </style>
 
     <style name="divider">
@@ -44,7 +51,7 @@
     <style name="details_label" parent="details_font">
         <item name="android:layout_height">fill_parent</item>
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
         <item name="android:padding">5dp</item>
         <item name="android:layout_gravity">right</item>
     </style>
@@ -63,10 +70,11 @@
 
 
     <style name="bottom_sheet_buttons" parent="Widget.AppCompat.Button.Borderless.Colored">
+        <item name="android:textColor">@android:color/secondary_text_light</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:drawablePadding">15dip</item>
-        <item name="android:drawableTint">@android:color/darker_gray</item>
+        <item name="android:drawableTint">@color/colorSecondaryLight</item>
     </style>
 </resources>
