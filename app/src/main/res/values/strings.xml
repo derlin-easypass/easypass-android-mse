@@ -30,6 +30,6 @@
     Ensure your master pass is <b>strong enough</b>, but not too hard to remember :).]]></string>
     <string name="start_quote">“Passwords are like underwear: you don’t let people see it, you should change it very often, and you shouldn’t share it with strangers.”</string>
     <string name="start_quote_author">– Chris Pirillo</string>
-    <string name="fmt_copy_xx"><![CDATA[COPY %s <small><font color=\'#FBC02D\'>%s</font></small>]]></string>
+    <string name="fmt_copy_xx"><![CDATA[Copy %s <small><font color=\'#FBC02D\'>%s</font></small>]]></string>
     <string name="title_activity_settings">Settings</string>
 </resources>

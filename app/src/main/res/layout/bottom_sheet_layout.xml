@@ -18,7 +18,7 @@
         style="@style/bottom_sheet_buttons"
         android:textColor="@android:color/primary_text_dark"
         android:foregroundTint="@android:color/primary_text_dark"
-        android:background="@color/colorPrimary"
+        android:background="?attr/colorPrimary"
         android:text="title"/>
 
     <Button
@@ -26,7 +26,7 @@
         style="@style/bottom_sheet_buttons"
         android:onClick="bottomSheetClicked"
         android:drawableStart="@drawable/ic_content_copy"
-        android:text="Copy Password" />
+        android:text="Copy password" />
 
     <Button
         android:id="@+id/copy_username_btn"
@@ -49,13 +49,13 @@
         style="@style/bottom_sheet_buttons"
         android:onClick="bottomSheetClicked"
         android:drawableStart="@drawable/ic_visibility_on"
-        android:text="view details" />
+        android:text="View details" />
 
     <Button
         android:id="@+id/view_edit_btn"
         style="@style/bottom_sheet_buttons"
         android:onClick="bottomSheetClicked"
         android:drawableStart="@drawable/ic_mode_edit"
-        android:text="edit" />
+        android:text="Edit" />
 
 </LinearLayout>

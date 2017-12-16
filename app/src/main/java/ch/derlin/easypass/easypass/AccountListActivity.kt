@@ -169,11 +169,11 @@ class AccountListActivity : SecureActivity() {
         view.findViewById<TextView>(R.id.bottomSheetTitle).text = item.name
 
         var tv = view.findViewById<Button>(R.id.copy_username_btn)
-        tv.text = MiscUtils.toSpannable(getString(R.string.fmt_copy_xx).format("USERNAME", item.pseudo))
+        tv.text = MiscUtils.toSpannable(getString(R.string.fmt_copy_xx).format("username", item.pseudo))
         tv.isEnabled = item.pseudo.isNotBlank()
 
         tv = view.findViewById<Button>(R.id.copy_email_btn)
-        tv.text = MiscUtils.toSpannable(getString(R.string.fmt_copy_xx).format("EMAIL", item.email))
+        tv.text = MiscUtils.toSpannable(getString(R.string.fmt_copy_xx).format("email", item.email))
         tv.isEnabled = item.email.isNotBlank()
 
 

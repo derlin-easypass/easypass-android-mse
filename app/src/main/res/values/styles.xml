@@ -3,38 +3,58 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorSecondaryLight</item>
+        <item name="colorPrimary">@color/colorGreeny</item>
+        <item name="colorPrimaryDark">@color/colorGreenyDark</item>
+        <item name="colorAccent">@color/colorYellowyLight</item>
 
         <!--infos: https://medium.com/google-developers/theming-with-appcompat-1a292b754b35-->
         <!-- editText border color on edit -->
         <!--<item name="colorControlActivated">@color/colorSecondaryLight</item>-->
         <!--ripple color-->
         <item name="colorControlHighlight">@color/colorRipple</item>
+
+        <item name="android:textColorPrimary">@color/blacky</item>
+        <item name="android:textColorSecondary">@color/blacky</item>
+        <item name="actionMenuTextColor">@color/blacky</item>
+
+        <item name="android:fontFamily">@font/roboto_regular</item>
+
+        <item name="android:textAppearance">@style/AppTheme.TextAppearance</item>
+        <item name="android:textAppearanceLarge">@style/AppTheme.TextAppearance.Large</item>
+
     </style>
 
     <style name="AppTheme.NoActionBar">
+        <item name="android:windowBackground">@color/whity</item>
+        <item name="android:textColor">@color/blacky</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+    </style>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="AppTheme.TextAppearance.Large" parent="@android:style/TextAppearance.Large">
+        <item name="android:textSize">18sp</item>
+    </style>
 
-    <style name="header">
+    <style name="AppTheme.TextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="header" parent="AppTheme">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textStyle">bold</item>
         <item name="android:layout_marginTop">4dp</item>
         <item name="android:padding">10dp</item>
-        <item name="android:textColor">@color/colorSecondary</item>
+        <item name="android:textColor">@color/colorYellowy</item>
     </style>
 
-    <style name="divider">
+    <style name="divider" parent="AppTheme">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:layout_marginBottom">5dp</item>
@@ -43,15 +63,14 @@
     </style>
 
     <!-- styles when showing account details -->
-    <style name="details_font">
-        <item name="android:typeface">sans</item>
-        <item name="android:textSize">16sp</item>
+    <style name="details_font" parent="AppTheme">
+        <item name="android:textAppearance">?android:attr/textAppearance</item>
     </style>
 
     <style name="details_label" parent="details_font">
         <item name="android:layout_height">fill_parent</item>
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textColor">@color/colorGreenyDark</item>
         <item name="android:padding">5dp</item>
         <item name="android:layout_gravity">right</item>
     </style>
@@ -75,6 +94,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:drawablePadding">15dip</item>
-        <item name="android:drawableTint">@color/colorSecondaryLight</item>
+        <item name="android:drawableTint">@color/colorYellowyLight</item>
+        <item name="android:textAppearance">?android:attr/textAppearance</item>
     </style>
 </resources>

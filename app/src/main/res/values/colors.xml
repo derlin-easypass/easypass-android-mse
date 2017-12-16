@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#43a047</color>
-    <color name="colorPrimaryDark">#00701a</color>
-    <color name="colorPrimaryLight">#76d275</color>
-    <color name="colorSecondaryLight">#fbc02d</color>
-    <color name="colorSecondary">#fb8c00</color>
-    <color name="colorSecondaryDark">#c41c00</color>
+    <color name="colorGreeny">#00BD9D</color>
+    <color name="colorGreenyDark">#00937A</color>
+    <color name="colorGreenyLight">#4FCEB9</color>
+    <color name="colorYellowyLight">#EFCA08</color>
+    <color name="colorYellowy">#EFCA08</color>
+    <color name="colorYellowyDark">#F08700</color>
     <color name="colorRipple">#fff9c4</color>
 
+    <color name="whity">#FAFFFD</color>
+    <color name="blacky">#342E37</color>
     <!-- primary: 43a047    primary dark: #00701a     secondary: #fb8c00 -->
 </resources>

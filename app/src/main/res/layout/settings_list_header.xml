@@ -11,10 +11,10 @@
 
     <TextView
         android:id="@+id/title"
-        style="@android:style/TextAppearance.Material.Large"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/colorSecondary"
+        android:textColor="?attr/colorAccent"
         android:textStyle="bold"
         android:layout_marginBottom="1dip"
         android:layout_marginStart="5dip"

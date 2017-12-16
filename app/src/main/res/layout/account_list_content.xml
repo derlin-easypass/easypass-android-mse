@@ -12,7 +12,7 @@
 
     <TextView
         android:id="@+id/account_title"
-        style="@android:style/TextAppearance.Material.Large"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -23,7 +23,7 @@
 
     <TextView
         android:id="@+id/account_subtitle"
-        style="@android:style/TextAppearance.Material.Body1"
+        android:textAppearance="?android:attr/textAppearance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/account_title"
