@@ -237,7 +237,10 @@ class AccountListActivity : SecureActivity() {
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
         val sort = Preferences(this).sortOrder
-        mAdapter = AccountAdapter(DbxManager.accounts!!, getSortOrder(sort))
+        mAdapter = AccountAdapter(DbxManager.accounts!!,
+                defaultComparator = getSortOrder(sort),
+                textviewCounter = countText)
+
         //mAdapter = AccountAdapter(IntRange(0, 3).map { i -> Account("name " + i, "pseudo " + i, "", "") }.toMutableList())
         recyclerView.adapter = mAdapter
         //recyclerView.layoutManager.isItemPrefetchEnabled = false

@@ -7,9 +7,6 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
 import ch.derlin.easypass.easypass.data.Account
-import ch.derlin.easypass.easypass.helper.DbxManager
-import ch.derlin.easypass.easypass.helper.NetworkStatus
-import timber.log.Timber
 
 /**
  * Created by Lin on 16.11.17.
@@ -36,7 +33,8 @@ import timber.log.Timber
  */
 
 class AccountAdapter(var accounts: MutableList<Account>,
-                     defaultComparator: Comparator<Account> = Account.nameComparatorAsc) :
+                     defaultComparator: Comparator<Account> = Account.nameComparatorAsc,
+                     var textviewCounter: TextView? = null) :
         RecyclerView.Adapter<AccountAdapter.ViewHolder>() {
 
     var comparator: Comparator<Account> = defaultComparator
@@ -63,6 +61,7 @@ class AccountAdapter(var accounts: MutableList<Account>,
         //accounts = accounts .toMutableList() // make a copy
         setHasStableIds(true)
         doSort()
+        updateCounter()
     }
 
     override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
@@ -128,7 +127,12 @@ class AccountAdapter(var accounts: MutableList<Account>,
     fun resetAndNotify() {
         doFilter()
         doSort()
+        updateCounter()
         notifyDataSetChanged()
+    }
+
+    private fun updateCounter(){
+        textviewCounter?.setText(App.appContext.getString(R.string.account_list_counter_text, filtered.size))
     }
     // -----------------------------------------
 
