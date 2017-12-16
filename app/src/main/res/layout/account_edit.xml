@@ -37,13 +37,13 @@
 
         <!--name-->
         <TextView
-            style="@style/details_label"
+            style="@style/DetailsLabel"
             android:labelFor="@id/details_name"
             android:text="@string/account_name_txt" />
 
         <EditText
             android:id="@+id/details_name"
-            style="@style/details_edit_value"
+            style="@style/DetailsValueEdit"
             android:inputType="text"
             android:maxLines="1"
             android:nextFocusForward="@id/details_pseudo"
@@ -54,13 +54,13 @@
 
         <!--pseudo-->
         <TextView
-            style="@style/details_label"
+            style="@style/DetailsLabel"
             android:labelFor="@id/details_pseudo"
             android:text="@string/account_pseudo_txt" />
 
         <EditText
             android:id="@+id/details_pseudo"
-            style="@style/details_edit_value"
+            style="@style/DetailsValueEdit"
             android:inputType="text"
             android:maxLines="1"
             android:nextFocusForward="@id/details_email"
@@ -68,13 +68,13 @@
 
         <!--email-->
         <TextView
-            style="@style/details_label"
+            style="@style/DetailsLabel"
             android:labelFor="@id/details_email"
             android:text="@string/account_email_txt" />
 
         <EditText
             android:id="@+id/details_email"
-            style="@style/details_edit_value"
+            style="@style/DetailsValueEdit"
             android:inputType="textEmailAddress"
             android:maxLines="1"
             android:nextFocusForward="@id/details_password"
@@ -82,14 +82,14 @@
 
         <!--password-->
         <TextView
-            style="@style/details_label"
+            style="@style/DetailsLabel"
             android:layout_marginTop="10dip"
             android:labelFor="@id/details_password"
             android:text="@string/account_password_txt" />
 
 
         <android.support.design.widget.TextInputLayout
-            style="@style/details_edit_value"
+            style="@style/DetailsValueEdit"
             app:hintEnabled="false"
             app:passwordToggleEnabled="true"
             app:passwordToggleTint="?attr/colorAccent">
@@ -98,7 +98,9 @@
                 android:id="@+id/details_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearance"
                 android:hint="Password"
+                android:fontFamily="monospace"
                 android:inputType="textPassword"
                 android:nextFocusForward="@id/details_notes" />
 
@@ -132,7 +134,6 @@
         <!--notes field-->
         <EditText
             android:id="@+id/details_notes"
-            style="@style/details_font"
             android:layout_height="wrap_content"
             android:layout_columnSpan="2"
             android:layout_gravity="fill_horizontal"
@@ -167,7 +168,7 @@
             <Button
                 android:id="@+id/button_edit_save"
                 style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:textColor="?attr/colorPrimary"
+                android:textColor="?attr/colorPrimaryDark"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

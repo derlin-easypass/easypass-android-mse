@@ -26,35 +26,35 @@
 
         <!--name-->
         <TextView
-            style="@style/details_label"
+            style="@style/DetailsLabel"
             android:text="@string/account_name_txt" />
 
         <TextView
             android:id="@+id/details_name"
-            style="@style/details_value"  />
+            style="@style/DetailsValue"  />
         <!--pseudo-->
         <TextView
-            style="@style/details_label"
+            style="@style/DetailsLabel"
             android:text="@string/account_pseudo_txt" />
 
         <TextView
             android:id="@+id/details_pseudo"
-            style="@style/details_value"
+            style="@style/DetailsValue"
             android:text="haskellyna" />
 
         <!--email-->
         <TextView
-            style="@style/details_label"
+            style="@style/DetailsLabel"
             android:text="@string/account_email_txt" />
 
         <TextView
             android:id="@+id/details_email"
-            style="@style/details_value"
+            style="@style/DetailsValue"
             android:text="example@lala.com"/>
 
         <!--password-->
         <TextView
-            style="@style/details_label"
+            style="@style/DetailsLabel"
             android:text="@string/account_password_txt" />
 
         <LinearLayout
@@ -65,7 +65,7 @@
             android:orientation="horizontal">
 
             <TextView
-                style="@style/details_value"
+                style="@style/DetailsValue"
                 android:id="@+id/details_password"
                 android:layout_weight="1"
                 android:layout_width="0dp"
@@ -83,20 +83,20 @@
 
         <!--Created on-->
         <TextView
-            style="@style/details_label"
+            style="@style/DetailsLabel"
             android:text="@string/account_created_date_txt" />
 
         <TextView
-            style="@style/details_value"
+            style="@style/DetailsValue"
             android:id="@+id/details_created_date" />
 
         <!--Modified on-->
         <TextView
-            style="@style/details_label"
+            style="@style/DetailsLabel"
             android:text="@string/account_modified_date_txt" />
 
         <TextView
-            style="@style/details_value"
+            style="@style/DetailsValue"
             android:id="@+id/details_modified_date" />
 
 
@@ -116,20 +116,12 @@
         <TextView
             android:layout_columnSpan="2"
             android:id="@+id/details_notes"
-            style="@style/details_font"
             android:padding="5dp" />
 
         <View
             style="@style/divider"
             android:layout_marginBottom="10dp"
             android:layout_columnSpan="2" />
-
-        <!--metadata field-->
-        <TextView
-            android:layout_columnSpan="2"
-            android:id="@+id/details_metadata"
-            style="@style/details_font"
-            android:padding="5dp" />
 
     </GridLayout>
 </LinearLayout>

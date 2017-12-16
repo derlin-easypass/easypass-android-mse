@@ -21,6 +21,7 @@
 
         <item name="android:textAppearance">@style/AppTheme.TextAppearance</item>
         <item name="android:textAppearanceLarge">@style/AppTheme.TextAppearance.Large</item>
+        <item name="android:alertDialogTheme">@style/AppTheme.AlertDialog</item>
 
     </style>
 
@@ -44,6 +45,14 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <style name="AppTheme.AlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <!--color of the title and buttons-->
+        <!--for this to work, set android:alertDialogTheme in AppTheme-->
+        <item name="android:textColor">@color/colorGreenyDark</item>
+        <item name="android:background">@color/whity</item>
+    </style>
+
+
     <style name="header" parent="AppTheme">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -63,11 +72,7 @@
     </style>
 
     <!-- styles when showing account details -->
-    <style name="details_font" parent="AppTheme">
-        <item name="android:textAppearance">?android:attr/textAppearance</item>
-    </style>
-
-    <style name="details_label" parent="details_font">
+    <style name="DetailsLabel" parent="AppTheme.TextAppearance">
         <item name="android:layout_height">fill_parent</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:textColor">@color/colorGreenyDark</item>
@@ -75,21 +80,19 @@
         <item name="android:layout_gravity">right</item>
     </style>
 
-    <style name="details_value" parent="details_font">
+    <style name="DetailsValue" parent="AppTheme.TextAppearance">
         <!--<item name="android:layout_gravity">fill</item>-->
-        <item name="android:textColor">@android:color/secondary_text_light</item>
         <item name="android:paddingLeft">6dp</item>
         <item name="android:layout_width">0dip</item>
         <item name="android:layout_gravity">fill_horizontal</item>
         <item name="android:textIsSelectable">true</item>
     </style>
-    <style name="details_edit_value" parent="details_value">
+
+    <style name="DetailsValueEdit" parent="DetailsValue">
         <item name="android:textIsSelectable">false</item>
     </style>
 
-
-    <style name="bottom_sheet_buttons" parent="Widget.AppCompat.Button.Borderless.Colored">
-        <item name="android:textColor">@android:color/secondary_text_light</item>
+    <style name="BottomSheetButton" parent="Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:gravity">center_vertical</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
