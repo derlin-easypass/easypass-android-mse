@@ -109,7 +109,7 @@ object DbxManager {
                 loadCachedFile(password)
                 isInSync = metadata?.rev == prefs.revision
 
-                if (isInSync) loadSession(password, deferred)
+                if (!isInSync) loadSession(password, deferred)
                 else deferred.resolve(true)
 
             } else {
