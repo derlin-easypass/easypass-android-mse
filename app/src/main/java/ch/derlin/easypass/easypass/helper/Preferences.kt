@@ -33,4 +33,8 @@ class Preferences(context: Context = App.appContext) {
                 sharedPrefs.getString("sortOrder", "submenu_sort_title_asc"),
                 "id", App.appContext.packageName)
         set(value) = sharedPrefs.edit().putString("sortOrder", App.appContext.resources.getResourceName(value)).apply()
+
+    var specialChars: String
+        get() = sharedPrefs.getString("generatorSpecialChars", PasswordGenerator.allSpecialChars)
+        set(value) = sharedPrefs.edit().putString("generatorSpecialChars", value).apply()
 }

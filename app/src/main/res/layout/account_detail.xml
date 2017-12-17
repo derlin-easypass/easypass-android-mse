@@ -16,11 +16,11 @@
         <!--infos header-->
         <TextView
             android:layout_columnSpan="2"
-            style="@style/header"
+            style="@style/Header"
             android:text="@string/account_infos_header" />
 
         <View
-            style="@style/divider"
+            style="@style/Divider"
             android:layout_columnSpan="2"
             android:layout_marginBottom="10dp" />
 
@@ -102,12 +102,12 @@
 
         <!--notes header-->
         <TextView
-            style="@style/header"
+            style="@style/Header"
             android:layout_columnSpan="2"
             android:text="@string/account_notes_txt" />
 
         <View
-            style="@style/divider"
+            style="@style/Divider"
             android:layout_marginBottom="10dp"
             android:layout_columnSpan="2" />
 
@@ -119,7 +119,7 @@
             android:padding="5dp" />
 
         <View
-            style="@style/divider"
+            style="@style/Divider"
             android:layout_marginBottom="10dp"
             android:layout_columnSpan="2" />
 

@@ -1,6 +1,5 @@
 package ch.derlin.easypass.easypass.helper
 
-import android.util.Range
 import java.util.*
 
 /**
@@ -10,11 +9,13 @@ import java.util.*
 object PasswordGenerator {
 
     val normalChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    val specialChars = normalChars + ".-_,;<>/+*ç%&/()=?'[]{}@#¬"
+    val allSpecialChars = ".-_,;<>/+*ç%&/()=?'[]{}@#¬"
     val random = Random(System.currentTimeMillis())
 
-    fun generate(size: Int, useSpecialChars: Boolean): String {
-        val chars = if (useSpecialChars) specialChars else normalChars
+    fun generate(size: Int, useSpecialChars: Boolean, specialChars: String = allSpecialChars): String {
+        var chars = normalChars;
+        if (useSpecialChars) chars += specialChars
+
         return IntRange(0, size)
                 .map { chars[random.nextInt(chars.length)] }
                 .joinToString("")

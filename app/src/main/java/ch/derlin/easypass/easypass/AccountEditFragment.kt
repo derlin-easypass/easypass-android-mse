@@ -1,30 +1,30 @@
 package ch.derlin.easypass.easypass
 
-import android.app.AlertDialog
+
+import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
+import android.support.v7.app.AlertDialog
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
+import android.view.inputmethod.EditorInfo
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.Toast
 import ch.derlin.easypass.easypass.data.Account
 import ch.derlin.easypass.easypass.helper.DbxManager
+import ch.derlin.easypass.easypass.helper.MiscUtils.hideKeyboard
+import ch.derlin.easypass.easypass.helper.PasswordGenerator
+import com.shawnlin.numberpicker.NumberPicker
 import kotlinx.android.synthetic.main.account_edit.*
 import kotlinx.android.synthetic.main.activity_account_detail.*
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
-import android.view.inputmethod.EditorInfo
-import android.content.DialogInterface
-import android.graphics.Color
-import android.view.View.FOCUSABLE
-import android.widget.*
-import ch.derlin.easypass.easypass.helper.MiscUtils.hideKeyboard
-import ch.derlin.easypass.easypass.helper.PasswordGenerator
-import com.shawnlin.numberpicker.NumberPicker
 
 
 /**
@@ -134,7 +134,7 @@ class AccountEditFragment : Fragment() {
         // default value
         resultText.setText(PasswordGenerator.generate(sizePicker.value, specialChars.isChecked))
 
-        val dialog = AlertDialog.Builder(activity)
+        val dialog = AlertDialog.Builder(activity, R.style.AppTheme_AlertDialog)
                 .setView(dialogView)
                 .setTitle("Generate a password")
                 .setPositiveButton("Use", { _, _ ->

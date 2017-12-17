@@ -22,6 +22,7 @@
         <item name="android:textAppearance">@style/AppTheme.TextAppearance</item>
         <item name="android:textAppearanceLarge">@style/AppTheme.TextAppearance.Large</item>
         <item name="android:alertDialogTheme">@style/AppTheme.AlertDialog</item>
+        <!-- Apply default style for dialogs -->
 
     </style>
 
@@ -32,8 +33,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
-    </style>
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"></style>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
@@ -45,15 +45,38 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <!-- alert dialog style -->
+    <!-- see https://qiita.com/granoeste/items/bc30c25caefe5ceb102b#stylesxml -->
     <style name="AppTheme.AlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <!--color of the title and buttons-->
-        <!--for this to work, set android:alertDialogTheme in AppTheme-->
-        <item name="android:textColor">@color/colorGreenyDark</item>
-        <item name="android:background">@color/whity</item>
+        <!-- title and buttons color -->
+        <!--<item name="android:textColor">@color/colorGreeny</item>-->
+        <!-- title style -->
+        <item name="android:windowTitleStyle">@style/AppTheme.AlertDialog.Title</item>
+         <!--button styles -->
+        <item name="buttonBarNeutralButtonStyle">@style/dialogButtonStyle.Neutral</item>
+        <item name="buttonBarNegativeButtonStyle">@style/dialogButtonStyle.Negative</item>
+        <item name="buttonBarPositiveButtonStyle">@style/dialogButtonStyle.Positive</item>
     </style>
 
+    <style name="AppTheme.AlertDialog.Title">
+        <item name="android:textColor">@color/colorYellowy</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Title</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
 
-    <style name="header" parent="AppTheme">
+    <style name="dialogButtonStyle" parent="Widget.AppCompat.Button.Borderless.Colored"></style>
+
+    <style name="dialogButtonStyle.Neutral"></style>
+
+    <style name="dialogButtonStyle.Negative">
+        <item name="android:textColor">@android:color/secondary_text_light</item>
+    </style>
+
+    <style name="dialogButtonStyle.Positive">
+        <item name="android:textColor">@color/colorGreenyDark</item>
+    </style>
+
+    <style name="Header" parent="AppTheme">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textAllCaps">true</item>
@@ -63,7 +86,7 @@
         <item name="android:textColor">@color/colorYellowy</item>
     </style>
 
-    <style name="divider" parent="AppTheme">
+    <style name="Divider" parent="AppTheme">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:layout_marginBottom">5dp</item>

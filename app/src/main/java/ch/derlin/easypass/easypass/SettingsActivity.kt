@@ -10,13 +10,12 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import ch.derlin.easypass.easypass.helper.CachedCredentials
 import ch.derlin.easypass.easypass.helper.DbxManager
 import ch.derlin.easypass.easypass.helper.MiscUtils.restartApp
 import ch.derlin.easypass.easypass.helper.MiscUtils.rootView
+import ch.derlin.easypass.easypass.helper.PasswordGenerator
 import ch.derlin.easypass.easypass.helper.Preferences
 import kotlinx.android.synthetic.main.activity_settings.*
 import nl.komponents.kovenant.task
@@ -34,13 +33,25 @@ class SettingsActivity : AppCompatActivity() {
 
 
     val settings = listOf<Setting>(
+            Setting("Generator", isHeader = true),
+            Setting("Special chars",
+                    "Change the special characters used while generating passwords.",
+                    this@SettingsActivity::setSpecialChars, R.drawable.ic_mode_edit),
             Setting("Passwords", isHeader = true),
-            Setting("Change", "Change your master password.", this@SettingsActivity::changePasswordDialog, R.drawable.ic_mode_edit),
-            Setting("Clear", "Forget all cached passwords.", this@SettingsActivity::clearPassword, R.drawable.ic_fingerprint),
+            Setting("Change",
+                    "Change your master password.",
+                    this@SettingsActivity::changePasswordDialog, R.drawable.ic_mode_edit),
+            Setting("Clear",
+                    "Forget all cached passwords.",
+                    this@SettingsActivity::clearPassword, R.drawable.ic_fingerprint),
             Setting("Dropbox", isHeader = true),
-            Setting("Unlink", "Unlink EasyPass from your dropbox.", this@SettingsActivity::unbindDropbox, R.drawable.ic_dropbox),
+            Setting("Unlink",
+                    "Unlink EasyPass from your dropbox.",
+                    this@SettingsActivity::unbindDropbox, R.drawable.ic_dropbox),
             Setting("Local file", isHeader = true),
-            Setting("Clear cache", "Clear the local cache by removing the file on the device.", this@SettingsActivity::clearCache, R.drawable.ic_broom)
+            Setting("Clear cache",
+                    "Clear the local cache by removing the file on the device.",
+                    this@SettingsActivity::clearCache, R.drawable.ic_broom)
     )
 
     var working: Boolean
@@ -91,9 +102,34 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
+    fun setSpecialChars() {
+        val prefs = Preferences(this)
+        val view = layoutInflater.inflate(R.layout.dialog_settings_special_chars, null)
+        val editText = view.findViewById<EditText>(R.id.specialChars)
+        view.findViewById<Button>(R.id.defaultButton).setOnClickListener { _ ->
+            editText.setText(PasswordGenerator.allSpecialChars)
+        }
+
+        editText.setText(prefs.specialChars)
+
+        AlertDialog.Builder(this, R.style.AppTheme_AlertDialog)
+                .setView(view)
+                .setTitle("Generator special chars")
+                .setNegativeButton("cancel", { dialog, _ -> dialog.dismiss() })
+                .setPositiveButton("use", { _, _ ->
+                    if (editText.text.isNotBlank()) {
+                        prefs.specialChars = editText.text.toString()
+                        Toast.makeText(this, "preference updated.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "invalid empty sequence", Toast.LENGTH_SHORT).show()
+                    }
+                })
+                .show()
+    }
+
     fun changePasswordDialog() {
-        val view = layoutInflater.inflate(R.layout.alert_change_password, null)
-        AlertDialog.Builder(this)
+        val view = layoutInflater.inflate(R.layout.dialog_change_password, null)
+        AlertDialog.Builder(this, R.style.AppTheme_AlertDialog)
                 .setView(view)
                 .setTitle("New password")
                 .setNegativeButton("cancel", { dialog, _ -> dialog.dismiss() })
