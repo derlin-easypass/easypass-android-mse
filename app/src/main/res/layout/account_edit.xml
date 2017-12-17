@@ -139,7 +139,7 @@
             android:layout_gravity="fill_horizontal"
             android:imeOptions="actionGo"
             android:inputType="text"
-            android:padding="15dp" />
+            android:padding="15dp"/>
 
         <View
             style="@style/Divider"

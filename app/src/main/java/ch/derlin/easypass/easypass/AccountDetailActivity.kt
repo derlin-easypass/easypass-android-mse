@@ -70,6 +70,7 @@ class AccountDetailActivity : SecureActivity() {
     fun setUpdatedAccount(account: Account) {
         selectedAccount = account
         accountModified = true
+        this.onBackPressed()
     }
 
     private fun switchFragment(f: Fragment) {
@@ -77,7 +78,7 @@ class AccountDetailActivity : SecureActivity() {
 
         if (selectedAccount != null) {
             arguments = Bundle()
-            arguments.putParcelable(AccountEditFragment.ARG_ACCOUNT, selectedAccount)
+            arguments.putParcelable(BUNDLE_ACCOUNT_KEY, selectedAccount)
         }
 
         f.arguments = arguments
@@ -104,6 +105,7 @@ class AccountDetailActivity : SecureActivity() {
         } else {
             val returnIntent = Intent()
             returnIntent.putExtra("modified", accountModified)
+            returnIntent.putExtra(BUNDLE_ACCOUNT_KEY, selectedAccount)
             setResult(Activity.RESULT_OK, returnIntent)
             finish()
         }

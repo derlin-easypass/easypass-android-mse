@@ -1,5 +1,6 @@
 package ch.derlin.easypass.easypass
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -30,23 +31,20 @@ class AccountDetailFragment : Fragment() {
     private lateinit var password: String
     private lateinit var hiddenPassword: String
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        if (arguments.containsKey(ARG_ACCOUNT)) {
-            // Load the dummy content specified by the fragment
-            // arguments. In a real-world scenario, use a Loader
-            // to load content from a content provider.
-            mItem = arguments.getParcelable(ARG_ACCOUNT)
-
-        }
-
-    }
-
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? =
             inflater!!.inflate(R.layout.account_detail, container, false)
 
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        if (arguments.containsKey(AccountDetailActivity.BUNDLE_ACCOUNT_KEY)) {
+            // Load the dummy content specified by the fragment
+            // arguments. In a real-world scenario, use a Loader
+            // to load content from a content provider.
+            mItem = arguments.getParcelable(AccountDetailActivity.BUNDLE_ACCOUNT_KEY)
+
+        }
+    }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -71,16 +69,24 @@ class AccountDetailFragment : Fragment() {
             details_show_password.setOnClickListener { compoundButton -> togglePassword() }
         }
 
-        val theActivity = (activity as AccountDetailActivity)
+        val theActivity = activity as? AccountDetailActivity
 
         // handle the fab icon + action
-        theActivity.fab.setImageResource(R.drawable.ic_mode_edit)
-        theActivity.fab.setOnClickListener { _ ->
+        theActivity?.fab?.setImageResource(R.drawable.ic_mode_edit)
+        theActivity?.fab?.setOnClickListener { _ ->
             theActivity.editAccount()
+        }
+        button_edit.setOnClickListener { _ ->
+            if (theActivity != null) {
+                theActivity.editAccount()
+            } else {
+                (activity as? AccountListActivity)?.
+                        openDetailActivity(mItem!!, AccountDetailActivity.OPERATION_EDIT)
+            }
         }
 
         // set the title
-        theActivity.title = mItem?.name ?: "Details"
+        theActivity?.title = mItem?.name ?: "Details"
     }
 
     private fun togglePassword() {
@@ -92,11 +98,6 @@ class AccountDetailFragment : Fragment() {
     }
 
     companion object {
-        /**
-         * The fragment argument representing the item ID that this fragment
-         * represents.
-         */
-        val ARG_ACCOUNT = "parcelable_account"
         val BUNDLE_CHECKBOX_STATE = "showpass_checked"
         val HIDDEN_PASSWORD = "********"
     }

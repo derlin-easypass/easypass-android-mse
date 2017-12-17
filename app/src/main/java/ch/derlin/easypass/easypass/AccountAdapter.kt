@@ -131,6 +131,14 @@ class AccountAdapter(var accounts: MutableList<Account>,
         notifyDataSetChanged()
     }
 
+    fun replace(old: Account, new: Account){
+        accounts.remove(old)
+        accounts.add(new)
+        resetAndNotify()
+    }
+
+    fun positionOf(account: Account): Int = filtered.indexOf(account)
+
     private fun updateCounter(){
         textviewCounter?.setText(App.appContext.getString(R.string.account_list_counter_text, filtered.size))
     }

@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.security.keystore.UserNotAuthenticatedException
-import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
@@ -20,11 +19,9 @@ import android.widget.Toast
 import ch.derlin.easypass.easypass.data.JsonManager
 import ch.derlin.easypass.easypass.helper.CachedCredentials
 import ch.derlin.easypass.easypass.helper.DbxManager
-import ch.derlin.easypass.easypass.helper.NetworkStatus
 import ch.derlin.easypass.easypass.helper.Preferences
 import kotlinx.android.synthetic.main.fragment_enter_password.*
 import kotlinx.android.synthetic.main.fragment_load_session_meta.*
-import nl.komponents.kovenant.ui.alwaysUi
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
 
@@ -61,13 +58,6 @@ class LoadSessionActivity : AppCompatActivity() {
     }
 
     private fun initWorkflow() {
-//        if (DbxManager.localFileExists || NetworkStatus.isInternetAvailable(this)) {
-//            switchFragments(ProgressFragment())
-//        } else {
-//            Snackbar.make(findViewById(android.R.id.content), "No network", Snackbar.LENGTH_INDEFINITE)
-//                    .setAction("retry", { v -> initWorkflow() })
-//                    .show()
-//        }
         switchFragments(ProgressFragment())
     }
 
@@ -94,11 +84,14 @@ class LoadSessionActivity : AppCompatActivity() {
 
         override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-
             loadLocalButton.setOnClickListener { _ -> next() }
             retryButton.setOnClickListener { _ -> fetchMeta() }
 
             fetchMeta()
+        }
+
+        override fun onDetach() {
+            super.onDetach()
         }
 
         fun fetchMeta() {

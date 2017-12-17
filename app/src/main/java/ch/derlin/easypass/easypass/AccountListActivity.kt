@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.BottomSheetDialog
 import android.support.design.widget.Snackbar
+import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
 import android.support.v7.widget.helper.ItemTouchHelper
@@ -43,6 +44,7 @@ class AccountListActivity : SecureActivity() {
      * device.
      */
     private var mTwoPane: Boolean = false
+    private var mTwoPaneCurrentFragment: Fragment? = null
 
     lateinit var mAdapter: AccountAdapter
     var mOfflineIndicator: MenuItem? = null
@@ -91,7 +93,8 @@ class AccountListActivity : SecureActivity() {
         if (requestCode == DETAIL_ACTIVITY_REQUEST_CODE) {
             if (data?.getBooleanExtra(AccountDetailActivity.RETURN_MODIFIED, false) ?: false) {
                 // update the list in case of modification
-                mAdapter.replaceAll(DbxManager.accounts!!)
+                selectedAccount = data!!.getParcelableExtra(AccountDetailActivity.BUNDLE_ACCOUNT_KEY)
+                notifyAccountUpdate(selectedAccount!!)
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data)
@@ -110,6 +113,18 @@ class AccountListActivity : SecureActivity() {
         syncButton.visibility = if (!connected || DbxManager.isInSync) View.GONE else View.VISIBLE
         updateConnectivityViews(connected)
         mNetworkChangeListener.registerSelf(this)
+    }
+
+    override fun onBackPressed() {
+        if (mTwoPane && mTwoPaneCurrentFragment is AccountEditFragment) {
+            if(selectedAccount != null) {
+                openDetailActivity(selectedAccount!!, AccountDetailActivity.OPERATION_SHOW)
+            }else{
+                supportFragmentManager.beginTransaction().remove(mTwoPaneCurrentFragment).commit()
+            }
+        } else {
+            super.onBackPressed()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -163,6 +178,12 @@ class AccountListActivity : SecureActivity() {
 
     private fun showBottomSheet(item: Account) {
         selectedAccount = item
+
+        if (mTwoPane) {
+            openDetailActivity(selectedAccount!!, AccountDetailActivity.OPERATION_SHOW)
+            return
+        }
+
         bottomSheetDialog = BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.bottom_sheet_layout, null)
 
@@ -186,7 +207,8 @@ class AccountListActivity : SecureActivity() {
 
     // this is bound from the xml layout
     fun bottomSheetClicked(v: View) {
-        if (selectedAccount == null) return;
+        if (selectedAccount == null) return
+
         when (v.id) {
             R.id.copy_pass_btn -> copyToClipboard(selectedAccount!!.password, "password copied!")
             R.id.copy_username_btn -> copyToClipboard(selectedAccount!!.pseudo, "'${selectedAccount!!.pseudo}' copied!")
@@ -216,23 +238,34 @@ class AccountListActivity : SecureActivity() {
     }
 
 
-    private fun openDetailActivity(item: Account?, operation: String): Boolean {
+    fun openDetailActivity(item: Account?, operation: String): Boolean {
         if (mTwoPane) {
             val arguments = Bundle()
-            arguments.putParcelable(AccountDetailActivity.BUNDLE_OPERATION_KEY, item)
-            val fragment = AccountDetailFragment()
-            fragment.arguments = arguments
+            arguments.putParcelable(AccountDetailActivity.BUNDLE_ACCOUNT_KEY, item)
+            mTwoPaneCurrentFragment = if (operation == AccountDetailActivity.OPERATION_SHOW)
+                AccountDetailFragment() else AccountEditFragment()
+            mTwoPaneCurrentFragment!!.arguments = arguments
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.accountDetailContainer, fragment)
+                    .replace(R.id.accountDetailContainer, mTwoPaneCurrentFragment)
                     .commit()
         } else {
             val context = this
             val intent = Intent(context, AccountDetailActivity::class.java)
-            intent.putExtra(AccountDetailActivity.BUNDLE_OPERATION_KEY, operation);
+            intent.putExtra(AccountDetailActivity.BUNDLE_OPERATION_KEY, operation)
             intent.putExtra(AccountDetailActivity.BUNDLE_ACCOUNT_KEY, item)
             context.startActivityForResult(intent, DETAIL_ACTIVITY_REQUEST_CODE)
         }
         return true
+    }
+
+    // only called in mTwoPane mode
+    fun notifyAccountUpdate(item: Account) {
+        selectedAccount = item
+        mAdapter.replace(selectedAccount!!, item)
+        val idx = mAdapter.positionOf(item)
+        if (idx >= 0) recyclerView.scrollToPosition(idx)
+
+        if (mTwoPane) openDetailActivity(item, AccountDetailActivity.OPERATION_SHOW)
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
@@ -279,6 +312,11 @@ class AccountListActivity : SecureActivity() {
                 DbxManager.saveAccounts()
                         .alwaysUi { working = false }
                         .successUi {
+                            if (mTwoPane && selectedAccount == item)
+                                supportFragmentManager.beginTransaction()
+                                        .remove(mTwoPaneCurrentFragment!!)
+                                        .commit()
+
                             Timber.d("removed account: %s", item)
                             Snackbar.make(fab, "Account deleted", Snackbar.LENGTH_LONG)
                                     .setAction("undo", { _ ->

@@ -1,6 +1,7 @@
 package ch.derlin.easypass.easypass
 
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -50,13 +51,15 @@ class AccountEditFragment : Fragment() {
         get() = progressBar.visibility == View.VISIBLE
         set(value) = progressBar.setVisibility(if (value) View.VISIBLE else View.INVISIBLE)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
 
-        if (arguments?.containsKey(ARG_ACCOUNT) ?: false) {
-            mItem = arguments.getParcelable(ARG_ACCOUNT)
-            originalAccountIndex =
-                    DbxManager.accounts!!.indexOfFirst { acc -> acc.name == mItem!!.name }
+        if (arguments?.containsKey(AccountDetailActivity.BUNDLE_ACCOUNT_KEY) ?: false) {
+            mItem = arguments.getParcelable(AccountDetailActivity.BUNDLE_ACCOUNT_KEY)
+            if (mItem != null) {
+                originalAccountIndex =
+                        DbxManager.accounts!!.indexOfFirst { acc -> acc.name == mItem!!.name }
+            }
         }
     }
 
@@ -69,8 +72,8 @@ class AccountEditFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         working = false
 
-        val theActivity = activity as AccountDetailActivity
-        theActivity.title = if (mItem != null) "Editing ${mItem?.name}" else "New account"
+        val theActivity = activity as? AccountDetailActivity
+        theActivity?.title = if (mItem != null) "Editing ${mItem?.name}" else "New account"
 
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
@@ -81,12 +84,15 @@ class AccountEditFragment : Fragment() {
             details_notes.setText(mItem!!.notes)
         }
 
+        button_edit_save.isEnabled = mItem?.name?.isNotBlank() ?: false
+
         details_name.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
             override fun afterTextChanged(p0: Editable?) {
                 val newName = p0?.toString() ?: ""
-                (activity as AccountDetailActivity).fab.isEnabled = !newName.isBlank()
+                (activity as? AccountDetailActivity)?.fab?.isEnabled = newName.isNotBlank()
+                button_edit_save.isEnabled = newName.isNotBlank()
             }
         })
 
@@ -109,8 +115,8 @@ class AccountEditFragment : Fragment() {
         button_edit_save.setOnClickListener { saveAccount() }
         button_edit_cancel.setOnClickListener { activity.onBackPressed() }
 
-        theActivity.fab.setImageResource(R.drawable.ic_save)
-        theActivity.fab.setOnClickListener { _ ->
+        theActivity?.fab?.setImageResource(R.drawable.ic_save)
+        theActivity?.fab?.setOnClickListener { _ ->
             saveAccount()
         }
 
@@ -189,8 +195,8 @@ class AccountEditFragment : Fragment() {
         DbxManager.saveAccounts().successUi {
             // saved ok, end the edit activity
             Toast.makeText(activity, "Saved!", Toast.LENGTH_SHORT).show()
-            (activity as AccountDetailActivity).setUpdatedAccount(newAccount)
-            activity.onBackPressed()
+            (activity as? AccountDetailActivity)?.setUpdatedAccount(newAccount)
+            (activity as? AccountListActivity)?.notifyAccountUpdate(newAccount)
 
         } failUi {
             // failed ... oups
@@ -217,12 +223,4 @@ class AccountEditFragment : Fragment() {
                     notes = details_notes.text.toString(),
                     modificationDate = Account.now)
 
-
-    companion object {
-        /**
-         * The fragment argument representing the item ID that this fragment
-         * represents.
-         */
-        val ARG_ACCOUNT = "parcelable_account"
-    }
 }

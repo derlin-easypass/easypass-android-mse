@@ -274,9 +274,34 @@ As explained [here](https://stackoverflow.com/a/44161732/2667536), set your cust
 
 
 
+## Android styles
 
+### AlertDialog
 
+If you are using the `android.app.AlertDialog`:
 
+```xml
+ <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+   ...
+   <item name="android:alertDialogTheme">@style/AppTheme.AlertDialog</item>
+</style>
+
+<style name="AppTheme.AlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+  <!--for this to work, set android:alertDialogTheme in AppTheme-->
+  <!--color of the title and buttons-->
+  <item name="android:textColor">@color/colorGreenyDark</item>
+  <!-- background color -->
+  <item name="android:background">@color/whity</item>
+</style>
+```
+
+if you are using the AppCompat library, specify the theme directly in the constructor:
+
+```kotlin
+AlertDialog.Builder(activity, R.style.AppTheme_AlertDialog)
+```
+
+For more detailed styling, see https://qiita.com/granoeste/items/bc30c25caefe5ceb102b#stylesxml
 
 
 TODO: 

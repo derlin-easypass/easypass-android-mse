@@ -8,15 +8,15 @@
     <GridLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_marginRight="4dp"
         android:columnCount="2"
+        android:orientation="horizontal"
         android:useDefaultMargins="false">
 
         <!--infos header-->
         <TextView
-            android:layout_columnSpan="2"
             style="@style/Header"
+            android:layout_columnSpan="2"
             android:text="@string/account_infos_header" />
 
         <View
@@ -31,7 +31,7 @@
 
         <TextView
             android:id="@+id/details_name"
-            style="@style/DetailsValue"  />
+            style="@style/DetailsValue" />
         <!--pseudo-->
         <TextView
             style="@style/DetailsLabel"
@@ -50,7 +50,7 @@
         <TextView
             android:id="@+id/details_email"
             style="@style/DetailsValue"
-            android:text="example@lala.com"/>
+            android:text="example@lala.com" />
 
         <!--password-->
         <TextView
@@ -58,28 +58,41 @@
             android:text="@string/account_password_txt" />
 
         <LinearLayout
-            android:padding="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="fill_horizontal"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="5dp">
 
             <TextView
-                style="@style/DetailsValue"
                 android:id="@+id/details_password"
-                android:layout_weight="1"
+                style="@style/DetailsValue"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="monospace" />
 
             <ImageButton
                 android:id="@+id/details_show_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginEnd="15dp"
                 android:background="@drawable/ic_visibility_on"
                 android:backgroundTint="?attr/colorAccent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="toggle password view"/>
+                android:contentDescription="toggle password view" />
         </LinearLayout>
+
+
+        <!--meta header-->
+        <TextView
+            style="@style/Header"
+            android:layout_columnSpan="2"
+            android:text="Meta" />
+
+        <View
+            style="@style/Divider"
+            android:layout_columnSpan="2"
+            android:layout_marginBottom="10dp" />
 
         <!--Created on-->
         <TextView
@@ -87,8 +100,8 @@
             android:text="@string/account_created_date_txt" />
 
         <TextView
-            style="@style/DetailsValue"
-            android:id="@+id/details_created_date" />
+            android:id="@+id/details_created_date"
+            style="@style/DetailsValue" />
 
         <!--Modified on-->
         <TextView
@@ -96,8 +109,8 @@
             android:text="@string/account_modified_date_txt" />
 
         <TextView
-            style="@style/DetailsValue"
-            android:id="@+id/details_modified_date" />
+            android:id="@+id/details_modified_date"
+            style="@style/DetailsValue" />
 
 
         <!--notes header-->
@@ -108,20 +121,29 @@
 
         <View
             style="@style/Divider"
-            android:layout_marginBottom="10dp"
-            android:layout_columnSpan="2" />
+            android:layout_columnSpan="2"
+            android:layout_marginBottom="10dp" />
 
 
         <!--notes field-->
         <TextView
-            android:layout_columnSpan="2"
+            style="@style/DetailsValue"
             android:id="@+id/details_notes"
+            android:layout_columnSpan="2"
             android:padding="5dp" />
 
-        <View
-            style="@style/Divider"
-            android:layout_marginBottom="10dp"
-            android:layout_columnSpan="2" />
+
+        <Button
+            android:layout_columnSpan="2"
+            android:layout_gravity="end"
+            android:id="@+id/button_edit"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Edit"
+            android:textColor="?attr/colorPrimaryDark" />
+
 
     </GridLayout>
 </LinearLayout>
