@@ -17,13 +17,15 @@
 
     <TextView
         android:id="@+id/countText"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="false"
         android:background="?android:attr/windowBackground"
         android:padding="5dip"
         android:paddingEnd="10dip"
+        android:backgroundTint="?attr/colorPrimary"
+        android:textColor="@color/whity"
         android:text="XXX accounts"/>
 
 </RelativeLayout>
