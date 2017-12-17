@@ -6,7 +6,6 @@
         <item name="colorPrimary">@color/colorGreeny</item>
         <item name="colorPrimaryDark">@color/colorGreenyDark</item>
         <item name="colorAccent">@color/colorYellowyLight</item>
-
         <!--infos: https://medium.com/google-developers/theming-with-appcompat-1a292b754b35-->
         <!-- editText border color on edit -->
         <!--<item name="colorControlActivated">@color/colorSecondaryLight</item>-->
@@ -33,9 +32,18 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"></style>
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+         <!--styling the appbar -->
+    </style>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
+         <!--dropdown in menu bar -->
+        <!--<item name="android:background">?attr/colorPrimary</item>-->
+        <!--<item name="android:textColor">?android:attr/windowBackground</item>-->
+        <!--<item name="colorControlNormal">?android:attr/windowBackground</item>-->
+        <item name="android:textColor">?android:attr/colorPrimaryDark</item>
+        <item name="colorControlNormal">?android:attr/colorPrimaryDark</item>
+    </style>
 
     <style name="AppTheme.TextAppearance.Large" parent="@android:style/TextAppearance.Large">
         <item name="android:textSize">18sp</item>
@@ -52,7 +60,7 @@
         <!--<item name="android:textColor">@color/colorGreeny</item>-->
         <!-- title style -->
         <item name="android:windowTitleStyle">@style/AppTheme.AlertDialog.Title</item>
-         <!--button styles -->
+        <!--button styles -->
         <item name="buttonBarNeutralButtonStyle">@style/dialogButtonStyle.Neutral</item>
         <item name="buttonBarNegativeButtonStyle">@style/dialogButtonStyle.Negative</item>
         <item name="buttonBarPositiveButtonStyle">@style/dialogButtonStyle.Positive</item>
@@ -64,9 +72,9 @@
         <item name="android:textAllCaps">true</item>
     </style>
 
-    <style name="dialogButtonStyle" parent="Widget.AppCompat.Button.Borderless.Colored"></style>
+    <style name="dialogButtonStyle" parent="Widget.AppCompat.Button.Borderless.Colored" />
 
-    <style name="dialogButtonStyle.Neutral"></style>
+    <style name="dialogButtonStyle.Neutral" />
 
     <style name="dialogButtonStyle.Negative">
         <item name="android:textColor">@android:color/secondary_text_light</item>

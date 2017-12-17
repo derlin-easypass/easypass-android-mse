@@ -11,7 +11,7 @@
         android:title="Search"/>
 
     <item
-        android:icon="@android:drawable/ic_menu_sort_by_size"
+        android:icon="@drawable/ic_sort"
         app:showAsAction="always"
         android:iconTint="@color/colorYellowyLight"
         android:title="sort">
@@ -42,16 +42,16 @@
         app:showAsAction="always"
         android:title="Offline"/>
 
-    <item
-        android:id="@+id/action_settings"
-        android:icon="@drawable/ic_settings"
-        android:iconTint="@color/colorYellowyLight"
-        app:showAsAction="never"
-        android:title="Settings"/>
 
     <item android:id="@+id/action_sync"
         android:icon="@android:drawable/ic_popup_sync"
         android:title="Sync"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/ic_settings"
+        android:iconTint="@color/colorYellowyLight"
+        app:showAsAction="never"
+        android:title="Settings"/>
 </menu>
