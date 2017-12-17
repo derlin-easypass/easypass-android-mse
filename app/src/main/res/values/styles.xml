@@ -12,9 +12,10 @@
         <!--ripple color-->
         <item name="colorControlHighlight">@color/colorRipple</item>
 
+         <!--main text color -->
         <item name="android:textColorPrimary">@color/blacky</item>
+         <!--color of underlines in edittext (not active), etc. -->
         <item name="android:textColorSecondary">@color/blacky</item>
-        <item name="actionMenuTextColor">@color/blacky</item>
 
         <item name="android:fontFamily">@font/roboto_regular</item>
 
@@ -27,7 +28,6 @@
 
     <style name="AppTheme.NoActionBar">
         <item name="android:windowBackground">@color/whity</item>
-        <item name="android:textColor">@color/blacky</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
