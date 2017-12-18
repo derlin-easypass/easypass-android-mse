@@ -78,7 +78,7 @@ class AccountAdapter(var accounts: MutableList<Account>,
     override fun onBindViewHolder(holder: ViewHolder?, position: Int, payloads: MutableList<Any>?) {
         val item = filtered[position]
         holder!!.titleView.text = item.name
-        holder.subtitleView.text = item.modificationDate
+        holder.subtitleView.text = if(item.pseudo != "") item.pseudo else item.email
         holder.favoriteIcon.setBackgroundResource(
                 if (item.isFavorite) R.drawable.ic_pinned_on else R.drawable.ic_pinned_off)
         holder.view.setOnClickListener { _ -> onClick?.invoke(item) }
