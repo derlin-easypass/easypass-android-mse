@@ -10,7 +10,7 @@
         <!-- editText border color on edit -->
         <!--<item name="colorControlActivated">@color/colorSecondaryLight</item>-->
         <!--ripple color-->
-        <item name="colorControlHighlight">@color/colorRipple</item>
+        <item name="colorControlHighlight">@color/colorYellowyUltraLight</item>
 
          <!--main text color -->
         <item name="android:textColorPrimary">@color/blacky</item>
@@ -67,7 +67,7 @@
     </style>
 
     <style name="AppTheme.AlertDialog.Title">
-        <item name="android:textColor">@color/colorYellowy</item>
+        <item name="android:textColor">?android:attr/colorAccent</item>
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Title</item>
         <item name="android:textAllCaps">true</item>
     </style>
@@ -127,7 +127,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:drawablePadding">15dip</item>
-        <item name="android:drawableTint">@color/colorYellowyLight</item>
+        <item name="android:drawableTint">?android:attr/colorAccent</item>
         <item name="android:textAppearance">?android:attr/textAppearance</item>
     </style>
 

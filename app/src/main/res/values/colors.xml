@@ -6,7 +6,10 @@
     <color name="colorYellowyLight">#EFCA08</color>
     <color name="colorYellowy">#EFCA08</color>
     <color name="colorYellowyDark">#F08700</color>
-    <color name="colorRipple">#fff9c4</color>
+    <color name="colorYellowyUltraLight">#fff9c4</color>
+
+    <color name="colorReddy">#EA4865</color>
+    <color name="colorReddyUltraLight">#F898A9</color>
 
     <color name="whity">#FAFFFD</color>
     <color name="blacky">#342E37</color>
