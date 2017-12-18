@@ -26,6 +26,12 @@ class StartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_start)
 
+        Preferences().introDone =false
+        if(!Preferences().introDone){
+            lauchIntro()
+            return
+        }
+
         val token = Preferences(this).dbxAccessToken
         if (token == null) {
             mIsAuthenticating = true
@@ -58,6 +64,13 @@ class StartActivity : AppCompatActivity() {
 
     // ----------------------------------------------------
 
+    private fun lauchIntro() {
+        // service up and running, start the actual app
+        val intent = Intent(this, IntroActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
+        startActivity(intent)
+        this.finish()
+    }
 
     private fun startApp() {
         // service up and running, start the actual app

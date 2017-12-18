@@ -17,6 +17,8 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        // cf https://github.com/apl-devs/AppIntro
+        maven { url 'https://jitpack.io' }
     }
 }
 

@@ -37,4 +37,8 @@ class Preferences(context: Context = App.appContext) {
     var specialChars: String
         get() = sharedPrefs.getString("generatorSpecialChars", PasswordGenerator.allSpecialChars)
         set(value) = sharedPrefs.edit().putString("generatorSpecialChars", value).apply()
+
+    var introDone: Boolean
+        get() = sharedPrefs.getBoolean("init_done", false)
+        set(value) = sharedPrefs.edit().putBoolean("init_done", value).apply()
 }

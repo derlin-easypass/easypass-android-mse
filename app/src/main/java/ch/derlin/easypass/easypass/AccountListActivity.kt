@@ -138,7 +138,6 @@ class AccountListActivity : SecureActivity() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 mAdapter.filter(newText)
-                merde.visibility = View.VISIBLE
                 return true
             }
         })
