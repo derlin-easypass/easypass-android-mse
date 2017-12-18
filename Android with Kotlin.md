@@ -272,6 +272,61 @@ As explained [here](https://stackoverflow.com/a/44161732/2667536), set your cust
 
 
 
+### SearchView discard keyboard on touch outside
+
+Ok, this one is tricky. I tried:
+
+* `hideKeyboard()`: this works, but the keyboard is automatically shown back when the bottomsheet closes
+
+* in the `bottomSheetClicked`, add 
+
+  ```kotlin
+  if(searchView.hasFocus()){
+    searchView.clearFocus()
+    return
+  }
+  ```
+
+  It works fine, but what happens if we don't click on a list item but outside (i.e. when the accounts don't take all the available space) ?
+
+One solution, ugly but working, is:
+
+1. add a layout  overlay that fills up all the relative layout. In `list_account.xml` (put it in the end, so that it is over and not under the rest):
+
+   ```xml
+   <LinearLayout
+   	android:id="@+id/overlay"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:visibility="gone"
+       android:orientation="vertical" />
+   ```
+
+2. add a `onClickListener` to clear the focus on click:
+
+   ```kotlin
+   override fun onCreate(sis: Bundle?){
+     // ...
+     overlay.setOnClickListener { _ ->
+       if(searchView.hasFocus()){
+       	searchView.clearFocus()
+       }
+     }
+   }
+   ```
+
+   ​
+
+3. add a `onQueryTextFocusChangeListener` on the `searchView` to show/hide the overlay:
+
+   ```kotlin
+   searchView.setOnQueryTextFocusChangeListener { view, focus ->
+   	overlay.visibility = if(focus) View.VISIBLE else View.GONE
+   }
+   ```
+
+   ​
+
 
 
 ## Android styles
