@@ -10,5 +10,6 @@
 
     <color name="whity">#FAFFFD</color>
     <color name="blacky">#342E37</color>
+    <color name="colorDropbox">#0061ff</color>
     <!-- primary: 43a047    primary dark: #00701a     secondary: #fb8c00 -->
 </resources>
