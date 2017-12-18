@@ -47,11 +47,11 @@ data class Account(
         }
 
     fun isDifferentFrom(acc: Account): Boolean =
-            !this.name.equals(acc.name, ignoreCase = true) ||
-                    !this.pseudo.equals(acc.pseudo, ignoreCase = true) ||
-                    !this.email.equals(acc.email, ignoreCase = true) ||
-                    !this.password.equals(acc.password, ignoreCase = true) ||
-                    !this.notes.equals(acc.notes, ignoreCase = true)
+            !this.name.equals(acc.name, ignoreCase = false) ||
+                    !this.pseudo.equals(acc.pseudo, ignoreCase = false) ||
+                    !this.email.equals(acc.email, ignoreCase = false) ||
+                    !this.password.equals(acc.password, ignoreCase = false) ||
+                    !this.notes.equals(acc.notes, ignoreCase = false)
 
     val isValid: Boolean
         get() = name.isNotBlank()
