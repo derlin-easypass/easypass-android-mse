@@ -19,7 +19,6 @@ import android.widget.TextView
 import android.widget.Toast
 import ch.derlin.easypass.easypass.data.Account
 import ch.derlin.easypass.easypass.helper.*
-import ch.derlin.easypass.easypass.helper.MiscUtils.hideKeyboard
 import ch.derlin.easypass.easypass.helper.MiscUtils.restartApp
 import kotlinx.android.synthetic.main.account_list.*
 import kotlinx.android.synthetic.main.activity_account_list.*
@@ -47,6 +46,7 @@ class AccountListActivity : SecureActivity() {
     private var mTwoPaneCurrentFragment: Fragment? = null
 
     lateinit var mAdapter: AccountAdapter
+    lateinit var searchView: SearchView
     var mOfflineIndicator: MenuItem? = null
     private var bottomSheetDialog: BottomSheetDialog? = null
     private var selectedAccount: Account? = null
@@ -117,9 +117,9 @@ class AccountListActivity : SecureActivity() {
 
     override fun onBackPressed() {
         if (mTwoPane && mTwoPaneCurrentFragment is AccountEditFragment) {
-            if(selectedAccount != null) {
+            if (selectedAccount != null) {
                 openDetailActivity(selectedAccount!!, AccountDetailActivity.OPERATION_SHOW)
-            }else{
+            } else {
                 supportFragmentManager.beginTransaction().remove(mTwoPaneCurrentFragment).commit()
             }
         } else {
@@ -127,22 +127,21 @@ class AccountListActivity : SecureActivity() {
         }
     }
 
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_list_accounts, menu)
         mOfflineIndicator = menu!!.findItem(R.id.action_offline)
         mOfflineIndicator!!.isVisible = !(NetworkStatus.isConnected ?: false)
-        (menu.findItem(R.id.action_search).actionView as SearchView)
-                .setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                    override fun onQueryTextSubmit(query: String?): Boolean {
-                        // TODO
-                        return true
-                    }
+        searchView = (menu.findItem(R.id.action_search).actionView as SearchView)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean = true
 
-                    override fun onQueryTextChange(newText: String?): Boolean {
-                        mAdapter.filter(newText)
-                        return true
-                    }
-                })
+            override fun onQueryTextChange(newText: String?): Boolean {
+                mAdapter.filter(newText)
+                merde.visibility = View.VISIBLE
+                return true
+            }
+        })
         val sort = Preferences(this).sortOrder
         menu.findItem(sort).isChecked = true
         return true
@@ -153,7 +152,7 @@ class AccountListActivity : SecureActivity() {
         if (item?.groupId == R.id.group_menu_sort) {
             Preferences(this).sortOrder = item.itemId
             mAdapter.comparator = getSortOrder(item.itemId)
-            item?.isChecked = true
+            item.isChecked = true
             return true
         } else {
             when (item?.itemId) {
@@ -177,12 +176,14 @@ class AccountListActivity : SecureActivity() {
     }
 
     private fun showBottomSheet(item: Account) {
+
         selectedAccount = item
 
         if (mTwoPane) {
             openDetailActivity(selectedAccount!!, AccountDetailActivity.OPERATION_SHOW)
             return
         }
+
 
         bottomSheetDialog = BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.bottom_sheet_layout, null)
@@ -200,7 +201,9 @@ class AccountListActivity : SecureActivity() {
 
         view.findViewById<Button>(R.id.view_edit_btn).isEnabled = NetworkStatus.isInternetAvailable(this)
 
-        hideKeyboard()
+        //hideKeyboard()
+        if(searchView.hasFocus()) searchView.clearFocus()
+
         bottomSheetDialog!!.setContentView(view)
         bottomSheetDialog!!.show()
     }
