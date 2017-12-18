@@ -127,10 +127,10 @@
 
         <!--notes field-->
         <TextView
-            style="@style/DetailsValue"
+            style="@style/DetailsLabel"
+            android:layout_gravity="fill_horizontal"
             android:id="@+id/details_notes"
-            android:layout_columnSpan="2"
-            android:padding="5dp" />
+            android:layout_columnSpan="2" />
 
 
         <Button

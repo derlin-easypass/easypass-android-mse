@@ -70,7 +70,8 @@ class AccountDetailActivity : SecureActivity() {
     fun setUpdatedAccount(account: Account) {
         selectedAccount = account
         accountModified = true
-        this.onBackPressed()
+        //this.onBackPressed()
+        backToDetailsView()
     }
 
     private fun switchFragment(f: Fragment) {
@@ -96,12 +97,16 @@ class AccountDetailActivity : SecureActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    private fun backToDetailsView(){
+        switchFragment(AccountDetailFragment())
+        app_bar.setExpanded(true, true)
+        shouldGoBackToEditView = false
+    }
+
 
     override fun onBackPressed() {
         if (shouldGoBackToEditView) {
-            switchFragment(AccountDetailFragment())
-            app_bar.setExpanded(true, true)
-            shouldGoBackToEditView = false
+            backToDetailsView()
         } else {
             val returnIntent = Intent()
             returnIntent.putExtra("modified", accountModified)
