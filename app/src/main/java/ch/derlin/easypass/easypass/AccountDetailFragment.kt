@@ -71,22 +71,23 @@ class AccountDetailFragment : Fragment() {
 
         val theActivity = activity as? AccountDetailActivity
 
-        // handle the fab icon + action
-        theActivity?.fab?.setImageResource(R.drawable.ic_mode_edit)
-        theActivity?.fab?.setOnClickListener { _ ->
-            theActivity.editAccount()
-        }
-        button_edit.setOnClickListener { _ ->
-            if (theActivity != null) {
+        if (theActivity != null) {
+            // set the title
+            theActivity.title = mItem?.name ?: "Details"
+            // handle the fab icon + action
+            theActivity?.fab?.setImageResource(R.drawable.ic_mode_edit)
+            theActivity?.fab?.setOnClickListener { _ ->
                 theActivity.editAccount()
-            } else {
+            }
+
+        } else {
+            // show the edit button
+            button_edit.visibility = View.VISIBLE
+            button_edit.setOnClickListener { _ ->
                 (activity as? AccountListActivity)?.
                         openDetailActivity(mItem!!, AccountDetailActivity.OPERATION_EDIT)
             }
         }
-
-        // set the title
-        theActivity?.title = mItem?.name ?: "Details"
     }
 
     private fun togglePassword() {
