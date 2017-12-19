@@ -177,6 +177,8 @@ class AccountListActivity : SecureActivity() {
     private fun showBottomSheet(item: Account) {
 
         selectedAccount = item
+        //hideKeyboard()
+        if(searchView.hasFocus()) searchView.clearFocus()
 
         if (mTwoPane) {
             openDetailActivity(selectedAccount!!, AccountDetailActivity.OPERATION_SHOW)
@@ -199,9 +201,6 @@ class AccountListActivity : SecureActivity() {
 
 
         view.findViewById<Button>(R.id.view_edit_btn).isEnabled = NetworkStatus.isInternetAvailable(this)
-
-        //hideKeyboard()
-        if(searchView.hasFocus()) searchView.clearFocus()
 
         bottomSheetDialog!!.setContentView(view)
         bottomSheetDialog!!.show()
