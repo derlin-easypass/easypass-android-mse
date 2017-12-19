@@ -73,10 +73,10 @@ class AccountDetailFragment : Fragment() {
 
         if (theActivity != null) {
             // set the title
-            theActivity.title = mItem?.name ?: "Details"
+            theActivity.updateTitle(mItem?.name ?: "Details")
             // handle the fab icon + action
-            theActivity?.fab?.setImageResource(R.drawable.ic_mode_edit)
-            theActivity?.fab?.setOnClickListener { _ ->
+            theActivity.fab?.setImageResource(R.drawable.ic_mode_edit)
+            theActivity.fab?.setOnClickListener { _ ->
                 theActivity.editAccount()
             }
 

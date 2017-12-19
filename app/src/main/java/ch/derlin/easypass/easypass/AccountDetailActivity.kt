@@ -54,6 +54,9 @@ class AccountDetailActivity : SecureActivity() {
         }
     }
 
+    fun updateTitle(title: String){
+        toolbarLayout.title = title
+    }
 
     fun editAccount(): Boolean {
         if (NetworkStatus.isInternetAvailable()) {

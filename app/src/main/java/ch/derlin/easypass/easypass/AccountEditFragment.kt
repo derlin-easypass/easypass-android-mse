@@ -73,7 +73,7 @@ class AccountEditFragment : Fragment() {
         working = false
 
         val theActivity = activity as? AccountDetailActivity
-        theActivity?.title = if (mItem != null) "Editing ${mItem?.name}" else "New account"
+        theActivity?.updateTitle(if (mItem != null) "Editing ${mItem?.name}" else "New account")
 
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
