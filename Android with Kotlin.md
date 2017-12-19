@@ -257,6 +257,14 @@ Currently, there is no way of customizing the thumbnail shown (i.e. screen alway
 
 # Android tips
 
+### Change title with collapsible toolbar
+
+Ensure that you are setting the title on the `CollapsingToolbarLayout`, not the activity or the toolbar !
+
+```kotlin
+toolbarLayout.title = "my title"
+```
+
 ### Ripple effect with custom background
 
 As explained [here](https://stackoverflow.com/a/44161732/2667536), set your custom background in the backgroun and the ripple attribute on the foreground:
@@ -357,6 +365,35 @@ AlertDialog.Builder(activity, R.style.AppTheme_AlertDialog)
 ```
 
 For more detailed styling, see https://qiita.com/granoeste/items/bc30c25caefe5ceb102b#stylesxml
+
+## Android security
+
+To get the keystore:
+
+```kotlin
+val keyStore = KeyStore.getInstance(ANDROID_KEY_STORE) // get
+keyStore.load(null) // initialize
+```
+
+If you forget the `load()` call, it throws `KeyStoreException: KeyStore not initialized`.
+
+Exceptions:
+
+* `UserNotAuthenticatedException`: this means the user has not unlocked the keystore for a while. In this case, you need to launch an authentication activity:
+
+  ```kotlin
+  val intent = CachedCredentials.getAuthenticationIntent(activity, requestCode)
+  if (intent != null) {
+    startActivityForResult(intent, requestCode)
+  } else {
+    // keyguard ont secure !
+    // the phone has no screen lock, 
+    // so you can't use the keystore to store credentials
+  }
+  ```
+
+* `KeyPermanentlyInvalidatedException`: happends when the user has changed its credentials (added new fingerprint or pattern, changed authentication method, …). In this case, you need to create a new key. Beware: if the user decided to remove all security (screen unlock set to swipe for example), then you can't store anything in the keystore anymore. To detect it, call `keyguardManager.isKeyguardSecure` or check if `CachedCredentials.getAuthenticationIntent(activity, requestCode)` returns `null` .
+
 
 
 TODO: 

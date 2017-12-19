@@ -5,6 +5,7 @@ import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.UserNotAuthenticatedException
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
@@ -152,14 +153,15 @@ class LoadSessionActivity : AppCompatActivity() {
             // setup auth
             // cf https://developer.android.com/training/articles/keystore.html
             val keyguardManager = activity.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-            if (!keyguardManager.isKeyguardSecure || DbxManager.isNewSession) {
+            if (!keyguardManager.isKeyguardSecure) {
                 // no way to save the password if the device doesn't have a pin
-                // or if this is the first time the password is entered
-                rememberMeCheckbox.isEnabled = false
+                checkboxText.setText("Caching disabled.\nYour device is not secure.")
             }
 
             // show text in case it is the first time
             if (DbxManager.isNewSession) {
+                rememberMeCheckbox.visibility = View.GONE // don't cache pass the first time
+                checkboxText.setText("")
                 newSessionText.visibility = View.VISIBLE
                 newSessionText.text = Html.fromHtml(getString(R.string.header_new_session))
             }
@@ -174,8 +176,7 @@ class LoadSessionActivity : AppCompatActivity() {
                     decryptSession()
                 }
             })
-
-
+            
             // toggle button to avoid empty passwords
             passwordField.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(p0: Editable?) {
@@ -197,13 +198,22 @@ class LoadSessionActivity : AppCompatActivity() {
 
 
         override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-            if (resultCode == Activity.RESULT_OK) {
-                when (requestCode) {
-                    SAVE_CREDENTIALS_REQUEST_CODE -> savePasswordAndDecrypt()
-                    LOGIN_WITH_CREDENTIALS_REQUEST_CODE -> getPasswordsFromFingerprint()
+            when (requestCode) {
+
+                SAVE_CREDENTIALS_REQUEST_CODE -> {
+                    // save the password only if the authentication was successful
+                    if (resultCode == Activity.RESULT_OK) savePasswordAndDecrypt()
+                    else decryptSession()
                 }
-            } else {
-                Toast.makeText(activity, "Confirming credentials failed", Toast.LENGTH_SHORT).show()
+
+                LOGIN_WITH_CREDENTIALS_REQUEST_CODE -> {
+                    if (resultCode == Activity.RESULT_OK) {
+                        getPasswordsFromFingerprint()
+                    } else {
+                        Toast.makeText(activity, "Confirming credentials failed", Toast.LENGTH_SHORT).show()
+                        working = false
+                    }
+                }
             }
         }
 
@@ -217,7 +227,6 @@ class LoadSessionActivity : AppCompatActivity() {
                 if (ex is JsonManager.WrongCredentialsException) {
                     // remove wrong credentials
                     CachedCredentials.clearPassword()
-                    loginButton.isEnabled = false
                     Toast.makeText(activity, "Wrong credentials", Toast.LENGTH_LONG).show()
                 } else {
                     Toast.makeText(activity, "An error occurred: " + ex.message, Toast.LENGTH_LONG).show()
@@ -243,6 +252,10 @@ class LoadSessionActivity : AppCompatActivity() {
                 decryptSession()
             } catch (e: UserNotAuthenticatedException) {
                 showAuthenticationScreen(LOGIN_WITH_CREDENTIALS_REQUEST_CODE)
+            } catch (e: KeyPermanentlyInvalidatedException) {
+                working = false
+                Toast.makeText(activity,
+                        "Secure screen changed. Key invalidated.", Toast.LENGTH_LONG).show()
             }
         }
 
@@ -250,12 +263,17 @@ class LoadSessionActivity : AppCompatActivity() {
             val intent = CachedCredentials.getAuthenticationIntent(activity, requestCode)
             if (intent != null) {
                 startActivityForResult(intent, requestCode)
+            } else {
+                // keyguard ont secure !
+                val prefs = Preferences()
+                prefs.cachedPassword = null
+                prefs.keysoreInitialised = false
+                working = false
             }
         }
 
 
         // -----------------------------------------
-
 
         companion object {
             val SAVE_CREDENTIALS_REQUEST_CODE = 1

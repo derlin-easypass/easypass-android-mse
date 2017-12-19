@@ -5,11 +5,13 @@ import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
 import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.KeyProperties
 import android.security.keystore.UserNotAuthenticatedException
 import android.util.Base64
 import timber.log.Timber
 import java.nio.charset.Charset
+import java.security.InvalidKeyException
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -44,7 +46,6 @@ object CachedCredentials {
     val prefs: Preferences
         get() = Preferences()
 
-
     // -----------------------------------------
 
     /**
@@ -71,11 +72,18 @@ object CachedCredentials {
                     Base64.encodeToString(cipher.iv, Base64.DEFAULT),
                     Base64.encodeToString(encryptedPassword, Base64.DEFAULT))
 
-        } catch (e: UserNotAuthenticatedException) {
-            throw e // -> showAuthenticationScreen(SAVE_CREDENTIALS_REQUEST_CODE)
         } catch (e: Exception) {
             Timber.d(e)
-            throw RuntimeException(e)
+            when (e) {
+            // --> showAuthenticationScreen(SAVE_CREDENTIALS_REQUEST_CODE)
+                is UserNotAuthenticatedException -> throw e
+                is KeyPermanentlyInvalidatedException -> {
+                    // the screen lock has changed
+                    deleteKey()
+                    savePassword(password) // try again, it should create the key this time
+                }
+                else -> throw RuntimeException(e)
+            }
         }
     }
 
@@ -86,16 +94,22 @@ object CachedCredentials {
      * In this case, you need to start a new activity using [KeyguardManager.createConfirmDeviceCredentialIntent].
      * (see [getAuthenticationIntent]) and then call this method again in the [Activity.onActivityResult]
      * (if the result is a success).
+     *
      * @throws Exception if there is no cached password. Use [isPasswordCached] beforehand to
      * avoid this error.
+     * @throws UserNotAuthenticatedException if the keyguard hasn't been unlocked for a while
+     * In this case, you need to start a new activity using [KeyguardManager.createConfirmDeviceCredentialIntent].
+     * (see [getAuthenticationIntent]) and then call this method again in the [Activity.onActivityResult]
+     * (if the result is a success).
+     * @throws KeyPermanentlyInvalidatedException if the lockscreen security has changed (either a
+     * new lock screen -> ask for password again) or no security (-> can't store password anymore)
+     * @throws RuntimeException for any other exception
      */
-    @Throws(UserNotAuthenticatedException::class, RuntimeException::class)
+    @Throws(UserNotAuthenticatedException::class, KeyPermanentlyInvalidatedException::class, RuntimeException::class)
     fun getPassword(): String {
         try {
             val base64Content = Preferences().cachedPassword
-            if (base64Content == null) {
-                throw Exception("No password cached.")
-            }
+            if (base64Content == null) throw Exception("No password cached.")
 
             val (base64iv, base64password) = base64Content.split(",")
             val encryptionIv = Base64.decode(base64iv, Base64.DEFAULT)
@@ -108,11 +122,19 @@ object CachedCredentials {
             val contentBytes = cipher.doFinal(encryptedContent)
 
             return String(contentBytes, charset)
-        } catch (e: UserNotAuthenticatedException) {
-            throw e // --> showAuthenticationScreen(LOGIN_WITH_CREDENTIALS_REQUEST_CODE)
+
         } catch (e: Exception) {
+            when (e) {
+            // --> showAuthenticationScreen(LOGIN_WITH_CREDENTIALS_REQUEST_CODE)
+                is UserNotAuthenticatedException -> throw e
+            // --> authentication disabled or changed, i.e. fingerprint added, pattern changed...
+                is KeyPermanentlyInvalidatedException -> deleteKey()
+                is InvalidKeyException -> deleteKey()
+            // --> default
+                else -> throw RuntimeException(e)
+            }
             Timber.d(e)
-            throw RuntimeException(e)
+            throw e
         }
     }
 
@@ -139,15 +161,25 @@ object CachedCredentials {
 
     // -----------------------------------------
 
-    // load an existing key from the keystore
-    private fun getKey(): SecretKey? {
+    // get and initialise the keystore
+    private fun getKeyStore(): KeyStore {
         val keyStore = KeyStore.getInstance(ANDROID_KEY_STORE)
         keyStore.load(null)
-        return keyStore.getKey(KEY_NAME, null) as SecretKey?
-
+        return keyStore
     }
 
-    // create a new key. Should be calledo only once, hence the [Preferences.keysoreInitialised] flag.
+    // load an existing key from the keystore
+    private fun getKey(): SecretKey? = getKeyStore().getKey(KEY_NAME, null) as SecretKey?
+
+    // delete the key. Should be called in case of [KeyPermanentlyInvalidatedException]
+    private fun deleteKey() {
+        prefs.cachedPassword = null
+        getKeyStore().deleteEntry(KEY_NAME)
+        prefs.keysoreInitialised = false
+        Timber.d("key deleted.")
+    }
+
+    // create a new key. Should be called only once, hence the [Preferences.keysoreInitialised] flag.
     private fun createKey(): SecretKey {
         try {
             val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEY_STORE)
@@ -159,6 +191,7 @@ object CachedCredentials {
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
                     .build())
             prefs.keysoreInitialised = true
+            Timber.d("key created.")
             return keyGenerator.generateKey()
         } catch (e: Exception) {
             throw RuntimeException("Failed to create a symmetric key", e)
