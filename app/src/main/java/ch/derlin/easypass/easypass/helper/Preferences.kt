@@ -12,7 +12,7 @@ class Preferences(context: Context = App.appContext) {
 
     var dbxAccessToken: String?
         get() = sharedPrefs.getString("dbx_access-token", null)
-        set(value) = sharedPrefs.edit().putString("dbx_access-token", value).apply()
+        set(value) { sharedPrefs.edit().putString("dbx_access-token", value).commit() }
 
     var revision: String?
         get() = sharedPrefs.getString("revision", null)

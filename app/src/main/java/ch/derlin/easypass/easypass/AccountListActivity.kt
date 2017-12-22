@@ -1,5 +1,6 @@
 package ch.derlin.easypass.easypass
 
+import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -72,6 +73,11 @@ class AccountListActivity : SecureActivity() {
         setContentView(R.layout.activity_account_list)
         setSupportActionBar(toolbar)
 
+        if (DbxManager.accounts == null){
+            Timber.e("accounts is null in list activity !!!")
+            return
+        }
+
         fab.setOnClickListener { view ->
             openDetailActivity(null, AccountDetailActivity.OPERATION_NEW)
         }
@@ -95,6 +101,10 @@ class AccountListActivity : SecureActivity() {
                 // update the list in case of modification
                 selectedAccount = data!!.getParcelableExtra(AccountDetailActivity.BUNDLE_ACCOUNT_KEY)
                 notifyAccountUpdate(selectedAccount!!)
+            }
+        } else if (requestCode == SETTINGS_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_CANCELED) {
+                finish()
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data)
@@ -155,7 +165,7 @@ class AccountListActivity : SecureActivity() {
             return true
         } else {
             when (item?.itemId) {
-                R.id.action_settings -> startActivity(Intent(this, SettingsActivity::class.java))
+                R.id.action_settings -> startActivityForResult(Intent(this, SettingsActivity::class.java), SETTINGS_REQUEST_CODE)
                 R.id.action_sync -> syncWithRemote()
                 else -> return super.onOptionsItemSelected(item)
             }
@@ -178,7 +188,7 @@ class AccountListActivity : SecureActivity() {
 
         selectedAccount = item
         //hideKeyboard()
-        if(searchView.hasFocus()) searchView.clearFocus()
+        if (searchView.hasFocus()) searchView.clearFocus()
 
         if (mTwoPane) {
             openDetailActivity(selectedAccount!!, AccountDetailActivity.OPERATION_SHOW)
@@ -271,6 +281,7 @@ class AccountListActivity : SecureActivity() {
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
         val sort = Preferences(this).sortOrder
+
         mAdapter = AccountAdapter(DbxManager.accounts!!,
                 defaultComparator = getSortOrder(sort),
                 textviewCounter = countText)
@@ -373,5 +384,6 @@ class AccountListActivity : SecureActivity() {
 
     companion object {
         val DETAIL_ACTIVITY_REQUEST_CODE = 1984
+        val SETTINGS_REQUEST_CODE = 1985
     }
 }

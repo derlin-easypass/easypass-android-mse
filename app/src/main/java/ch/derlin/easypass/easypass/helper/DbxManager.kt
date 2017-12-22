@@ -6,6 +6,7 @@ import ch.derlin.easypass.easypass.data.Accounts
 import ch.derlin.easypass.easypass.data.JsonManager
 import ch.derlin.easypass.easypass.data.SessionSerialisationType
 import com.dropbox.core.DbxRequestConfig
+import com.dropbox.core.InvalidAccessTokenException
 import com.dropbox.core.util.IOUtil
 import com.dropbox.core.v2.DbxClientV2
 import com.dropbox.core.v2.files.FileMetadata
@@ -44,8 +45,10 @@ object DbxManager {
         get() = prefs.revision != null
 
     val client: DbxClientV2 by lazy {
+        val token = Preferences(App.appContext).dbxAccessToken
+        Timber.d("Dropbox token ?? client created")
         val config = DbxRequestConfig.newBuilder("Easypass/2.0").build()
-        DbxClientV2(config, Preferences(App.appContext).dbxAccessToken)
+        DbxClientV2(config, token)
     }
 
     val prefs: Preferences by lazy {
@@ -80,7 +83,9 @@ object DbxManager {
                 }
             }
         } fail {
-            deferred.reject(it)
+            val ex = it
+            if(ex is InvalidAccessTokenException) prefs.dbxAccessToken = null
+            deferred.reject(ex)
         }
 
         return deferred.promise

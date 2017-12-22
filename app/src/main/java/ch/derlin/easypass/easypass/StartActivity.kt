@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
+import ch.derlin.easypass.easypass.helper.DbxManager
 import ch.derlin.easypass.easypass.helper.Preferences
 import com.dropbox.core.android.Auth
 import timber.log.Timber
@@ -33,9 +34,11 @@ class StartActivity : AppCompatActivity() {
 
         val token = Preferences(this).dbxAccessToken
         if (token == null) {
+            Timber.d("Dropbox token is null")
             mIsAuthenticating = true
             Auth.startOAuth2Authentication(this, getString(R.string.dbx_app_key))
         } else {
+            Timber.d("Dropbox token is ${token}")
             startApp()
         }
     }
@@ -48,6 +51,7 @@ class StartActivity : AppCompatActivity() {
             val token = Auth.getOAuth2Token() //generate Access Token
             if (token != null) {
                 Preferences(this).dbxAccessToken = token //Store accessToken in SharedPreferences
+                Timber.d("new Dropbox token is ${token}")
                 mIsAuthenticating = false
                 startApp()
             } else {

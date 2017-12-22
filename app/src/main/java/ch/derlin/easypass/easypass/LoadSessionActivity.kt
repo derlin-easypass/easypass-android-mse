@@ -21,6 +21,7 @@ import ch.derlin.easypass.easypass.data.JsonManager
 import ch.derlin.easypass.easypass.helper.CachedCredentials
 import ch.derlin.easypass.easypass.helper.DbxManager
 import ch.derlin.easypass.easypass.helper.Preferences
+import com.dropbox.core.InvalidAccessTokenException
 import kotlinx.android.synthetic.main.fragment_enter_password.*
 import kotlinx.android.synthetic.main.fragment_load_session_meta.*
 import nl.komponents.kovenant.ui.failUi
@@ -101,7 +102,8 @@ class LoadSessionActivity : AppCompatActivity() {
             DbxManager.fetchRemoteFileInfo().successUi {
                 next()
             } failUi {
-                showError(it)
+                val ex = it
+                showError(ex)
             }
         }
 
@@ -176,7 +178,7 @@ class LoadSessionActivity : AppCompatActivity() {
                     decryptSession()
                 }
             })
-            
+
             // toggle button to avoid empty passwords
             passwordField.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(p0: Editable?) {
@@ -255,7 +257,7 @@ class LoadSessionActivity : AppCompatActivity() {
             } catch (e: KeyPermanentlyInvalidatedException) {
                 working = false
                 Toast.makeText(activity,
-                        "Secure screen changed. Key invalidated.", Toast.LENGTH_LONG).show()
+                        "Lock screen changed. Key invalidated.", Toast.LENGTH_LONG).show()
             }
         }
 

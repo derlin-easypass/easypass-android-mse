@@ -1,5 +1,7 @@
 package ch.derlin.easypass.easypass
 
+import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.TextInputEditText
@@ -13,7 +15,6 @@ import android.view.ViewGroup
 import android.widget.*
 import ch.derlin.easypass.easypass.helper.CachedCredentials
 import ch.derlin.easypass.easypass.helper.DbxManager
-import ch.derlin.easypass.easypass.helper.MiscUtils.restartApp
 import ch.derlin.easypass.easypass.helper.MiscUtils.rootView
 import ch.derlin.easypass.easypass.helper.PasswordGenerator
 import ch.derlin.easypass.easypass.helper.Preferences
@@ -22,6 +23,7 @@ import nl.komponents.kovenant.task
 import nl.komponents.kovenant.ui.alwaysUi
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
+import timber.log.Timber
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -29,6 +31,7 @@ class SettingsActivity : AppCompatActivity() {
                   val subtitle: String = "",
                   val onClick: (() -> Unit)? = null,
                   val icon: Int = R.drawable.ic_settings,
+                  val confirm: String? = null,
                   val isHeader: Boolean = false)
 
 
@@ -47,11 +50,13 @@ class SettingsActivity : AppCompatActivity() {
             Setting("Dropbox", isHeader = true),
             Setting("Unlink",
                     "Unlink EasyPass from your dropbox.",
-                    this@SettingsActivity::unbindDropbox, R.drawable.ic_dropbox),
+                    this@SettingsActivity::unbindDropbox, R.drawable.ic_dropbox,
+                    confirm = "Are you sure you want to unbind from Dropbox ?"),
             Setting("Local file", isHeader = true),
             Setting("Clear cache",
                     "Clear the local cache by removing the file on the device.",
-                    this@SettingsActivity::clearCache, R.drawable.ic_broom)
+                    this@SettingsActivity::clearCache, R.drawable.ic_broom,
+                    confirm = "Really clear all cached data ?")
     )
 
     var working: Boolean
@@ -63,7 +68,7 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_settings)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        recyclerView.adapter = SettingsAdapter(settings)
+        recyclerView.adapter = SettingsAdapter(this, settings)
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -86,10 +91,11 @@ class SettingsActivity : AppCompatActivity() {
     fun unbindDropbox() {
         working = true
         task {
-            DbxManager.client.auth().tokenRevoke()
+            Timber.d("revoking Dropbox token ${Preferences().dbxAccessToken}")
             Preferences().dbxAccessToken = null
+            DbxManager.client.auth().tokenRevoke()
         } successUi {
-            restartApp()
+            exitApp()
         } failUi {
             working = false
             Snackbar.make(rootView(), "Error: " + it, Snackbar.LENGTH_LONG).show()
@@ -167,9 +173,14 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
+    private fun exitApp() {
+        setResult(Activity.RESULT_CANCELED)
+        finish()
+    }
+
     // ----------------------------------------- inner class
 
-    class SettingsAdapter(val settings: List<Setting>) : RecyclerView.Adapter<SettingsAdapter.ViewHolder>() {
+    class SettingsAdapter(val context: Context, val settings: List<Setting>) : RecyclerView.Adapter<SettingsAdapter.ViewHolder>() {
 
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val item: Setting = settings[position]
@@ -178,7 +189,7 @@ class SettingsActivity : AppCompatActivity() {
             if (holder is ItemViewHolder) {
                 holder.subtitleView.text = item.subtitle
                 holder.iconView.setBackgroundResource(item.icon)
-                holder.view.setOnClickListener { _ -> item.onClick?.invoke() }
+                holder.view.setOnClickListener { _ -> onItemClick(item) }
             }
         }
 
@@ -201,6 +212,20 @@ class SettingsActivity : AppCompatActivity() {
 
         override fun getItemCount(): Int = settings.size
 
+        fun onItemClick(s: Setting) {
+            if (s.confirm == null) {
+                s.onClick?.invoke()
+            } else {
+                // confirmation dialog
+                AlertDialog.Builder(context)
+                        .setMessage(s.confirm)
+                        .setPositiveButton("OK", { _, _ ->
+                            s.onClick?.invoke()
+                        })
+                        .setNegativeButton("Cancel", { _, _ -> })
+                        .show()
+            }
+        }
 
         open class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
             val titleView: TextView = view.findViewById(R.id.title)

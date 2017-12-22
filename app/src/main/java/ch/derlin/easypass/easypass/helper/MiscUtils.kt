@@ -1,15 +1,15 @@
 package ch.derlin.easypass.easypass.helper
 
 import android.app.Activity
-import android.content.Context
-import android.os.Build
-import android.text.Html
-import android.text.Spanned
-import android.view.inputmethod.InputMethodManager
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.content.Context
+import android.os.Build
 import android.support.v4.app.Fragment
+import android.text.Html
+import android.text.Spanned
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 
 
 /**
@@ -53,7 +53,9 @@ object MiscUtils {
                 .set(AlarmManager.RTC, System.currentTimeMillis() + 1, pendingIntent)
 
         System.exit(0)
+        //android.os.Process.killProcess(android.os.Process.myPid())
     }
+
 
     fun Activity.rootView(): View = findViewById(android.R.id.content)
 
