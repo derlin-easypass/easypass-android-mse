@@ -29,6 +29,7 @@
         android:name="ch.derlin.easypass.easypass.AccountListFragment"
         android:layout_width="@dimen/item_width"
         android:layout_height="match_parent"
+        android:scrollbars="vertical"
         app:layoutManager="LinearLayoutManager"
         tools:context="ch.derlin.easypass.easypass.AccountListActivity"
         tools:listitem="@layout/account_list_content" />

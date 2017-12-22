@@ -292,6 +292,7 @@ class AccountListActivity : SecureActivity() {
                 working = true
                 account.toggleFavorite()
                 mAdapter.resetAndNotify()
+                recyclerView.scrollToPosition(mAdapter.positionOf(account))
                 DbxManager.saveAccounts()
                         .alwaysUi { working = false }
                         .failUi {
