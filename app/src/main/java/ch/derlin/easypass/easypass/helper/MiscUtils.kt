@@ -4,12 +4,14 @@ import android.app.Activity
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.support.v4.app.Fragment
 import android.text.Html
 import android.text.Spanned
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import ch.derlin.easypass.easypass.IntroActivity
 
 
 /**
@@ -50,12 +52,18 @@ object MiscUtils {
                 PendingIntent.FLAG_CANCEL_CURRENT)
 
         (getSystemService(Context.ALARM_SERVICE) as AlarmManager)
-                .set(AlarmManager.RTC, System.currentTimeMillis() + 1, pendingIntent)
+                .set(AlarmManager.RTC, System.currentTimeMillis() + 10, pendingIntent)
 
         System.exit(0)
         //android.os.Process.killProcess(android.os.Process.myPid())
     }
 
+    fun Activity.showIntro(){
+        val intent = Intent(this, IntroActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
+        startActivity(intent)
+        this.finish()
+    }
 
     fun Activity.rootView(): View = findViewById(android.R.id.content)
 

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import ch.derlin.easypass.easypass.helper.DbxManager
+import ch.derlin.easypass.easypass.helper.MiscUtils.showIntro
 import ch.derlin.easypass.easypass.helper.Preferences
 import com.dropbox.core.android.Auth
 import timber.log.Timber
@@ -28,7 +29,7 @@ class StartActivity : AppCompatActivity() {
         setContentView(R.layout.activity_start)
 
         if(!Preferences().introDone){
-            lauchIntro()
+            showIntro()
             return
         }
 
@@ -65,15 +66,11 @@ class StartActivity : AppCompatActivity() {
         }
     }
 
-    // ----------------------------------------------------
-
-    private fun lauchIntro() {
-        // service up and running, start the actual app
-        val intent = Intent(this, IntroActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
-        startActivity(intent)
-        this.finish()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
     }
+
+    // ----------------------------------------------------
 
     private fun startApp() {
         // service up and running, start the actual app

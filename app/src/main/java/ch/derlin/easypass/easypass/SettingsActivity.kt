@@ -2,6 +2,7 @@ package ch.derlin.easypass.easypass
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.TextInputEditText
@@ -16,6 +17,7 @@ import android.widget.*
 import ch.derlin.easypass.easypass.helper.CachedCredentials
 import ch.derlin.easypass.easypass.helper.DbxManager
 import ch.derlin.easypass.easypass.helper.MiscUtils.rootView
+import ch.derlin.easypass.easypass.helper.MiscUtils.showIntro
 import ch.derlin.easypass.easypass.helper.PasswordGenerator
 import ch.derlin.easypass.easypass.helper.Preferences
 import kotlinx.android.synthetic.main.activity_settings.*
@@ -47,16 +49,19 @@ class SettingsActivity : AppCompatActivity() {
             Setting("Clear",
                     "Forget all cached passwords.",
                     this@SettingsActivity::clearPassword, R.drawable.ic_fingerprint),
-            Setting("Dropbox", isHeader = true),
+            Setting("Data", isHeader = true),
             Setting("Unlink",
                     "Unlink EasyPass from your dropbox.",
                     this@SettingsActivity::unbindDropbox, R.drawable.ic_dropbox,
                     confirm = "Are you sure you want to unbind from Dropbox ?"),
-            Setting("Local file", isHeader = true),
             Setting("Clear cache",
                     "Clear the local cache by removing the file on the device.",
                     this@SettingsActivity::clearCache, R.drawable.ic_broom,
-                    confirm = "Really clear all cached data ?")
+                    confirm = "Really clear all cached data ?"),
+            Setting("Other", isHeader = true),
+            Setting("Intro",
+                    "Show the introductory slides.",
+                    { -> showIntro() }, R.drawable.ic_info_outline)
     )
 
     var working: Boolean
@@ -174,7 +179,9 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun exitApp() {
-        setResult(Activity.RESULT_CANCELED)
+        val intent = Intent()
+        intent.putExtra(BUNDLE_RESTART_KEY, true)
+        setResult(Activity.RESULT_OK, intent)
         finish()
     }
 
@@ -235,6 +242,12 @@ class SettingsActivity : AppCompatActivity() {
             val subtitleView: TextView = view.findViewById(R.id.subtitle)
             val iconView: ImageView = view.findViewById(R.id.icon)
         }
+    }
+
+    // -----------------------------------------
+
+    companion object {
+        val BUNDLE_RESTART_KEY = "restart"
     }
 
 }

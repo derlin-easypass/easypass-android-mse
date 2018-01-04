@@ -73,7 +73,7 @@ class AccountListActivity : SecureActivity() {
         setContentView(R.layout.activity_account_list)
         setSupportActionBar(toolbar)
 
-        if (DbxManager.accounts == null){
+        if (DbxManager.accounts == null) {
             Timber.e("accounts is null in list activity !!!")
             return
         }
@@ -103,8 +103,14 @@ class AccountListActivity : SecureActivity() {
                 notifyAccountUpdate(selectedAccount!!)
             }
         } else if (requestCode == SETTINGS_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_CANCELED) {
-                finish()
+            if (resultCode == Activity.RESULT_OK) {
+                data?.let {
+                    // if asking for restart, kill current activity
+                    // TODO: find a better way
+                    if (it.getBooleanExtra(SettingsActivity.BUNDLE_RESTART_KEY, false)) {
+                        finish()
+                    }
+                }
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data)
@@ -352,7 +358,6 @@ class AccountListActivity : SecureActivity() {
         }
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(recyclerView)
-
     }
 
     private fun showToast(msg: String, duration: Int = Toast.LENGTH_SHORT) {
