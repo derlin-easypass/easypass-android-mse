@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
-import ch.derlin.easypass.easypass.helper.DbxManager
 import ch.derlin.easypass.easypass.helper.MiscUtils.showIntro
 import ch.derlin.easypass.easypass.helper.Preferences
 import com.dropbox.core.android.Auth
@@ -19,7 +18,7 @@ import timber.log.Timber
  */
 class StartActivity : AppCompatActivity() {
 
-    private var mIsAuthenticating = false
+    private var isAuthenticating = false
 
     // ----------------------------------------------------
 
@@ -28,15 +27,35 @@ class StartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_start)
 
-        if(!Preferences().introDone){
+        if (!Preferences().introDone) {
             showIntro()
-            return
+        } else {
+            checkToken()
         }
+    }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == IntroActivity.INTENT_INTRO) {
+            checkToken()
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (isAuthenticating) {
+            finishAuth()
+        }
+    }
+
+    // ----------------------------------------------------
+
+    private fun checkToken() {
         val token = Preferences(this).dbxAccessToken
         if (token == null) {
             Timber.d("Dropbox token is null")
-            mIsAuthenticating = true
+            isAuthenticating = true
             Auth.startOAuth2Authentication(this, getString(R.string.dbx_app_key))
         } else {
             Timber.d("Dropbox token is ${token}")
@@ -44,33 +63,23 @@ class StartActivity : AppCompatActivity() {
         }
     }
 
-
-    override fun onResume() {
-        super.onResume()
+    private fun finishAuth() {
         // the dropbox linking happens in another activity.
-        if (mIsAuthenticating) {
-            val token = Auth.getOAuth2Token() //generate Access Token
-            if (token != null) {
-                Preferences(this).dbxAccessToken = token //Store accessToken in SharedPreferences
-                Timber.d("new Dropbox token is ${token}")
-                mIsAuthenticating = false
-                startApp()
-            } else {
-                Snackbar.make(findViewById(android.R.id.content), "Error authenticating with Dropbox", Snackbar.LENGTH_INDEFINITE)
-                        .setAction("retry", { _ ->
-                            forceRestart()
-                        })
-                        .show()
-                Timber.d("Error authenticating")
-            }
+        val token = Auth.getOAuth2Token() //generate Access Token
+        if (token != null) {
+            Preferences(this).dbxAccessToken = token //Store accessToken in SharedPreferences
+            Timber.d("new Dropbox token is ${token}")
+            isAuthenticating = false
+            startApp()
+        } else {
+            Snackbar.make(findViewById(android.R.id.content), "Error authenticating with Dropbox", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("retry", { _ ->
+                        forceRestart()
+                    })
+                    .show()
+            Timber.d("Error authenticating")
         }
     }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-    }
-
-    // ----------------------------------------------------
 
     private fun startApp() {
         // service up and running, start the actual app
@@ -85,6 +94,4 @@ class StartActivity : AppCompatActivity() {
         launchIntent!!.flags = Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(launchIntent)
     }
-
-
 }

@@ -60,9 +60,8 @@ object MiscUtils {
 
     fun Activity.showIntro(){
         val intent = Intent(this, IntroActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
-        startActivity(intent)
-        this.finish()
+        // intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
+        startActivityForResult(intent, IntroActivity.INTENT_INTRO)
     }
 
     fun Activity.rootView(): View = findViewById(android.R.id.content)

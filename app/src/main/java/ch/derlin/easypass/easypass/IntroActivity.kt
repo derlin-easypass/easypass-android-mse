@@ -1,11 +1,8 @@
 package ch.derlin.easypass.easypass
 
-import android.animation.ArgbEvaluator
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v4.view.ViewPager
 import ch.derlin.easypass.easypass.helper.Preferences
 import com.github.paolorotolo.appintro.AppIntro
 import com.github.paolorotolo.appintro.AppIntroFragment
@@ -69,24 +66,23 @@ class IntroActivity : AppIntro(){
         addSlide(AppIntroFragment.newInstance(sliderPage))
     }
 
-    private fun launchApp() {
+    private fun exitIntro() {
         Preferences().introDone = true
-        // service up and running, start the actual app
-        val intent = Intent(this, StartActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
-        startActivity(intent)
         this.finish()
     }
 
     override fun onSkipPressed(currentFragment: Fragment) {
         super.onSkipPressed(currentFragment)
-        launchApp()
+        exitIntro()
     }
 
     override fun onDonePressed(currentFragment: Fragment) {
         super.onDonePressed(currentFragment)
-        launchApp()
+        exitIntro()
     }
 
+    companion object {
+        val INTENT_INTRO = 5553
+    }
 
 }

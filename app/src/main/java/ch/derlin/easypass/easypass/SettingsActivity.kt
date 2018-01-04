@@ -68,6 +68,9 @@ class SettingsActivity : AppCompatActivity() {
         get() = progressBar.visibility == View.VISIBLE
         set(value) = progressBar.setVisibility(if (value) View.VISIBLE else View.INVISIBLE)
 
+
+    // ----------------------------------------- activity stuff
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
