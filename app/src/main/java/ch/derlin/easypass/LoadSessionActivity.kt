@@ -1,4 +1,4 @@
-package ch.derlin.easypass.easypass
+package ch.derlin.easypass
 
 import android.app.Activity
 import android.app.KeyguardManager
@@ -17,11 +17,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import ch.derlin.easypass.easypass.data.JsonManager
-import ch.derlin.easypass.easypass.helper.CachedCredentials
-import ch.derlin.easypass.easypass.helper.DbxManager
-import ch.derlin.easypass.easypass.helper.Preferences
-import com.dropbox.core.InvalidAccessTokenException
+import ch.derlin.easypass.easypass.R
+import ch.derlin.easypass.data.JsonManager
+import ch.derlin.easypass.helper.CachedCredentials
+import ch.derlin.easypass.helper.DbxManager
+import ch.derlin.easypass.helper.Preferences
 import kotlinx.android.synthetic.main.fragment_enter_password.*
 import kotlinx.android.synthetic.main.fragment_load_session_meta.*
 import nl.komponents.kovenant.ui.failUi

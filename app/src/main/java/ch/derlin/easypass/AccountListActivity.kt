@@ -1,4 +1,4 @@
-package ch.derlin.easypass.easypass
+package ch.derlin.easypass
 
 import android.app.Activity
 import android.app.AlertDialog
@@ -20,10 +20,11 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
-import ch.derlin.easypass.easypass.data.Account
-import ch.derlin.easypass.easypass.helper.*
-import ch.derlin.easypass.easypass.helper.MiscUtils.attrColor
-import ch.derlin.easypass.easypass.helper.MiscUtils.restartApp
+import ch.derlin.easypass.easypass.R
+import ch.derlin.easypass.data.Account
+import ch.derlin.easypass.helper.*
+import ch.derlin.easypass.helper.MiscUtils.attrColor
+import ch.derlin.easypass.helper.MiscUtils.restartApp
 import kotlinx.android.synthetic.main.account_list.*
 import kotlinx.android.synthetic.main.activity_account_list.*
 import nl.komponents.kovenant.ui.alwaysUi

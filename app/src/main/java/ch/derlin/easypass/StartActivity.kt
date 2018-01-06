@@ -1,11 +1,12 @@
-package ch.derlin.easypass.easypass
+package ch.derlin.easypass
 
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
-import ch.derlin.easypass.easypass.helper.MiscUtils.showIntro
-import ch.derlin.easypass.easypass.helper.Preferences
+import ch.derlin.easypass.easypass.R
+import ch.derlin.easypass.helper.MiscUtils.showIntro
+import ch.derlin.easypass.helper.Preferences
 import com.dropbox.core.android.Auth
 import timber.log.Timber
 

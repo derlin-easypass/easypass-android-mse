@@ -1,4 +1,4 @@
-package ch.derlin.easypass.easypass
+package ch.derlin.easypass
 
 /**
  * Created by Lin on 24.11.17.
@@ -11,7 +11,6 @@ import nl.komponents.kovenant.android.stopKovenant
 import nl.komponents.kovenant.buildDispatcher
 import timber.log.Timber
 import timber.log.Timber.DebugTree
-import android.content.Intent
 
 
 class App : Application() {

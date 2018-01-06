@@ -9,7 +9,7 @@
     android:divider="?android:attr/dividerHorizontal"
     android:orientation="horizontal"
     android:showDividers="middle"
-    tools:context="ch.derlin.easypass.easypass.AccountListActivity">
+    tools:context="ch.derlin.easypass.easypass.ch.derlin.easypass.AccountListActivity">
 
     <!--
     This layout is a two-pane layout for the Accounts
@@ -31,7 +31,7 @@
         android:layout_height="match_parent"
         android:scrollbars="vertical"
         app:layoutManager="LinearLayoutManager"
-        tools:context="ch.derlin.easypass.easypass.AccountListActivity"
+        tools:context="ch.derlin.easypass.easypass.ch.derlin.easypass.AccountListActivity"
         tools:listitem="@layout/account_list_content" />
 
 

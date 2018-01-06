@@ -1,4 +1,4 @@
-package ch.derlin.easypass.easypass
+package ch.derlin.easypass
 
 import android.app.Activity
 import android.content.Intent
@@ -6,9 +6,10 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.MenuItem
 import android.widget.Toast
-import ch.derlin.easypass.easypass.data.Account
-import ch.derlin.easypass.easypass.helper.NetworkStatus
-import ch.derlin.easypass.easypass.helper.SecureActivity
+import ch.derlin.easypass.easypass.R
+import ch.derlin.easypass.data.Account
+import ch.derlin.easypass.helper.NetworkStatus
+import ch.derlin.easypass.helper.SecureActivity
 import kotlinx.android.synthetic.main.activity_account_detail.*
 
 

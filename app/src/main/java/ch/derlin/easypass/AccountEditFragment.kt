@@ -1,4 +1,4 @@
-package ch.derlin.easypass.easypass
+package ch.derlin.easypass
 
 
 import android.content.Context
@@ -17,10 +17,11 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
-import ch.derlin.easypass.easypass.data.Account
-import ch.derlin.easypass.easypass.helper.DbxManager
-import ch.derlin.easypass.easypass.helper.MiscUtils.hideKeyboard
-import ch.derlin.easypass.easypass.helper.PasswordGenerator
+import ch.derlin.easypass.easypass.R
+import ch.derlin.easypass.data.Account
+import ch.derlin.easypass.helper.DbxManager
+import ch.derlin.easypass.helper.MiscUtils.hideKeyboard
+import ch.derlin.easypass.helper.PasswordGenerator
 import com.shawnlin.numberpicker.NumberPicker
 import kotlinx.android.synthetic.main.account_edit.*
 import kotlinx.android.synthetic.main.activity_account_detail.*

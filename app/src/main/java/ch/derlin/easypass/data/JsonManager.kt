@@ -1,4 +1,4 @@
-package ch.derlin.easypass.easypass.data
+package ch.derlin.easypass.data
 
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonIOException
@@ -44,7 +44,7 @@ object JsonManager {
     @Throws(IOException::class)
     fun serialize(data: Any, filepath: String,
                   password: String, algo: String = "aes-128-cbc") {
-        this.serialize(data, FileOutputStream(filepath), password, algo)
+        serialize(data, FileOutputStream(filepath), password, algo)
     }// end serialize
 
 
@@ -101,7 +101,7 @@ object JsonManager {
     @Throws(WrongCredentialsException::class, IOException::class)
     fun deserialize(filepath: String, password: String,
                     type: Type, algo: String = "aes-128-cbc"): Any {
-        return this.deserialize(FileInputStream(filepath), password, type, algo)
+        return deserialize(FileInputStream(filepath), password, type, algo)
     }// end deserialize
 
 

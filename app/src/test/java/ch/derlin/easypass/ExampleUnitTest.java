@@ -1,4 +1,4 @@
-package ch.derlin.easypass.easypass;
+package ch.derlin.easypass;
 
 import org.junit.Test;
 

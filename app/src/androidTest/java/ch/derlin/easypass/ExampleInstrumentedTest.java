@@ -1,4 +1,4 @@
-package ch.derlin.easypass.easypass;
+package ch.derlin.easypass;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

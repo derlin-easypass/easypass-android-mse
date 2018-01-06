@@ -1,4 +1,4 @@
-package ch.derlin.easypass.easypass
+package ch.derlin.easypass
 
 import android.app.Activity
 import android.content.Context
@@ -14,12 +14,13 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import ch.derlin.easypass.easypass.helper.CachedCredentials
-import ch.derlin.easypass.easypass.helper.DbxManager
-import ch.derlin.easypass.easypass.helper.MiscUtils.rootView
-import ch.derlin.easypass.easypass.helper.MiscUtils.showIntro
-import ch.derlin.easypass.easypass.helper.PasswordGenerator
-import ch.derlin.easypass.easypass.helper.Preferences
+import ch.derlin.easypass.easypass.R
+import ch.derlin.easypass.helper.CachedCredentials
+import ch.derlin.easypass.helper.DbxManager
+import ch.derlin.easypass.helper.MiscUtils.rootView
+import ch.derlin.easypass.helper.MiscUtils.showIntro
+import ch.derlin.easypass.helper.PasswordGenerator
+import ch.derlin.easypass.helper.Preferences
 import kotlinx.android.synthetic.main.activity_settings.*
 import nl.komponents.kovenant.task
 import nl.komponents.kovenant.ui.alwaysUi
@@ -208,13 +209,13 @@ class SettingsActivity : AppCompatActivity() {
             if (viewType == 0) {
                 val v = LayoutInflater.from(parent!!.context).inflate(
                         R.layout.settings_list_header, parent, false)
-                return SettingsAdapter.ViewHolder(v)
+                return ViewHolder(v)
 
             } else {
                 val v: View = LayoutInflater.from(parent!!.context).inflate(
                         R.layout.settings_list_content, parent, false)
 
-                return SettingsAdapter.ItemViewHolder(v)
+                return ItemViewHolder(v)
             }
         }
 

@@ -1,4 +1,4 @@
-package ch.derlin.easypass.easypass
+package ch.derlin.easypass
 
 import android.content.Context
 import android.os.Bundle
@@ -6,7 +6,8 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import ch.derlin.easypass.easypass.data.Account
+import ch.derlin.easypass.easypass.R
+import ch.derlin.easypass.data.Account
 import kotlinx.android.synthetic.main.account_detail.*
 import kotlinx.android.synthetic.main.activity_account_detail.*
 

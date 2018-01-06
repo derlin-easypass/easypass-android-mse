@@ -1,10 +1,11 @@
-package ch.derlin.easypass.easypass
+package ch.derlin.easypass
 
 import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import ch.derlin.easypass.easypass.helper.MiscUtils.attrColor
-import ch.derlin.easypass.easypass.helper.Preferences
+import ch.derlin.easypass.easypass.R
+import ch.derlin.easypass.helper.MiscUtils.attrColor
+import ch.derlin.easypass.helper.Preferences
 import com.github.paolorotolo.appintro.AppIntro
 import com.github.paolorotolo.appintro.AppIntroFragment
 import com.github.paolorotolo.appintro.model.SliderPage

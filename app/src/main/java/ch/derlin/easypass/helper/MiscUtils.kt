@@ -1,4 +1,4 @@
-package ch.derlin.easypass.easypass.helper
+package ch.derlin.easypass.helper
 
 import android.app.Activity
 import android.app.AlarmManager
@@ -12,7 +12,7 @@ import android.text.Spanned
 import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import ch.derlin.easypass.easypass.IntroActivity
+import ch.derlin.easypass.IntroActivity
 
 
 /**

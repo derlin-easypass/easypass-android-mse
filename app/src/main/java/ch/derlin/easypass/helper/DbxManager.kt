@@ -1,10 +1,10 @@
-package ch.derlin.easypass.easypass.helper
+package ch.derlin.easypass.helper
 
 import android.content.Context
-import ch.derlin.easypass.easypass.App
-import ch.derlin.easypass.easypass.data.Accounts
-import ch.derlin.easypass.easypass.data.JsonManager
-import ch.derlin.easypass.easypass.data.SessionSerialisationType
+import ch.derlin.easypass.App
+import ch.derlin.easypass.data.Accounts
+import ch.derlin.easypass.data.JsonManager
+import ch.derlin.easypass.data.SessionSerialisationType
 import com.dropbox.core.DbxRequestConfig
 import com.dropbox.core.InvalidAccessTokenException
 import com.dropbox.core.util.IOUtil
@@ -135,7 +135,7 @@ object DbxManager {
     }
 
     fun saveAccounts(): Promise<Boolean, Exception> {
-        assert(this.accounts != null)
+        assert(accounts != null)
 
         val deferred = deferred<Boolean, Exception>()
         task {
@@ -148,7 +148,7 @@ object DbxManager {
 
             // upload file to dropbox
             App.appContext.openFileInput(tempFile).use { `in` ->
-                this.metadata = client.files()
+                metadata = client.files()
                         .uploadBuilder(accounts!!.path)
                         .withMode(WriteMode.OVERWRITE)
                         .uploadAndFinish(`in`)

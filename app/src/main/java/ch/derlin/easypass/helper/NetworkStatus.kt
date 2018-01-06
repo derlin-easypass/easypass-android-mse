@@ -1,8 +1,8 @@
-package ch.derlin.easypass.easypass.helper
+package ch.derlin.easypass.helper
 
 import android.content.Context
 import android.net.ConnectivityManager
-import ch.derlin.easypass.easypass.App
+import ch.derlin.easypass.App
 
 
 object NetworkStatus {

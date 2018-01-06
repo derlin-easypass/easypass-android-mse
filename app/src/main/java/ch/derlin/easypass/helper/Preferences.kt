@@ -1,8 +1,7 @@
-package ch.derlin.easypass.easypass.helper
+package ch.derlin.easypass.helper
 
 import android.content.Context
-import ch.derlin.easypass.easypass.App
-import ch.derlin.easypass.easypass.R
+import ch.derlin.easypass.App
 
 class Preferences(context: Context = App.appContext) {
 

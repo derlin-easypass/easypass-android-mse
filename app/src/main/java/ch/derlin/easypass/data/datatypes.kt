@@ -1,4 +1,4 @@
-package ch.derlin.easypass.easypass.data
+package ch.derlin.easypass.data
 
 
 import android.os.Parcelable
@@ -26,7 +26,7 @@ data class Account(
         @Expose @SerializedName("email") var email: String = "",
         @Expose @SerializedName("password") var password: String = "",
         @Expose @SerializedName("notes") var notes: String = "",
-        @Expose @SerializedName("creation date") var creationDate: String = Account.now,
+        @Expose @SerializedName("creation date") var creationDate: String = now,
         @Expose @SerializedName("modification date") var modificationDate: String = "",
         @Expose @SerializedName("favorite") var isFavorite: Boolean = false) : Parcelable {
 

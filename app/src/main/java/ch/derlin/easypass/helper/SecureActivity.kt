@@ -1,4 +1,4 @@
-package ch.derlin.easypass.easypass.helper
+package ch.derlin.easypass.helper
 
 import android.os.Bundle
 import android.support.annotation.CallSuper

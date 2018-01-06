@@ -1,12 +1,11 @@
-package ch.derlin.easypass.easypass.helper
+package ch.derlin.easypass.helper
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
-import android.support.v4.content.LocalBroadcastManager
-import ch.derlin.easypass.easypass.App
+import ch.derlin.easypass.App
 
 
 open class NetworkChangeListener : BroadcastReceiver() {
