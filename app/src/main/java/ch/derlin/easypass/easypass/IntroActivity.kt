@@ -3,6 +3,7 @@ package ch.derlin.easypass.easypass
 import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import ch.derlin.easypass.easypass.helper.MiscUtils.attrColor
 import ch.derlin.easypass.easypass.helper.Preferences
 import com.github.paolorotolo.appintro.AppIntro
 import com.github.paolorotolo.appintro.AppIntroFragment
@@ -18,7 +19,7 @@ class IntroActivity : AppIntro(){
         addSlide(
                 "Welcome!",
                 "One safe vault for all your credentials, anywhere, anytime.",
-                getColor(R.color.colorGreeny),
+                attrColor(R.attr.colorPrimary),
                 R.mipmap.ic_launcher
         )
         addSlide(
@@ -43,7 +44,7 @@ class IntroActivity : AppIntro(){
         addSlide(
                 "Let's do it!",
                 "Start enjoying EasyPass now.",
-                getColor(R.color.colorGreeny),
+                attrColor(R.attr.colorPrimary),
                 R.drawable.octo
         )
 
