@@ -9,13 +9,13 @@ import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 
 // from https://medium.com/@kitek/recyclerview-swipe-to-delete-easier-than-you-thought-cff67ff5e5f6
-abstract class SwipeToDeleteCallback(context: Context) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+abstract class SwipeToDeleteCallback(context: Context, val backgroundColor: Int = Color.parseColor("#f44336")) :
+        ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
     private val deleteIcon = ContextCompat.getDrawable(context, R.drawable.ic_delete_white)
     private val intrinsicWidth = deleteIcon.intrinsicWidth
     private val intrinsicHeight = deleteIcon.intrinsicHeight
     private val background = ColorDrawable()
-    private val backgroundColor = Color.parseColor("#f44336")
 
     override fun onMove(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?, target: RecyclerView.ViewHolder?): Boolean {
         return false

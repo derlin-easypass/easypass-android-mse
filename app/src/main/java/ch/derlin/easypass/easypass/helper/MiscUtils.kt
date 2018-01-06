@@ -9,6 +9,7 @@ import android.os.Build
 import android.support.v4.app.Fragment
 import android.text.Html
 import android.text.Spanned
+import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import ch.derlin.easypass.easypass.IntroActivity
@@ -58,7 +59,7 @@ object MiscUtils {
         //android.os.Process.killProcess(android.os.Process.myPid())
     }
 
-    fun Activity.showIntro(){
+    fun Activity.showIntro() {
         val intent = Intent(this, IntroActivity::class.java)
         // intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
         startActivityForResult(intent, IntroActivity.INTENT_INTRO)
@@ -66,4 +67,12 @@ object MiscUtils {
 
     fun Activity.rootView(): View = findViewById(android.R.id.content)
 
+    fun Activity.attrColor(resourceId: Int): Int {
+        // see https://stackoverflow.com/a/27611244/2667536
+        val typedValue = TypedValue()
+        val a = obtainStyledAttributes(typedValue.data, intArrayOf(resourceId))
+        val color = a.getColor(0, 0)
+        a.recycle()
+        return color
+    }
 }

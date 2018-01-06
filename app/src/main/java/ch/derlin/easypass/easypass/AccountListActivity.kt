@@ -21,6 +21,7 @@ import android.widget.TextView
 import android.widget.Toast
 import ch.derlin.easypass.easypass.data.Account
 import ch.derlin.easypass.easypass.helper.*
+import ch.derlin.easypass.easypass.helper.MiscUtils.attrColor
 import ch.derlin.easypass.easypass.helper.MiscUtils.restartApp
 import kotlinx.android.synthetic.main.account_list.*
 import kotlinx.android.synthetic.main.activity_account_list.*
@@ -338,7 +339,7 @@ class AccountListActivity : SecureActivity() {
             }
         }
 
-        val swipeHandler = object : SwipeToDeleteCallback(this) {
+        fun createSwipeHandler(): SwipeToDeleteCallback = object : SwipeToDeleteCallback(this, attrColor(R.attr.colorAccent)) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder?, direction: Int) {
                 val item = mAdapter.removeAt(viewHolder!!.adapterPosition)
                 working = true
@@ -371,7 +372,8 @@ class AccountListActivity : SecureActivity() {
                         }
             }
         }
-        val itemTouchHelper = ItemTouchHelper(swipeHandler)
+
+        val itemTouchHelper = ItemTouchHelper(createSwipeHandler())
         itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 

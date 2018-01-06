@@ -6,7 +6,7 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingBottom="50dip"
+    android:paddingBottom="10dip"
     app:behavior_hideable="true"
     app:layout_behavior="@string/bottom_sheet_behavior"
     tools:context="ch.derlin.easypass.easypass.AccountListActivity">
@@ -14,7 +14,7 @@
     <TextView
         android:id="@+id/bottomSheetTitle"
         android:paddingStart="15dip"
-        android:layout_marginBottom="20dip"
+        android:layout_marginBottom="10dip"
         style="@style/BottomSheetButton"
         android:textColor="@android:color/primary_text_dark"
         android:foregroundTint="@android:color/primary_text_dark"
@@ -44,12 +44,16 @@
         android:textAllCaps="false"
         android:text="@string/fmt_copy_xx" />
 
+    <View style="@style/Divider" />
+
     <Button
         android:id="@+id/view_password_btn"
         style="@style/BottomSheetButton"
         android:onClick="bottomSheetClicked"
         android:drawableStart="@drawable/ic_lock"
         android:text="Show password" />
+
+    <!--<View style="@style/Divider" />-->
 
     <Button
         android:id="@+id/view_details_btn"

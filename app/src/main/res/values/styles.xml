@@ -67,8 +67,8 @@
     </style>
 
     <style name="AppTheme.AlertDialog.Title">
-        <item name="android:textColor">?android:attr/colorAccent</item>
-        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Title</item>
+        <item name="android:textColor">@color/colorDarkGrey</item>
+        <item name="android:textAppearance">@style/AppTheme.TextAppearance</item>
         <item name="android:textAllCaps">true</item>
     </style>
 
@@ -81,7 +81,7 @@
     </style>
 
     <style name="dialogButtonStyle.Positive">
-        <item name="android:textColor">@color/colorGreenyDark</item>
+        <item name="android:textColor">@color/colorDarkerGrey</item>
     </style>
 
     <style name="Header" parent="AppTheme">
@@ -91,7 +91,7 @@
         <item name="android:textStyle">normal</item>
         <item name="android:layout_marginTop">4dp</item>
         <item name="android:padding">10dp</item>
-        <item name="android:textColor">?attr/colorPrimaryDark</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
     </style>
 
     <style name="Divider" parent="AppTheme">
@@ -128,8 +128,9 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:drawablePadding">15dip</item>
-        <item name="android:drawableTint">?android:attr/colorAccent</item>
+        <item name="android:drawableTint">@color/btn_tint_color</item>
         <item name="android:textAppearance">?android:attr/textAppearance</item>
+        <item name="android:textColor">@color/btn_text_color</item>
     </style>
 
     <style name="LayoutWithMaxWidth">
