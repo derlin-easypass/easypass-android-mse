@@ -17,6 +17,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import ch.derlin.easypass.easypass.data.Account
@@ -254,6 +255,9 @@ class AccountListActivity : SecureActivity() {
     private fun showPassword(account: Account) {
         val view = layoutInflater.inflate(R.layout.show_password, null)
         view.findViewById<TextView>(R.id.show_password).setText(account.password)
+        view.findViewById<ImageButton>(R.id.copy_pass_btn).setOnClickListener { _ ->
+            copyToClipboard(selectedAccount!!.password, "password copied!")
+        }
         AlertDialog.Builder(this)
                 .setView(view)
                 .show()
@@ -263,7 +267,7 @@ class AccountListActivity : SecureActivity() {
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.primaryClip = ClipData.newPlainText("easypass", text)
         if (toastDescription != "") {
-            if (bottomSheetDialog != null)
+            if (bottomSheetDialog != null && bottomSheetDialog!!.isShowing)
                 Snackbar.make(bottomSheetDialog!!.findViewById(android.R.id.content)!!, toastDescription, Snackbar.LENGTH_SHORT).show()
             else
                 Toast.makeText(this, toastDescription, Toast.LENGTH_SHORT).show()
