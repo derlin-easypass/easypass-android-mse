@@ -157,13 +157,14 @@ class LoadSessionActivity : AppCompatActivity() {
             val keyguardManager = activity.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
             if (!keyguardManager.isKeyguardSecure) {
                 // no way to save the password if the device doesn't have a pin
-                checkboxText.setText("Caching disabled.\nYour device is not secure.")
+                rememberMeCheckbox.isEnabled = false
+                rememberMeCheckbox.setText("Caching disabled.\nYour device is not secure.")
             }
 
             // show text in case it is the first time
             if (DbxManager.isNewSession) {
                 rememberMeCheckbox.visibility = View.GONE // don't cache pass the first time
-                checkboxText.setText("")
+                rememberMeCheckbox.setText("")
                 newSessionText.visibility = View.VISIBLE
                 newSessionText.text = Html.fromHtml(getString(R.string.header_new_session))
             }

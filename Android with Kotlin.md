@@ -257,6 +257,21 @@ Currently, there is no way of customizing the thumbnail shown (i.e. screen alway
 
 # Android tips
 
+## Delete preferences file on uninstall
+
+from https://stackoverflow.com/questions/15873066/how-to-remove-shared-preference-while-application-uninstall-in-android: 
+
+> The problem is not with preferences. It's drastically **the backup manager**! .. since android-23 by default backup as a task stores app's data including preferences to cloud. Later when you uninstall then install newer version you are probably going to use restored preferences. To avoid that, just add this to your manifest (or at least to debug manifest):
+>
+> ```xml
+> <application ...
+>         android:allowBackup="false">
+> ...
+> </application>
+> ```
+>
+> 
+
 ### Change title with collapsible toolbar
 
 Ensure that you are setting the title on the `CollapsingToolbarLayout`, not the activity or the toolbar !
@@ -393,6 +408,40 @@ Exceptions:
   ```
 
 * `KeyPermanentlyInvalidatedException`: happends when the user has changed its credentials (added new fingerprint or pattern, changed authentication method, …). In this case, you need to create a new key. Beware: if the user decided to remove all security (screen unlock set to swipe for example), then you can't store anything in the keystore anymore. To detect it, call `keyguardManager.isKeyguardSecure` or check if `CachedCredentials.getAuthenticationIntent(activity, requestCode)` returns `null` .
+
+
+
+
+### Change fab color
+
+in `vaues/attrs.xml`, create a new attribute:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="colorFab" format="reference" />
+</resources>
+```
+
+Define this attribute in `styles.xml`:
+
+```xml
+<style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <item name="colorFab">@color/colorYellowy</item>
+    ...
+```
+
+Use in in your layout:
+
+```xml
+<android.support.design.widget.FloatingActionButton
+    android:backgroundTint="?attr/colorFab"
+    app:borderWidth="0dp" 
+    ...
+/>
+```
+
+
 
 
 

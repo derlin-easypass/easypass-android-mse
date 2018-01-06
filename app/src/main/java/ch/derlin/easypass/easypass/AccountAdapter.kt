@@ -78,7 +78,7 @@ class AccountAdapter(var accounts: MutableList<Account>,
     override fun onBindViewHolder(holder: ViewHolder?, position: Int, payloads: MutableList<Any>?) {
         val item = filtered[position]
         holder!!.titleView.text = item.name
-        holder.subtitleView.text = if(item.pseudo != "") item.pseudo else item.email
+        holder.subtitleView.text = if (item.pseudo != "") item.pseudo else item.email
         holder.favoriteIcon.setBackgroundResource(
                 if (item.isFavorite) R.drawable.ic_pinned_on else R.drawable.ic_pinned_off)
         holder.view.setOnClickListener { _ -> onClick?.invoke(item) }
@@ -131,7 +131,7 @@ class AccountAdapter(var accounts: MutableList<Account>,
         notifyDataSetChanged()
     }
 
-    fun replace(old: Account, new: Account){
+    fun replace(old: Account, new: Account) {
         accounts.remove(old)
         accounts.add(new)
         resetAndNotify()
@@ -139,8 +139,11 @@ class AccountAdapter(var accounts: MutableList<Account>,
 
     fun positionOf(account: Account): Int = filtered.indexOf(account)
 
-    private fun updateCounter(){
-        textviewCounter?.setText(App.appContext.getString(R.string.account_list_counter_text, filtered.size))
+    private fun updateCounter() {
+
+        textviewCounter?.setText(App.appContext.getString(
+                if (filtered.size <= 1) R.string.account_list_counter_text_single
+                else R.string.account_list_counter_text, filtered.size))
     }
     // -----------------------------------------
 

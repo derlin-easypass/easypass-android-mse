@@ -18,7 +18,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="5dip"
         android:backgroundTint="?attr/colorAccent"
-        android:alpha="0.7"
+        android:alpha="1"
         android:layout_marginEnd="5dip"
         android:background="@drawable/ic_dropbox" />
 

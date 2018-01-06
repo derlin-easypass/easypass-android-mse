@@ -3,14 +3,14 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorGreeny</item>
-        <item name="colorPrimaryDark">@color/colorGreenyDark</item>
-        <item name="colorAccent">@color/colorYellowyLight</item>
+        <item name="colorPrimary">@color/colorDarkGrey</item>
+        <item name="colorPrimaryDark">@color/colorDarkerGrey</item>
+        <item name="colorAccent">@color/colorReddy</item>
         <!--infos: https://medium.com/google-developers/theming-with-appcompat-1a292b754b35-->
         <!-- editText border color on edit -->
         <!--<item name="colorControlActivated">@color/colorSecondaryLight</item>-->
         <!--ripple color-->
-        <item name="colorControlHighlight">@color/colorYellowyUltraLight</item>
+        <item name="colorControlHighlight">@color/colorReddyUltraLight</item>
 
          <!--main text color -->
         <item name="android:textColorPrimary">@color/blacky</item>
@@ -107,6 +107,7 @@
         <item name="android:layout_height">fill_parent</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:padding">5dp</item>
+        <item name="android:paddingStart">20dp</item>
         <item name="android:layout_gravity">right</item>
     </style>
 

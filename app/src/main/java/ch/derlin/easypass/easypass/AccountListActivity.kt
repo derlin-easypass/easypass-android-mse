@@ -1,6 +1,7 @@
 package ch.derlin.easypass.easypass
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -215,6 +216,8 @@ class AccountListActivity : SecureActivity() {
         tv.text = MiscUtils.toSpannable(getString(R.string.fmt_copy_xx).format("email", item.email))
         tv.isEnabled = item.email.isNotBlank()
 
+        tv = view.findViewById<Button>(R.id.view_password_btn)
+        tv.isEnabled = item.password.isNotBlank()
 
         view.findViewById<Button>(R.id.view_edit_btn).isEnabled = NetworkStatus.isInternetAvailable(this)
 
@@ -234,6 +237,10 @@ class AccountListActivity : SecureActivity() {
                 bottomSheetDialog!!.dismiss()
                 openDetailActivity(selectedAccount!!, AccountDetailActivity.OPERATION_SHOW)
             }
+            R.id.view_password_btn -> {
+                bottomSheetDialog!!.dismiss()
+                showPassword(selectedAccount!!)
+            }
             R.id.view_edit_btn -> {
                 bottomSheetDialog!!.dismiss()
                 openDetailActivity(selectedAccount!!, AccountDetailActivity.OPERATION_EDIT)
@@ -241,6 +248,14 @@ class AccountListActivity : SecureActivity() {
             else -> Toast.makeText(this, "something clicked", Toast.LENGTH_SHORT).show()
         }
 
+    }
+
+    private fun showPassword(account: Account) {
+        val view = layoutInflater.inflate(R.layout.show_password, null)
+        view.findViewById<TextView>(R.id.show_password).setText(account.password)
+        AlertDialog.Builder(this)
+                .setView(view)
+                .show()
     }
 
     private fun copyToClipboard(text: String, toastDescription: String = "") {

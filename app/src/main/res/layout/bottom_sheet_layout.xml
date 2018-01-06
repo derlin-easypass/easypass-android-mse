@@ -45,6 +45,13 @@
         android:text="@string/fmt_copy_xx" />
 
     <Button
+        android:id="@+id/view_password_btn"
+        style="@style/BottomSheetButton"
+        android:onClick="bottomSheetClicked"
+        android:drawableStart="@drawable/ic_lock"
+        android:text="Show password" />
+
+    <Button
         android:id="@+id/view_details_btn"
         style="@style/BottomSheetButton"
         android:onClick="bottomSheetClicked"
