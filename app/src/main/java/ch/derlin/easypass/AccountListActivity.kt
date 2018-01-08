@@ -112,7 +112,7 @@ class AccountListActivity : SecureActivity() {
                     // if asking for restart, kill current activity
                     // TODO: find a better way
                     if (it.getBooleanExtra(SettingsActivity.BUNDLE_RESTART_KEY, false)) {
-                        finish()
+                        restartApp()
                     }
                 }
             }

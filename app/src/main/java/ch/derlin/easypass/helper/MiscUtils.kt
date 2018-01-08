@@ -55,7 +55,8 @@ object MiscUtils {
         (getSystemService(Context.ALARM_SERVICE) as AlarmManager)
                 .set(AlarmManager.RTC, System.currentTimeMillis() + 10, pendingIntent)
 
-        System.exit(0)
+        finish()
+        //System.exit(0)
         //android.os.Process.killProcess(android.os.Process.myPid())
     }
 

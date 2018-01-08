@@ -51,6 +51,9 @@ class SettingsActivity : AppCompatActivity() {
                     "Forget all cached passwords.",
                     this@SettingsActivity::clearPassword, R.drawable.ic_fingerprint),
             Setting("Data", isHeader = true),
+            Setting("File",
+                    "Change the session filename.",
+                    this@SettingsActivity::changeSessionFileDialog, R.drawable.ic_cloud_download),
             Setting("Unlink",
                     "Unlink EasyPass from your dropbox.",
                     this@SettingsActivity::unbindDropbox, R.drawable.ic_dropbox,
@@ -182,6 +185,38 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
+    private fun changeSessionFileDialog() {
+        val prefs = Preferences()
+        val view = layoutInflater.inflate(R.layout.edit_filename, null)
+        val editText = view.findViewById<EditText>(R.id.filename)
+        val oldFilename = prefs.remoteFilePath.replaceFirst("/", "")
+        editText.setText(oldFilename)
+        view.findViewById<Button>(R.id.btn_default).setOnClickListener { _ ->
+            editText.setText(Preferences.defaultRemoteFilePath)
+        }
+
+        AlertDialog.Builder(this, R.style.AppTheme_AlertDialog)
+                .setView(view)
+                .setTitle("Change file")
+                .setNegativeButton("cancel", { dialog, _ -> dialog.dismiss() })
+                .setPositiveButton("change", { dialog, _ ->
+                    val filename = editText.text.toString().trim()
+                    if (filename.isBlank() || !filename.matches(Regex("""^[a-zA-Z_-]+\.[a-zA-Z_-]+$"""))) {
+                        Toast.makeText(this@SettingsActivity,
+                                "Wrong characters in filename", Toast.LENGTH_SHORT).show()
+                    } else if (filename.equals(oldFilename)) {
+                        Toast.makeText(this@SettingsActivity,
+                                "Filename did not change.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        prefs.remoteFilePath = filename
+                        CachedCredentials.clearPassword()
+                        exitApp()
+                    }
+                })
+                .show()
+    }
+
+
     private fun exitApp() {
         val intent = Intent()
         intent.putExtra(BUNDLE_RESTART_KEY, true)
@@ -189,7 +224,7 @@ class SettingsActivity : AppCompatActivity() {
         finish()
     }
 
-    // ----------------------------------------- inner class
+// ----------------------------------------- inner class
 
     class SettingsAdapter(val context: Context, val settings: List<Setting>) : RecyclerView.Adapter<SettingsAdapter.ViewHolder>() {
 
@@ -248,7 +283,7 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    // -----------------------------------------
+// -----------------------------------------
 
     companion object {
         val BUNDLE_RESTART_KEY = "restart"

@@ -11,7 +11,9 @@ class Preferences(context: Context = App.appContext) {
 
     var dbxAccessToken: String?
         get() = sharedPrefs.getString("dbx_access-token", null)
-        set(value) { sharedPrefs.edit().putString("dbx_access-token", value).commit() }
+        set(value) {
+            sharedPrefs.edit().putString("dbx_access-token", value).commit()
+        }
 
     var revision: String?
         get() = sharedPrefs.getString("revision", null)
@@ -27,6 +29,12 @@ class Preferences(context: Context = App.appContext) {
             if (value == null) sharedPrefs.edit().remove("asdf").apply()
             else sharedPrefs.edit().putString("asdf", value).apply()
 
+    var remoteFilePath: String
+        get() = "/" + sharedPrefs.getString("remote_filepath", defaultRemoteFilePath)
+        set(value) =
+            if (value == "") sharedPrefs.edit().remove("remote_filepath").apply()
+            else sharedPrefs.edit().putString("remote_filepath", value).apply()
+
     var sortOrder: Int
         get() = App.appContext.resources.getIdentifier(
                 sharedPrefs.getString("sortOrder", "submenu_sort_title_asc"),
@@ -40,4 +48,8 @@ class Preferences(context: Context = App.appContext) {
     var introDone: Boolean
         get() = sharedPrefs.getBoolean("init_done", false)
         set(value) = sharedPrefs.edit().putBoolean("init_done", value).apply()
+
+    companion object {
+        val defaultRemoteFilePath = "easypass.data_ser"
+    }
 }

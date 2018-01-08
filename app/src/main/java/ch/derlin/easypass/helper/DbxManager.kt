@@ -27,7 +27,6 @@ import java.io.File
 
 object DbxManager {
 
-    const val remoteFilePath = "/easypass.data_ser"
     const val localFileName = "easypass_cached.data_ser"
 
 
@@ -69,7 +68,7 @@ object DbxManager {
                 metadata = null // ensure to clear any past state
 
                 try {
-                    metadata = client.files().getMetadata(remoteFilePath) as FileMetadata
+                    metadata = client.files().getMetadata(prefs.remoteFilePath) as FileMetadata
                     metaFetched = true
                     isInSync = metadata?.rev.equals(prefs.revision)
                     deferred.resolve(isInSync)
@@ -107,7 +106,7 @@ object DbxManager {
 
             if (isNewSession) {
                 // new account
-                accounts = Accounts(password, remoteFilePath)
+                accounts = Accounts(password, prefs.remoteFilePath)
                 deferred.resolve(true)
 
             } else if (localFileExists) {
@@ -203,7 +202,7 @@ object DbxManager {
     }
 
     private fun loadCachedFile(password: String) {
-        deserialize(App.appContext.openFileInput(localFileName), remoteFilePath, password)
+        deserialize(App.appContext.openFileInput(localFileName), prefs.remoteFilePath, password)
         Timber.d("loaded cached file: rev=%s", prefs.revision)
     }
 
