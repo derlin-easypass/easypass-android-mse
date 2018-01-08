@@ -27,6 +27,7 @@ import kotlinx.android.synthetic.main.fragment_load_session_meta.*
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
 import ch.derlin.easypass.helper.SelectFileDialog.createSelectFileDialog
+import kotlinx.android.synthetic.main.activity_load_session.*
 
 class LoadSessionActivity : AppCompatActivity() {
 
@@ -57,6 +58,7 @@ class LoadSessionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_load_session)
+        setSupportActionBar(toolbar)
         initWorkflow()
     }
 

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:attr/colorPrimary"
-    tools:context="ch.derlin.easypass.easypass.ch.derlin.easypass.SettingsActivity">
+    tools:context="ch.derlin.easypass.SettingsActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"

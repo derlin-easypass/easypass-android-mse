@@ -45,6 +45,7 @@
         <activity
             android:name="ch.derlin.easypass.LoadSessionActivity"
             android:label="@string/title_activity_load"
+            android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="ch.derlin.easypass.AccountListActivity"

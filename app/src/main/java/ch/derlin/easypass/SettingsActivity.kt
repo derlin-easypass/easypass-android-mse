@@ -184,40 +184,13 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun changeSessionFileDialog() {
-        createSelectFileDialog({ exitApp() }).show()
+        createSelectFileDialog({
+            val intent = Intent(this, LoadSessionActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+        }).show()
     }
-
-    private fun _changeSessionFileDialog() {
-        val prefs = Preferences()
-        val view = layoutInflater.inflate(R.layout.edit_filename, null)
-        val editText = view.findViewById<EditText>(R.id.filename)
-        val oldFilename = prefs.remoteFilePath.replaceFirst("/", "")
-        editText.setText(oldFilename)
-        view.findViewById<Button>(R.id.btn_default).setOnClickListener { _ ->
-            editText.setText(Preferences.defaultRemoteFilePath)
-        }
-
-        AlertDialog.Builder(this, R.style.AppTheme_AlertDialog)
-                .setView(view)
-                .setTitle("Change file")
-                .setNegativeButton("cancel", { dialog, _ -> dialog.dismiss() })
-                .setPositiveButton("change", { dialog, _ ->
-                    val filename = editText.text.toString().trim()
-                    if (filename.isBlank() || !filename.matches(Regex("""^[a-zA-Z_-]+\.[a-zA-Z_-]+$"""))) {
-                        Toast.makeText(this@SettingsActivity,
-                                "Wrong characters in filename", Toast.LENGTH_SHORT).show()
-                    } else if (filename.equals(oldFilename)) {
-                        Toast.makeText(this@SettingsActivity,
-                                "Filename did not change.", Toast.LENGTH_SHORT).show()
-                    } else {
-                        prefs.remoteFilePath = filename
-                        CachedCredentials.clearPassword()
-                        exitApp()
-                    }
-                })
-                .show()
-    }
-
 
     private fun exitApp() {
         val intent = Intent()

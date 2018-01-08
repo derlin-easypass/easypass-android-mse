@@ -26,20 +26,20 @@ class IntroActivity : AppIntro(){
         addSlide(
                 "Synchronization",
                 "Store your credentials in Dropbox for automatic backup, history and synchronization on all your devices.",
-                getColor(R.color.colorDropbox),//Color.parseColor("#2F5EA9"),
+                Color.parseColor("#0093D8"),
                 R.drawable.ic_dropbox
         )
         addSlide(
                 "Security",
                 "Everything is encrypted using AES-CBC-128 for high security. Passwords are cached using your fingerprints for quick access.",
-                Color.parseColor("#934DC6"),
+                Color.parseColor("#EA4865"),
                 R.drawable.ic_fingerprint
         )
         addSlide(
                 "Integration",
                 "Whatever happens, you can always use OpenSSL or another tool from the EasyPass suit" +
                         "to get your credentials back!",
-                Color.parseColor("#E97C29"),
+                Color.parseColor("#F18805"),
                 R.drawable.puzzle
         )
         addSlide(
