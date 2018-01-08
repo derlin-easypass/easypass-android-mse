@@ -10,7 +10,7 @@
         <!-- editText border color on edit -->
         <!--<item name="colorControlActivated">@color/colorSecondaryLight</item>-->
         <!--ripple color-->
-        <item name="colorControlHighlight">@color/colorReddyUltraLight</item>
+        <!--<item name="colorControlHighlight">@color/colorLightGrey</item>-->
 
          <!--main text color -->
         <item name="android:textColorPrimary">@color/blacky</item>

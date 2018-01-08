@@ -10,9 +10,10 @@
 
     <color name="colorDarkGrey">#32424b</color>
     <color name="colorDarkerGrey">#1D2F39</color>
+    <color name="colorLightGrey">#1d32424b</color>
 
     <color name="colorReddy">#EA4865</color>
-    <color name="colorReddyUltraLight">#F898A9</color>
+    <color name="colorReddyUltraLight">#36ea4865</color>
 
     <color name="whity">#FAFFFD</color>
     <color name="blacky">#342E37</color>
