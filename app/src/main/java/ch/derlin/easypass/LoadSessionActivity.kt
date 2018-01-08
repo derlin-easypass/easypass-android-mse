@@ -26,6 +26,7 @@ import kotlinx.android.synthetic.main.fragment_enter_password.*
 import kotlinx.android.synthetic.main.fragment_load_session_meta.*
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
+import ch.derlin.easypass.helper.SelectFileDialog.createSelectFileDialog
 
 class LoadSessionActivity : AppCompatActivity() {
 
@@ -80,7 +81,7 @@ class LoadSessionActivity : AppCompatActivity() {
     class ProgressFragment : Fragment() {
         override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             super.onCreateView(inflater, container, savedInstanceState)
-            (activity as AppCompatActivity).supportActionBar?.hide()
+            //(activity as AppCompatActivity).supportActionBar?.hide()
             return inflater!!.inflate(R.layout.fragment_load_session_meta, container, false)
         }
 
@@ -90,10 +91,6 @@ class LoadSessionActivity : AppCompatActivity() {
             retryButton.setOnClickListener { _ -> fetchMeta() }
 
             fetchMeta()
-        }
-
-        override fun onDetach() {
-            super.onDetach()
         }
 
         fun fetchMeta() {
@@ -142,7 +139,7 @@ class LoadSessionActivity : AppCompatActivity() {
 
         override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             super.onCreateView(inflater, container, savedInstanceState)
-            (activity as AppCompatActivity).supportActionBar?.show()
+            //(activity as AppCompatActivity).supportActionBar?.show()
             return inflater!!.inflate(R.layout.fragment_enter_password, container, false)
         }
 
@@ -196,6 +193,14 @@ class LoadSessionActivity : AppCompatActivity() {
             // only the password is encrypted, IV used for the encryption is loaded from shared preferences
             if (CachedCredentials.isPasswordCached) {
                 getPasswordsFromFingerprint()
+            }
+
+            // show session name
+            sessionName.setText("session: ${mPrefs.remoteFilePathDisplay}")
+            changeSessionBtn.setOnClickListener { _ ->
+                activity.createSelectFileDialog({
+                    (activity as LoadSessionActivity).initWorkflow()
+                }).show()
             }
         }
 

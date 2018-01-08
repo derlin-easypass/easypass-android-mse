@@ -35,6 +35,9 @@ class Preferences(context: Context = App.appContext) {
             if (value == "") sharedPrefs.edit().remove("remote_filepath").apply()
             else sharedPrefs.edit().putString("remote_filepath", value).apply()
 
+    val remoteFilePathDisplay: String
+        get() = remoteFilePath.replaceFirst("/", "")
+
     var sortOrder: Int
         get() = App.appContext.resources.getIdentifier(
                 sharedPrefs.getString("sortOrder", "submenu_sort_title_asc"),

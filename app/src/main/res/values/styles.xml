@@ -49,6 +49,10 @@
         <item name="android:textSize">18sp</item>
     </style>
 
+    <style name="AppTheme.TextAppearance.Small" parent="@android:style/TextAppearance">
+        <item name="android:textSize">14sp</item>
+    </style>
+
     <style name="AppTheme.TextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textSize">16sp</item>
     </style>

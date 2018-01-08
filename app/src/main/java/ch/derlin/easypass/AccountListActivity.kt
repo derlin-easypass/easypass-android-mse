@@ -75,7 +75,9 @@ class AccountListActivity : SecureActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_account_list)
+
         setSupportActionBar(toolbar)
+        toolbar.setNavigationIcon(R.mipmap.ic_launcher)
 
         if (DbxManager.accounts == null) {
             Timber.e("accounts is null in list activity !!!")

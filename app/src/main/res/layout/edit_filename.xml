@@ -1,28 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="15dip"
-    android:orientation="horizontal">
+    android:orientation="vertical"
+    android:paddingTop="40dp"
+    android:background="@drawable/account_list_item_bg">
 
-    <EditText
-        android:id="@+id/filename"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:layout_weight="1"
-        android:gravity="center_horizontal"
-        android:padding="10dip"
-        android:inputType="text|textNoSuggestions|textVisiblePassword"
-        android:textAppearance="@style/AppTheme.TextAppearance.Large"
-        android:textIsSelectable="true" />
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/filename_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <Button
-        android:id="@+id/btn_default"
-        style="@android:style/Widget.Material.Button.Borderless.Colored"
+        <EditText
+            android:id="@+id/filename"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:hint="Session filename"
+            android:inputType="text|textNoSuggestions|textVisiblePassword"
+            android:padding="15dip"
+            android:textAppearance="@style/AppTheme.TextAppearance.Large"
+            android:textIsSelectable="true" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:text="default"
-        android:tint="?attr/colorAccent" />
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/choose_btn"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="choose existing" />
+
+        <Button
+            android:id="@+id/btn_default"
+            style="@android:style/Widget.Material.Button.Borderless.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="default"
+            android:tint="?attr/colorAccent" />
+
+    </LinearLayout>
+
+    <!--<Spinner--><!--android:id="@+id/files_spinner"--><!--android:layout_width="fill_parent"--><!--android:layout_height="wrap_content" />-->
+
+
 </LinearLayout>

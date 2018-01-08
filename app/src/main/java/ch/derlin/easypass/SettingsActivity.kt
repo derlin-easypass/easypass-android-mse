@@ -15,12 +15,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import ch.derlin.easypass.easypass.R
-import ch.derlin.easypass.helper.CachedCredentials
-import ch.derlin.easypass.helper.DbxManager
+import ch.derlin.easypass.helper.*
 import ch.derlin.easypass.helper.MiscUtils.rootView
 import ch.derlin.easypass.helper.MiscUtils.showIntro
-import ch.derlin.easypass.helper.PasswordGenerator
-import ch.derlin.easypass.helper.Preferences
+import ch.derlin.easypass.helper.SelectFileDialog.createSelectFileDialog
 import kotlinx.android.synthetic.main.activity_settings.*
 import nl.komponents.kovenant.task
 import nl.komponents.kovenant.ui.alwaysUi
@@ -41,7 +39,7 @@ class SettingsActivity : AppCompatActivity() {
     val settings = listOf<Setting>(
             Setting("Generator", isHeader = true),
             Setting("Special chars",
-                    "Change the special characters used while generating passwords.",
+                    "Set the characters used in passwords.",
                     this@SettingsActivity::setSpecialChars, R.drawable.ic_mode_edit),
             Setting("Passwords", isHeader = true),
             Setting("Change",
@@ -186,6 +184,10 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun changeSessionFileDialog() {
+        createSelectFileDialog({ exitApp() }).show()
+    }
+
+    private fun _changeSessionFileDialog() {
         val prefs = Preferences()
         val view = layoutInflater.inflate(R.layout.edit_filename, null)
         val editText = view.findViewById<EditText>(R.id.filename)

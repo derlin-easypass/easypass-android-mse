@@ -83,14 +83,14 @@ object DbxManager {
             }
         } fail {
             val ex = it
-            if(ex is InvalidAccessTokenException) prefs.dbxAccessToken = null
+            if (ex is InvalidAccessTokenException) prefs.dbxAccessToken = null
             deferred.reject(ex)
         }
 
         return deferred.promise
     }
 
-    fun removeLocalFile(): Boolean{
+    fun removeLocalFile(): Boolean {
         val localFile = File(App.appContext.filesDir.getAbsolutePath(), localFileName)
         val ok = localFile.delete()
         Timber.d("""removed local file ? $ok""")
@@ -109,12 +109,9 @@ object DbxManager {
                 accounts = Accounts(password, prefs.remoteFilePath)
                 deferred.resolve(true)
 
-            } else if (localFileExists) {
+            } else if (isInSync && localFileExists) {
                 loadCachedFile(password)
-                isInSync = metadata?.rev == prefs.revision
-
-                if (!isInSync) loadSession(password, deferred)
-                else deferred.resolve(true)
+                deferred.resolve(true)
 
             } else {
                 if (metaFetched) {
@@ -199,6 +196,18 @@ object DbxManager {
             Timber.d(e)
             deferred.reject(e)
         }
+    }
+
+    fun listSessionFiles(): Promise<Array<String>, Exception> {
+        val deferred = deferred<Array<String>, Exception>()
+        task {
+            val files = client.files().listFolder("").entries.map { f -> f.name }.toTypedArray()
+            files.sort()
+            deferred.resolve(files)
+        } fail {
+            deferred.reject(it)
+        }
+        return deferred.promise
     }
 
     private fun loadCachedFile(password: String) {
