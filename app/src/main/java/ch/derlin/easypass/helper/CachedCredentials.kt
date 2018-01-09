@@ -24,9 +24,11 @@ import javax.crypto.spec.IvParameterSpec
 
 object CachedCredentials {
 
-    val AUTHENTICATION_DURATION_SECONDS = 5 * 60
-    val ANDROID_KEY_STORE = "AndroidKeyStore"
-    val KEY_NAME = "key"
+    val keystoreName = "AndroidKeyStore"
+    val keyName = "key"
+
+    /** how long the auth will be valid. > 0 to be able to use it ! */
+    val authenticationValiditySeconds: Int = 30
 
     // -----------------------------------------
 
@@ -163,18 +165,18 @@ object CachedCredentials {
 
     // get and initialise the keystore
     private fun getKeyStore(): KeyStore {
-        val keyStore = KeyStore.getInstance(ANDROID_KEY_STORE)
+        val keyStore = KeyStore.getInstance(keystoreName)
         keyStore.load(null)
         return keyStore
     }
 
     // load an existing key from the keystore
-    private fun getKey(): SecretKey? = getKeyStore().getKey(KEY_NAME, null) as SecretKey?
+    private fun getKey(): SecretKey? = getKeyStore().getKey(keyName, null) as SecretKey?
 
     // delete the key. Should be called in case of [KeyPermanentlyInvalidatedException]
     private fun deleteKey() {
         prefs.cachedPassword = null
-        getKeyStore().deleteEntry(KEY_NAME)
+        getKeyStore().deleteEntry(keyName)
         prefs.keysoreInitialised = false
         Timber.d("key deleted.")
     }
@@ -182,12 +184,12 @@ object CachedCredentials {
     // create a new key. Should be called only once, hence the [Preferences.keysoreInitialised] flag.
     private fun createKey(): SecretKey {
         try {
-            val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEY_STORE)
-            keyGenerator.init(KeyGenParameterSpec.Builder(KEY_NAME,
+            val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, keystoreName)
+            keyGenerator.init(KeyGenParameterSpec.Builder(keyName,
                     KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
                     .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
                     .setUserAuthenticationRequired(true)
-                    .setUserAuthenticationValidityDurationSeconds(AUTHENTICATION_DURATION_SECONDS)
+                    .setUserAuthenticationValidityDurationSeconds(authenticationValiditySeconds)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
                     .build())
             prefs.keysoreInitialised = true
