@@ -83,7 +83,7 @@ class AccountDetailFragment : Fragment() {
 
         } else {
             // show the edit button
-            button_edit.visibility = View.VISIBLE
+            button_container.visibility = View.VISIBLE
             button_edit.setOnClickListener { _ ->
                 (activity as? AccountListActivity)?.
                         openDetailActivity(mItem!!, AccountDetailActivity.OPERATION_EDIT)
