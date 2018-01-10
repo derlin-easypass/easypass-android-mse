@@ -152,7 +152,7 @@
             android:layout_height="match_parent"
             android:layout_columnSpan="2"
             android:layout_gravity="fill_vertical|fill_horizontal"
-            android:background="@drawable/account_list_item_bg"
+            android:background="@drawable/bottom_border_gradient"
             android:gravity="end"
             android:orientation="horizontal">
 
