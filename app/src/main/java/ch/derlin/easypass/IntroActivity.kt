@@ -21,7 +21,7 @@ class IntroActivity : AppIntro(){
                 "Welcome!",
                 "One safe vault for all your credentials, anywhere, anytime.",
                 attrColor(R.attr.colorPrimary),
-                R.mipmap.splashscreen
+                R.drawable.splashscreen
         )
         addSlide(
                 "Synchronization",
@@ -45,8 +45,8 @@ class IntroActivity : AppIntro(){
         addSlide(
                 "Let's do it!",
                 "Start enjoying EasyPass now.",
-                attrColor(R.attr.colorPrimary),
-                R.mipmap.splashscreen
+                Color.parseColor("#79B473"),
+                R.drawable.splashscreen
         )
 
         setNavBarColor(R.color.blacky)
