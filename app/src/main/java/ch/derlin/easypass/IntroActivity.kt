@@ -45,7 +45,7 @@ class IntroActivity : AppIntro(){
         addSlide(
                 "Let's do it!",
                 "Start enjoying EasyPass now.",
-                Color.parseColor("#79B473"),
+                attrColor(R.attr.colorPrimary),
                 R.drawable.splashscreen
         )
 
