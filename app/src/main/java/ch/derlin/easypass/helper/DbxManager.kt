@@ -75,7 +75,8 @@ object DbxManager {
                 } catch (e: GetMetadataErrorException) {
                     // session does not exist
                     prefs.cachedPassword = null // ensure it is clean
-                    isInSync = prefs.revision == null
+                    prefs.revision == null
+                    isInSync = true
                     prefs.revision = null
                     metaFetched = true // flag for isNewSession
                     deferred.resolve(isInSync)
@@ -109,6 +110,13 @@ object DbxManager {
                 accounts = Accounts(password, prefs.remoteFilePath)
                 deferred.resolve(true)
 
+            } else if (!NetworkStatus.isInternetAvailable()) {
+                if (localFileExists) {
+                    loadCachedFile(password)
+                    deferred.resolve(true)
+                } else {
+                    deferred.reject(Exception("No network connection (and no cached session)"))
+                }
             } else if (isInSync && localFileExists) {
                 loadCachedFile(password)
                 deferred.resolve(true)

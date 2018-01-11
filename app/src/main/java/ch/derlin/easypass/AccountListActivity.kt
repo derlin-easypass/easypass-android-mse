@@ -84,7 +84,11 @@ class AccountListActivity : SecureActivity() {
         }
 
         fab.setOnClickListener { view ->
-            openDetailActivity(null, AccountDetailActivity.OPERATION_NEW)
+            if (NetworkStatus.isInternetAvailable()) {
+                openDetailActivity(null, AccountDetailActivity.OPERATION_NEW)
+            } else {
+                Toast.makeText(this, "no internet connection available.", Toast.LENGTH_SHORT).show()
+            }
         }
 
         syncButton.setOnClickListener { _ -> restartApp() }
@@ -392,14 +396,7 @@ class AccountListActivity : SecureActivity() {
         DbxManager.fetchRemoteFileInfo().alwaysUi {
             working = false
         } successUi {
-            val inSync = it
-            if (!inSync) {
-                syncButton.visibility = View.VISIBLE
-//                Snackbar.make(fab, "Remote session changed", Snackbar.LENGTH_INDEFINITE)
-//                        .setAction("Reload",
-//                                { _ -> restartApp() })
-//                        .show()
-            }
+            syncButton.visibility = if(DbxManager.isInSync) View.GONE else View.VISIBLE
         } failUi {
             Snackbar.make(fab, "Sync error: " + it.message, Snackbar.LENGTH_SHORT).show()
         }
@@ -407,7 +404,6 @@ class AccountListActivity : SecureActivity() {
 
     private fun updateConnectivityViews(connectionAvailable: Boolean) {
         mOfflineIndicator?.isVisible = !connectionAvailable
-        fab.isEnabled = connectionAvailable
     }
 
     companion object {
