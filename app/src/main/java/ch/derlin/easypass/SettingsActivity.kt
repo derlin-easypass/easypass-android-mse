@@ -26,6 +26,7 @@ import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
 import timber.log.Timber
 
+// TODO: check connectivity to avoid errors (changing mdp for example...)
 class SettingsActivity : AppCompatActivity() {
 
     class Setting(val title: String,
@@ -50,7 +51,7 @@ class SettingsActivity : AppCompatActivity() {
                     this@SettingsActivity::clearPassword, R.drawable.ic_fingerprint),
             Setting("Data", isHeader = true),
             Setting("File",
-                    "Change the session filename.",
+                    "Change the session to use.",
                     this@SettingsActivity::changeSessionFileDialog, R.drawable.ic_cloud_download),
             Setting("Unlink",
                     "Unlink EasyPass from your dropbox.",
