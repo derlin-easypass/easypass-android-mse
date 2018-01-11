@@ -91,7 +91,7 @@ class AccountListActivity : SecureActivity() {
             }
         }
 
-        syncButton.setOnClickListener { _ -> restartApp() }
+        syncButton.setOnClickListener { _ -> backToLoadingScreen() }
 
         setupRecyclerView(recyclerView)
 
