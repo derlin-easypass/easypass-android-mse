@@ -122,7 +122,7 @@ class AccountAdapter(var accounts: MutableList<Account>,
 
     private fun doFilter() {
         filtered = if (lastSearch == null || lastSearch.isBlank()) accounts.toMutableList()
-        else accounts.filter { i -> i.name.toLowerCase().contains(lastSearch) }.toMutableList()
+        else accounts.filter { i -> i.contains(lastSearch) }.toMutableList()
     }
 
     fun resetAndNotify() {

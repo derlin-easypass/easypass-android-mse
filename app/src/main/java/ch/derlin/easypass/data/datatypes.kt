@@ -46,6 +46,13 @@ data class Account(
             return _uid
         }
 
+    fun contains(search: String): Boolean =
+            name.contains(search, ignoreCase = true) ||
+                    pseudo.contains(search, ignoreCase = true) ||
+                    email.contains(search, ignoreCase = true) ||
+                    notes.contains(search, ignoreCase = true)
+
+
     fun isDifferentFrom(acc: Account): Boolean =
             !this.name.equals(acc.name, ignoreCase = false) ||
                     !this.pseudo.equals(acc.pseudo, ignoreCase = false) ||
