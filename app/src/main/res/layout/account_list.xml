@@ -6,7 +6,7 @@
     android:name="ch.derlin.easypass.easypass.AccountListFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ch.derlin.easypass.easypass.ch.derlin.easypass.AccountListActivity">
+    tools:context="ch.derlin.easypass.AccountListActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
