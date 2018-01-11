@@ -17,7 +17,7 @@ abstract class SecureActivity : AppCompatActivity() {
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //makeSecure()
+        makeSecure()
     }
 
     @CallSuper
@@ -29,9 +29,15 @@ abstract class SecureActivity : AppCompatActivity() {
     @CallSuper
     override fun onResume() {
         super.onResume()
-        lastActiveTime?.let {
-            if (System.currentTimeMillis() - it > secureTimeoutMillis && shouldAskCredentials())
-                backToLoadingScreen()
+
+        if (DbxManager.accounts == null) {
+            // object might have been reinitialised
+            backToLoadingScreen()
+        } else {
+            lastActiveTime?.let {
+                if (System.currentTimeMillis() - it > secureTimeoutMillis && shouldAskCredentials())
+                    backToLoadingScreen()
+            }
         }
     }
 
@@ -40,7 +46,8 @@ abstract class SecureActivity : AppCompatActivity() {
             try {
                 CachedCredentials.getPassword()
                 return false
-            } catch (e: Exception) { }
+            } catch (e: Exception) {
+            }
         }
         return true
     }
