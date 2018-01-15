@@ -16,11 +16,15 @@ import ch.derlin.easypass.IntroActivity
 
 
 /**
- * Created by Lin on 25.11.17.
+ * This object contains various utilities and extensions reused throughout the app.
+ *
+ * date 25.11.17
+ * @author Lucy Linder
  */
 
 object MiscUtils {
 
+    /** Convert an HTML string into a [Spanned] that can be used in a [TextView] */
     fun toSpannable(str: String, vararg args: String): Spanned? {
         val content = if (args.size > 0) str.format(args) else str
         if (Build.VERSION.SDK_INT >= 24) {
@@ -30,15 +34,13 @@ object MiscUtils {
         }
     }
 
-    fun Fragment.hideKeyboard() {
-        activity.hideKeyboard()
-    }
-
-
+    /** Hide the soft keyboard */
     fun Activity.hideKeyboard() {
-//        val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//        if (inputMethodManager.isAcceptingText)
-//            inputMethodManager.hideSoftInputFromWindow(this.currentFocus.windowToken, /*flags:*/ 0)
+        /*
+        val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        if (inputMethodManager.isAcceptingText)
+            inputMethodManager.hideSoftInputFromWindow(this.currentFocus.windowToken, /*flags:*/ 0)
+        */
         val v = window.currentFocus
         if (v != null) {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -46,6 +48,7 @@ object MiscUtils {
         }
     }
 
+    /** Restart the whole application */
     fun Activity.restartApp() {
         // see https://stackoverflow.com/questions/17795189/how-to-programmatically-force-a-full-app-restart-e-g-kill-then-start
         val startIntent = packageManager.getLaunchIntentForPackage(packageName)
@@ -60,14 +63,17 @@ object MiscUtils {
         //android.os.Process.killProcess(android.os.Process.myPid())
     }
 
+    /** Launch the introduction slides activity using the [IntroActivity.INTENT_INTRO] request code */
     fun Activity.showIntro() {
         val intent = Intent(this, IntroActivity::class.java)
         // intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
         startActivityForResult(intent, IntroActivity.INTENT_INTRO)
     }
 
+    /** Get the activity root view, for example to create a snackbar */
     fun Activity.rootView(): View = findViewById(android.R.id.content)
 
+    /** Resolve an attribute color, for example [android.R.attrcolorAccent] */
     fun Activity.attrColor(resourceId: Int): Int {
         // see https://stackoverflow.com/a/27611244/2667536
         val typedValue = TypedValue()

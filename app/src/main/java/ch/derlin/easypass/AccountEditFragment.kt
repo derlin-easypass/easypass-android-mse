@@ -102,7 +102,7 @@ class AccountEditFragment : Fragment() {
         details_notes.maxLines = 5
         details_notes.setOnEditorActionListener { textView, actionId, keyEvent ->
             if (actionId == EditorInfo.IME_ACTION_GO) {
-                hideKeyboard()
+                activity.hideKeyboard()
                 true
             } else {
                 false

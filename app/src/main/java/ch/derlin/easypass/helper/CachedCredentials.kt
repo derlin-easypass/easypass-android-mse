@@ -19,15 +19,24 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
 
 /**
- * Created by Lin on 26.11.17.
+ * This object contains all the methods needed to cache a password safely into the
+ * preferences.
+ *
+ * The password is encrypted using the AES algorithm. The AES key is stored in the
+ * Android keystore and secured by the Android keyguard. The user will need to use
+ * his fingerprints or his pattern to unlock the key.
+ *
+ * date 26.11.17
+ * @author Lucy Linder
  */
 
 object CachedCredentials {
 
+    /** The name of the keystore used. */
     val keystoreName = "AndroidKeyStore"
+    /** The name of the AES key used. */
     val keyName = "key"
-
-    /** how long the auth will be valid. > 0 to be able to use it ! */
+    /** how long the key can be used after authentication. > 0 to be able to use it ! */
     val authenticationValiditySeconds: Int = 30
 
     // -----------------------------------------

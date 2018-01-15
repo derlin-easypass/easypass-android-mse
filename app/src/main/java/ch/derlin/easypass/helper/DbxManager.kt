@@ -22,27 +22,39 @@ import java.io.File
 
 
 /**
- * Created by Lin on 24.11.17.
+ * This object is responsible for the communication with Dropbox and for the
+ * list of accounts.
+ *
+ * Note: since it acts like a Singleton, so the only way to reset it is to
+ * restart the application completely.
+ *
+ * date 24.11.17
+ * @author Lucy Linder
  */
 
 object DbxManager {
 
+    /** Filename used locally as a cache */
     const val localFileName = "easypass_cached.data_ser"
-
-
+    /** The list of accounts */
     var accounts: Accounts? = null
-
+    /** Are metadata about the current session from Dropbox fetched ?  */
     var metaFetched = false
         private set
-
+    /** The metadata concerning the current session file fetched from Dropbox */
     var metadata: FileMetadata? = null
-
+    /**
+     * Is the current session a new one ? i.e. Does the file already exist on Dropbox ?
+     * Note: this flag is always file when working offline (no metadata fetched)
+     */
     val isNewSession: Boolean
         get() = metaFetched && metadata == null
 
+    /** Do we have a cached file locally ? */
     val localFileExists: Boolean
         get() = prefs.revision != null
 
+    /** The Dropbox client */
     val client: DbxClientV2 by lazy {
         val token = Preferences(App.appContext).dbxAccessToken
         Timber.d("Dropbox token ?? client created")
@@ -50,13 +62,20 @@ object DbxManager {
         DbxClientV2(config, token)
     }
 
+    /** The preferences */
     val prefs: Preferences by lazy {
         Preferences(App.appContext)
     }
 
+    /** Is the local session in sync with Dropbox ? */
     var isInSync = false
         private set
 
+    /**
+     * Fetch the Dropbox metadata about the current session.
+     * @return A promise resolved with [isInSync] and rejected with an [Exception]
+     * in case we are offline
+     */
     fun fetchRemoteFileInfo(): Promise<Boolean, Exception> {
 
         val deferred = deferred<Boolean, Exception>()
@@ -91,6 +110,9 @@ object DbxManager {
         return deferred.promise
     }
 
+    /**
+     * Delete the local cache file.
+     */
     fun removeLocalFile(): Boolean {
         val localFile = File(App.appContext.filesDir.getAbsolutePath(), localFileName)
         val ok = localFile.delete()
@@ -99,9 +121,16 @@ object DbxManager {
         return ok
     }
 
-
+    /**
+     * Load the session into [accounts].
+     * If a local file exists, it will download the file from Dropbox only if [isInSync] is false.
+     *
+     * @param password the password
+     * @return a promise resolved with true or rejected with an exception in case the
+     * session could not be loaded (no network and no cached file, network but no
+     * metadata fetched)
+     */
     fun openSession(password: String): Promise<Boolean, Exception> {
-
         val deferred = deferred<Boolean, Exception>()
         task {
 
@@ -138,6 +167,9 @@ object DbxManager {
         return deferred.promise
     }
 
+    /**
+     * Encrypt and save the [accounts] to dropbox.
+     */
     fun saveAccounts(): Promise<Boolean, Exception> {
         assert(accounts != null)
 
@@ -174,12 +206,31 @@ object DbxManager {
         return deferred.promise
     }
 
+    /**
+     * Get all the filenames in the Dropbox application directory.
+     * Note that the starting slash is removed from all filenames.
+     *
+     * @return a promise resolved with the list of filenames and rejeted with an
+     * exception in case the fetching failed.
+     */
+    fun listSessionFiles(): Promise<Array<String>, Exception> {
+        val deferred = deferred<Array<String>, Exception>()
+        task {
+            val files = client.files().listFolder("").entries.map { f -> f.name }.toTypedArray()
+            files.sort()
+            deferred.resolve(files)
+        } fail {
+            deferred.reject(it)
+        }
+        return deferred.promise
+    }
+
     // ----------------------------
 
+    // fetch the accounts from Dropbox
     private fun loadSession(password: String, deferred: nl.komponents.kovenant.Deferred<Boolean, Exception>) {
 
         try {
-
             metadata = client.files()
                     .download(metadata!!.pathDisplay)
                     .download(App.appContext.openFileOutput(localFileName, Context.MODE_PRIVATE))
@@ -206,23 +257,13 @@ object DbxManager {
         }
     }
 
-    fun listSessionFiles(): Promise<Array<String>, Exception> {
-        val deferred = deferred<Array<String>, Exception>()
-        task {
-            val files = client.files().listFolder("").entries.map { f -> f.name }.toTypedArray()
-            files.sort()
-            deferred.resolve(files)
-        } fail {
-            deferred.reject(it)
-        }
-        return deferred.promise
-    }
-
+    // read the accounts from the cached file
     private fun loadCachedFile(password: String) {
         deserialize(App.appContext.openFileInput(localFileName), prefs.remoteFilePath, password)
         Timber.d("loaded cached file: rev=%s", prefs.revision)
     }
 
+    // deserialize and decrypt a file. This will update the accounts variable
     private fun deserialize(fin: FileInputStream, pathName: String?, password: String) {
         val accountList = JsonManager.deserialize(fin, password,
                 object : TypeToken<SessionSerialisationType>() {

@@ -26,13 +26,15 @@ import java.security.GeneralSecurityException
  * valid json format.
  *
  * @author Lucy Linder
- * @date Dec 21, 2012
+ * date: 21.12.2012
  */
 object JsonManager {
 
+    /** A GSON instance configured to serialized only field with the @Expose annotation. */
     val gson = GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
+
     /**
-     * encrypts the arraylist of objects with the cipher given in parameter and
+     * Encrypts the data with the cipher given in parameter and
      * serializes it in json format.
      *
      * @param data     the data
@@ -49,7 +51,7 @@ object JsonManager {
 
 
     /**
-     * encrypts the arraylist of objects with the cipher given in parameter and
+     * Encrypts data with the cipher given in parameter and
      * serializes it in json format.
      *
      * @param data     the data
@@ -63,12 +65,10 @@ object JsonManager {
                   password: String, algo: String = "aes-128-cbc") {
 
         if (outStream == null) {
-            throw IllegalStateException("The outputstream cannot be null " +
-                    "!" +
-                    "")
+            throw IllegalStateException("The outputstream cannot be null !")
         }
-        try {
 
+        try {
             outStream.write(OpenSSL.encrypt(algo, password.toCharArray(),
                     gson.toJson(data).toByteArray(charset("UTF-8"))))
             outStream.write("\r\n".toByteArray())
@@ -85,7 +85,7 @@ object JsonManager {
 
 
     /**
-     * deserializes and returns the object of type "Type" contained in the
+     * Deserializes and returns the object of type "type" contained in the
      * specified file. the decryption of the data is performed with the cipher
      * given in parameter.<br></br>
      * The object in the file must have been encrypted after a json serialisation.
@@ -102,11 +102,11 @@ object JsonManager {
     fun deserialize(filepath: String, password: String,
                     type: Type, algo: String = "aes-128-cbc"): Any {
         return deserialize(FileInputStream(filepath), password, type, algo)
-    }// end deserialize
+    }
 
 
     /**
-     * deserializes and returns the object of type "Type" contained in the
+     * Deserializes and returns the object of type "Type" contained in the
      * specified file. the decryption of the data is performed with the cipher
      * given in parameter.<br></br>
      * The object in the file must have been encrypted after a json serialisation.
@@ -124,10 +124,7 @@ object JsonManager {
                     type: Type, algo: String = "aes-128-cbc"): Any {
 
         if (stream == null || stream.available() == 0) {
-            throw IllegalStateException("the " +
-                    "stream" +
-                    " " +
-                    "is null or unavailable")
+            throw IllegalStateException("the stream is null or unavailable")
         }
         try {
 
@@ -148,11 +145,12 @@ object JsonManager {
     }// end deserialize
 
 
+    /**
+     * The exception thrown in case of a wrong password.
+     */
     class WrongCredentialsException : Exception {
-        constructor() : super() {}
-
-
-        constructor(message: String) : super(message) {}
+        constructor() : super()
+        constructor(message: String) : super(message)
     }
 
 }// end class
