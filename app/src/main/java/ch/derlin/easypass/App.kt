@@ -5,6 +5,7 @@ package ch.derlin.easypass
  */
 import android.app.Application
 import android.content.Context
+import ch.derlin.easypass.easypass.BuildConfig
 import nl.komponents.kovenant.Kovenant
 import nl.komponents.kovenant.android.startKovenant
 import nl.komponents.kovenant.android.stopKovenant
@@ -28,7 +29,13 @@ class App : Application() {
         }
         startKovenant()
 
-        Timber.plant(DebugTree()) // TODO
+        if (BuildConfig.DEBUG) {
+            Timber.plant(object : DebugTree() {
+                override fun createStackElementTag(element: StackTraceElement): String? =
+                        "lucy:${super.createStackElementTag(element)}:${element.lineNumber}"
+            })
+            Timber.v("initialised Timber in debug mode")
+        }
     }
 
     override fun onTerminate() {
