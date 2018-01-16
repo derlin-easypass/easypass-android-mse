@@ -7,21 +7,34 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager
 import ch.derlin.easypass.App
 
-
+/**
+ * Reusable listener for network change.
+ *
+ * To use it:
+ *  1. ensure you have the [android.permission.ACCESS_NETWORK_STATE] set in the manifest
+ *  2. create a new instance of this receiver
+ *  3. register the receiver by calling [registerSelf] in the [android.app.Activity.onResume]
+ *      and [unregisterSelf] in the [android.app.Activity.onPause]
+ *  4. override [onNetworkChange] to respond to the events
+ *
+ *  date: 24.11.2017
+ *  @author Lucy Linder
+ */
 open class NetworkChangeListener : BroadcastReceiver() {
 
+    // to avoid registering twice
     private var isRegistered = false
 
     companion object {
         private var INTENT_FILTER: IntentFilter
 
         init {
+            // listen to connectivities actions
             INTENT_FILTER = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         }
     }
 
     // ----------------------------------------------------
-
 
     override fun onReceive(context: Context, intent: Intent) {
         val oldStatus = NetworkStatus.isConnected
@@ -33,7 +46,7 @@ open class NetworkChangeListener : BroadcastReceiver() {
 
 
     /**
-     * Register this receiver to the local broadcast manager to start receiving events.
+     * Register this receiver to the broadcast manager to start receiving events.
      *
      * @param context the context
      */
@@ -45,7 +58,7 @@ open class NetworkChangeListener : BroadcastReceiver() {
 
 
     /**
-     * Unregister this receiver from the local broadcast manager to stop receiving events.
+     * Unregister this receiver from the broadcast manager to stop receiving events.
      *
      * @param context the context
      */

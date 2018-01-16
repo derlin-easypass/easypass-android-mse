@@ -10,13 +10,27 @@ import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
 
 /**
- * Created by Lin on 08.01.18.
+ * This class lets you create a dialog in order to change the session to use.
+ * date 08.01.18
+ * @author Lucy Linder
  */
 
 object SelectFileDialog {
 
+    /**
+     * Create the dialog to change session.
+     * The dialog lets you:
+     *  - specify a name from an EditText
+     *  - select an already existing remove file from a dropdown
+     *
+     *  @param callback the function to call in case the user confirmed the
+     *      session change. Usually, the only thing left to do is to restart the
+     *      application (preferences already updated)
+     *  @return the dialog. Don't forget to call [AlertDialog.show] !
+     */
     fun Activity.createSelectFileDialog(callback: () -> Unit): AlertDialog {
         val prefs = Preferences()
+        // create an initialise the view
         val view = layoutInflater.inflate(R.layout.edit_filename, null)
         val editText = view.findViewById<EditText>(R.id.filename)
         val chooseBtn = view.findViewById<Button>(R.id.choose_btn)
@@ -29,8 +43,7 @@ object SelectFileDialog {
             editText.setText(Preferences.defaultRemoteFilePath)
         }
 
-
-
+        // get the list of session and construct the dropdown on success
         DbxManager.listSessionFiles().successUi { files ->
             if(files.isNotEmpty()) {
                 chooseBtn.isEnabled = true
@@ -41,24 +54,11 @@ object SelectFileDialog {
                             .show()
                 }
             }
-//            val adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, files)
-//            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//            val spinner = view.findViewById<Spinner>(R.id.files_spinner)
-//            spinner.setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
-//                override fun onItemSelected(p0: AdapterView<*>?, v: View?, pos: Int, id: Long) {
-//                    editText.setText(files[pos])
-//                }
-//
-//                override fun onNothingSelected(p0: AdapterView<*>?) {}
-//            })
-//            spinner.adapter = adapter
-//            val currentPosition = files.indexOf(prefs.remoteFilePathDisplay)
-//            if(currentPosition >= 0) spinner.setSelection(currentPosition)
-
         } failUi {
             Toast.makeText(this, "error: " + it, Toast.LENGTH_LONG).show()
         }
 
+        // actually create the dialog
         return android.support.v7.app.AlertDialog.Builder(this, R.style.AppTheme_AlertDialog)
                 .setView(view)
                 .setNegativeButton("cancel", { dialog, _ -> dialog.dismiss() })
