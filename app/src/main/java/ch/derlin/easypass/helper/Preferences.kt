@@ -69,6 +69,12 @@ class Preferences(context: Context = App.appContext) {
         get() = sharedPrefs.getBoolean("init_done", false)
         set(value) = sharedPrefs.edit().putBoolean("init_done", value).apply()
 
+    /** Keep track of the version to show changelog dialog on update */
+    var versionCode: Int
+        get() = sharedPrefs.getInt("version_code", 0)
+        set(value) = sharedPrefs.edit().putInt("init_done", value).apply()
+
+
     companion object {
         /** Default session path in Dropbox */
         val defaultRemoteFilePath = "easypass.data_ser"

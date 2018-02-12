@@ -4,10 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
+import ch.derlin.changelog.Changelog
+import ch.derlin.changelog.Changelog.getAppVersion
 import ch.derlin.easypass.easypass.R
 import ch.derlin.easypass.helper.MiscUtils.showIntro
 import ch.derlin.easypass.helper.Preferences
 import com.dropbox.core.android.Auth
+import kotlinx.android.synthetic.main.activity_start.*
 import timber.log.Timber
 
 /**
@@ -27,6 +30,7 @@ class StartActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_start)
+        setSupportActionBar(toolbar)
 
         if (!Preferences().introDone) {
             showIntro()
@@ -83,6 +87,13 @@ class StartActivity : AppCompatActivity() {
     }
 
     private fun startApp() {
+        // service up and running, start the actual app
+        val dialog = Changelog.createDialog(this, getAppVersion().first)
+        dialog.setOnDismissListener({_ -> _startApp() })
+        dialog.show()
+    }
+
+    private fun _startApp() {
         // service up and running, start the actual app
         val intent = Intent(this, LoadSessionActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME

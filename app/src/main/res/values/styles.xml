@@ -21,9 +21,10 @@
 
         <item name="android:textAppearance">@style/AppTheme.TextAppearance</item>
         <item name="android:textAppearanceLarge">@style/AppTheme.TextAppearance.Large</item>
-        <item name="android:alertDialogTheme">@style/AppTheme.AlertDialog</item>
         <!-- Apply default style for dialogs -->
-
+        <item name="android:alertDialogTheme">@style/AppTheme.AlertDialog</item>
+        <!-- Apply style for changelog -->
+        <item name="changelogStyle">@style/Changelog</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

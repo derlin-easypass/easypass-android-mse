@@ -76,15 +76,19 @@ class AccountAdapter(var accounts: MutableList<Account>,
         return ViewHolder(v)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder?, position: Int, payloads: MutableList<Any>?) {
-        val item = filtered[position]
-        holder!!.titleView.text = item.name
-        holder.subtitleView.text = if (item.pseudo != "") item.pseudo else item.email
-        holder.favoriteIcon.setBackgroundResource(
-                if (item.isFavorite) R.drawable.ic_pinned_on else R.drawable.ic_pinned_off)
-        holder.view.setOnClickListener { _ -> onClick?.invoke(item) }
-        holder.view.setOnLongClickListener { _ -> onLongClick?.invoke(item); true }
-        holder.favoriteIcon.setOnClickListener { _ -> onFavoriteClick?.invoke(holder, item) }
+    override fun onBindViewHolder(h: ViewHolder?, position: Int, payloads: MutableList<Any>?) {
+        h?.let { holder ->
+            val item = filtered[position]
+
+            holder.titleView.text = item.name
+            holder.subtitleView.text = if (item.pseudo != "") item.pseudo else item.email
+            holder.favoriteIcon.setBackgroundResource(
+                    if (item.isFavorite) R.drawable.ic_pinned_on else R.drawable.ic_pinned_off)
+
+            holder.view.setOnClickListener { _ -> onClick?.invoke(item) }
+            holder.view.setOnLongClickListener { _ -> onLongClick?.invoke(item); true }
+            holder.favoriteIcon.setOnClickListener { _ -> onFavoriteClick?.invoke(holder, item) }
+        }
     }
 
     override fun getItemCount(): Int = filtered.size

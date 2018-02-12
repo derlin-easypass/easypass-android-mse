@@ -18,7 +18,9 @@
             android:name="ch.derlin.easypass.IntroActivity"
             android:theme="@style/AppTheme.NoActionBar" />
 
-        <activity android:name="ch.derlin.easypass.StartActivity">
+        <activity
+            android:name="ch.derlin.easypass.StartActivity"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

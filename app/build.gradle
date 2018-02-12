@@ -45,6 +45,7 @@ dependencies {
     implementation 'nl.komponents.kovenant:kovenant-ui:3.3.0'
     implementation 'com.shawnlin:number-picker:2.4.4'
     implementation 'com.github.apl-devs:appintro:v4.2.2'
+    implementation 'ch.derlin.changelog:library:1.0@aar'
     testImplementation 'junit:junit:4.12'
 }
 repositories {

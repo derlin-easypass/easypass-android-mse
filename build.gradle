@@ -19,6 +19,7 @@ allprojects {
         jcenter()
         // cf https://github.com/apl-devs/AppIntro
         maven { url 'https://jitpack.io' }
+        maven { url  "https://dl.bintray.com/derlin/maven" }
     }
 }
 
