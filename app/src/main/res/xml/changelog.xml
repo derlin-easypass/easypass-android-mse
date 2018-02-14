@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="1.1" versioncode="2" date="2018-02-20" summary="The first publication to the Play Store was made behind my back. This time, you get the 'real' thing !">
+    <release version="1.1" versioncode="2" date="2018-02-20" summary="The first publication to the Play Store was made behind my back, by someone else. This time, you get the 'real' thing !">
         <change>Take ownership back</change>
         <change>Remove ads, this app is totally free !</change>
         <change>Add changelog dialog</change>
