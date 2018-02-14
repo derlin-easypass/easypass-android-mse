@@ -3,12 +3,12 @@
 
     <!--dropbox token and permissions-->
     <string name="prefs_dbx_access_token">dbx-access-token</string>
-    <string name="dbx_app_key">wb46jdsrtgwsi2h</string>
-    <string name="dbx_app_key_manifest">db-wb46jdsrtgwsi2h</string>
+    <string name="dbx_app_key">oqxuv1moxa6ew26</string>
+    <string name="dbx_app_key_manifest">db-oqxuv1moxa6ew26</string>
     <string name="dbx_request_config_name">Easypass/2.0</string>
 
     <!--general-->
-    <string name="title_activity_load">Setup</string>
+    <string name="title_activity_load">Login</string>
     <string name="title_account_list">Accounts</string>
     <string name="title_account_detail">Account Detail</string>
     <string name="title_account_edit">Account Edit</string>
