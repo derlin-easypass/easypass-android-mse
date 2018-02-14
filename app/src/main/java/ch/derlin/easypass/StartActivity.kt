@@ -32,7 +32,11 @@ class StartActivity : AppCompatActivity() {
         setContentView(R.layout.activity_start)
         setSupportActionBar(toolbar)
 
-        if (!Preferences().introDone) {
+        val prefs = Preferences()
+        if (!prefs.introDone) {
+            prefs.introDone = true
+            // update version on first load
+            prefs.versionCode = getAppVersion().first
             showIntro()
         } else {
             checkToken()
@@ -87,10 +91,24 @@ class StartActivity : AppCompatActivity() {
     }
 
     private fun startApp() {
-        // service up and running, start the actual app
-        val dialog = Changelog.createDialog(this, getAppVersion().first)
-        dialog.setOnDismissListener({_ -> _startApp() })
-        dialog.show()
+        // service up and running, show changelog if needed and start the actual app
+        val prefs = Preferences(this)
+        try {
+            val version = getAppVersion()
+            if (prefs.versionCode < version.first) {
+                prefs.versionCode = version.first
+                val dialog = Changelog.createDialog(this,
+                        title = resources.getString(R.string.whatsnew_title),
+                        versionCode = getAppVersion().first)
+                dialog.setOnDismissListener({ _ -> _startApp() })
+                dialog.show()
+            } else {
+                _startApp()
+            }
+        } catch (e: Throwable) { // in case the version or xml doesn't load, skip
+            Timber.e(e)
+            _startApp()
+        }
     }
 
     private fun _startApp() {

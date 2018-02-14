@@ -2,14 +2,26 @@
 <resources>
 
     <style name="Changelog" parent="LibChangelog">
+        <!-- just override the title and bullet styles -->
         <item name="changelogTitleStyle">@style/ChangelogHeader</item>
+        <!--<item name="changelogBulletStyle">@style/ChangelogBullet</item>-->
     </style>
 
     <style name="ChangelogHeader" parent="LibChangelog.HeaderTitle">
+        <!-- override the changelog title: change the color and specify a background image -->
         <item name="android:background">@mipmap/parallax_changelog</item>
         <item name="android:textColor">?android:windowBackground</item>
         <item name="android:gravity">bottom</item>
         <item name="android:paddingLeft">10dp</item>
         <item name="android:paddingBottom">20dp</item>
+    </style>
+
+    <style name="ChangelogBullet" parent="LibChangelog.CellBullet">
+        <!-- change the bullets to use some other drawable resource
+         add margin to make it better looking -->
+        <item name="android:background">@drawable/logo</item>
+        <item name="android:layout_width">10dp</item>
+        <item name="android:layout_height">10dp</item>
+        <item name="android:layout_marginEnd">10dp</item>
     </style>
 </resources>

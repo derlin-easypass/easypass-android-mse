@@ -72,7 +72,7 @@ class Preferences(context: Context = App.appContext) {
     /** Keep track of the version to show changelog dialog on update */
     var versionCode: Int
         get() = sharedPrefs.getInt("version_code", 0)
-        set(value) = sharedPrefs.edit().putInt("init_done", value).apply()
+        set(value) = sharedPrefs.edit().putInt("version_code", value).apply()
 
 
     companion object {

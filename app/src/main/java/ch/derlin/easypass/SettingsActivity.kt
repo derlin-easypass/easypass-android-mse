@@ -14,6 +14,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import ch.derlin.changelog.Changelog
 import ch.derlin.easypass.easypass.R
 import ch.derlin.easypass.helper.*
 import ch.derlin.easypass.helper.MiscUtils.rootView
@@ -64,7 +65,10 @@ class SettingsActivity : AppCompatActivity() {
             Setting("Other", isHeader = true),
             Setting("Intro",
                     "Show the introductory slides.",
-                    { -> showIntro() }, R.drawable.ic_info_outline)
+                    { -> showIntro() }, R.drawable.ic_info_outline),
+            Setting("Changelog",
+                    "Show the complete changelog.",
+                    { -> showChangelog() }, R.drawable.ic_info_outline)
     )
 
     var working: Boolean
@@ -182,6 +186,10 @@ class SettingsActivity : AppCompatActivity() {
             Snackbar.make(rootView(), "Error: " + it, Snackbar.LENGTH_LONG)
                     .show()
         }
+    }
+
+    fun showChangelog(){
+        Changelog.createDialog(this).show()
     }
 
     private fun changeSessionFileDialog() {

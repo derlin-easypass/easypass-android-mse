@@ -37,4 +37,8 @@
     <string name="title_activity_settings">Settings</string>
     <string name="account_list_counter_text_single">%1$d account</string>
     <string name="account_list_counter_text">%1$d accounts</string>
+
+    <!--changelog library-->
+    <string name="whatsnew_title">HOWDY,\nAN UPDATE!</string>
+    <string name="changelog_title">CHANGELOG</string>
 </resources>
