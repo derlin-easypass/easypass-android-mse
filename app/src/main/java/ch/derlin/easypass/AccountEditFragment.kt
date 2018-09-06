@@ -172,12 +172,16 @@ class AccountEditFragment : Fragment() {
         }
 
         // ensure there are no duplicate names in the account list
-        if (newAccount.name != mItem?.name &&
-                DbxManager.accounts!!.indexOfFirst { acc ->
-                    acc.name.equals(newAccount.name, ignoreCase = true)
-                } > -1) {
-            Toast.makeText(activity, "an account with this name already exists", Toast.LENGTH_LONG).show()
-            return
+        if (newAccount.name != mItem?.name) {
+            // is new name already in the list ?
+            val idx = DbxManager.accounts!!.indexOfFirst { acc ->
+                acc.name.equals(newAccount.name, ignoreCase = true)
+            }
+            // ensure it is not just a change of letter casing
+            if (idx >= 0 && idx != originalAccountIndex) {
+                Toast.makeText(activity, "an account with this name already exists", Toast.LENGTH_LONG).show()
+                return
+            }
         }
 
         // ok, now it become critical
