@@ -2,7 +2,7 @@ package ch.derlin.easypass.helper
 
 import android.app.Activity
 import android.content.Context
-import android.support.v7.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.view.View
 import android.widget.*
 import ch.derlin.easypass.easypass.R
@@ -59,7 +59,7 @@ object SelectFileDialog {
         }
 
         // actually create the dialog
-        return android.support.v7.app.AlertDialog.Builder(this, R.style.AppTheme_AlertDialog)
+        return androidx.appcompat.app.AlertDialog.Builder(this, R.style.AppTheme_AlertDialog)
                 .setView(view)
                 .setNegativeButton("cancel", { dialog, _ -> dialog.dismiss() })
                 .setPositiveButton("change", { dialog, _ ->

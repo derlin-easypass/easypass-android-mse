@@ -7,7 +7,7 @@
     android:paddingTop="40dp"
     android:background="@drawable/bottom_border_gradient">
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/filename_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -23,7 +23,7 @@
             android:textAppearance="@style/AppTheme.TextAppearance.Large"
             android:textIsSelectable="true" />
 
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"

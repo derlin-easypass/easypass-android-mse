@@ -2,7 +2,7 @@ package ch.derlin.easypass
 
 import android.graphics.Color
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import ch.derlin.easypass.easypass.R
 import ch.derlin.easypass.helper.MiscUtils.attrColor
 import ch.derlin.easypass.helper.Preferences
