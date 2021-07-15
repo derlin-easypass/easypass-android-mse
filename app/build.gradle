@@ -47,11 +47,25 @@ dependencies {
     implementation 'nl.komponents.kovenant:kovenant-ui:3.3.0'
     implementation 'com.shawnlin:number-picker:2.4.4'
     implementation 'com.github.apl-devs:appintro:v4.2.2'
-    implementation 'ch.derlin.changelog:library:1.0@aar'
+    implementation 'ch.derlin.android:changelog:1.1@aar'
     testImplementation 'junit:junit:4.12'
 }
+
+// github tokens for access to Github Packages
+def githubProperties = new Properties()
+githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
+
 repositories {
     mavenCentral()
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/derlin/android-changelog")
+
+        credentials {
+            username = githubProperties['gpr.usr'] ?: System.getenv("GPR_USER")
+            password = githubProperties['gpr.key'] ?: System.getenv("GPR_API_KEY")
+        }
+    }
 }
 
 apply plugin: 'kotlin-android-extensions'
