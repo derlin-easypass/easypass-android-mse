@@ -1,13 +1,13 @@
 package ch.derlin.easypass
 
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
-import ch.derlin.easypass.easypass.R
+import androidx.recyclerview.widget.RecyclerView
 import ch.derlin.easypass.data.Account
+import ch.derlin.easypass.easypass.R
 
 /**
  * Created by Lin on 16.11.17.
@@ -65,21 +65,18 @@ class AccountAdapter(var accounts: MutableList<Account>,
         updateCounter()
     }
 
-    override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
-        onBindViewHolder(holder, position, null)
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        onBindViewHolder(holder, position, mutableListOf())
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
-        // create a new view
-        val v: View = LayoutInflater.from(parent!!.context)
-                .inflate(R.layout.account_list_content, parent, false)
-        return ViewHolder(v)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
+            // create a new view
+            ViewHolder(LayoutInflater.from(parent.context)
+                    .inflate(R.layout.account_list_content, parent, false))
 
-    override fun onBindViewHolder(h: ViewHolder?, position: Int, payloads: MutableList<Any>?) {
-        h?.let { holder ->
-            val item = filtered[position]
 
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
+        filtered[position].let { item ->
             holder.titleView.text = item.name
             holder.subtitleView.text = if (item.pseudo != "") item.pseudo else item.email
             holder.favoriteIcon.setBackgroundResource(
@@ -125,7 +122,7 @@ class AccountAdapter(var accounts: MutableList<Account>,
     }
 
     private fun doFilter() {
-        filtered = if (lastSearch == null || lastSearch.isBlank()) accounts.toMutableList()
+        filtered = if (lastSearch.isBlank()) accounts.toMutableList()
         else accounts.filter { i -> i.contains(lastSearch) }.toMutableList()
     }
 
@@ -146,9 +143,9 @@ class AccountAdapter(var accounts: MutableList<Account>,
 
     private fun updateCounter() {
 
-        textviewCounter?.setText(App.appContext.getString(
+        textviewCounter?.text = App.appContext.getString(
                 if (filtered.size <= 1) R.string.account_list_counter_text_single
-                else R.string.account_list_counter_text, filtered.size))
+                else R.string.account_list_counter_text, filtered.size)
     }
     // -----------------------------------------
 

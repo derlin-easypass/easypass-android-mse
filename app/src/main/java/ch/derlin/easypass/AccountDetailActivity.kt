@@ -3,11 +3,11 @@ package ch.derlin.easypass
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.MenuItem
 import android.widget.Toast
-import ch.derlin.easypass.easypass.R
+import androidx.fragment.app.Fragment
 import ch.derlin.easypass.data.Account
+import ch.derlin.easypass.easypass.R
 import ch.derlin.easypass.helper.NetworkStatus
 import ch.derlin.easypass.helper.SecureActivity
 import kotlinx.android.synthetic.main.activity_account_detail.*
@@ -21,7 +21,7 @@ import kotlinx.android.synthetic.main.activity_account_detail.*
  */
 class AccountDetailActivity : SecureActivity() {
 
-    var selectedAccount: Account? = null
+    private var selectedAccount: Account? = null
     private var selectedOperation: String? = null
     private var shouldGoBackToEditView = false
     private var accountModified = false
@@ -31,7 +31,7 @@ class AccountDetailActivity : SecureActivity() {
         setContentView(R.layout.activity_account_detail)
         setSupportActionBar(toolbar)
 
-        fab.setOnClickListener { view -> editAccount() }
+        fab.setOnClickListener { editAccount() }
 
         // Show the Up button in the action bar.
         val actionBar = supportActionBar
@@ -55,19 +55,19 @@ class AccountDetailActivity : SecureActivity() {
         }
     }
 
-    fun updateTitle(title: String){
+    fun updateTitle(title: String) {
         toolbarLayout.title = title
     }
 
     fun editAccount(): Boolean {
-        if (NetworkStatus.isInternetAvailable()) {
+        return if (NetworkStatus.isInternetAvailable()) {
             switchFragment(AccountEditFragment())
             shouldGoBackToEditView = true
             app_bar.setExpanded(false, true)
-            return true
+            true
         } else {
             Toast.makeText(this, "no internet connection available.", Toast.LENGTH_SHORT).show()
-            return false
+            false
         }
     }
 
@@ -101,7 +101,7 @@ class AccountDetailActivity : SecureActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun backToDetailsView(){
+    private fun backToDetailsView() {
         switchFragment(AccountDetailFragment())
         app_bar.setExpanded(true, true)
         shouldGoBackToEditView = false
@@ -122,12 +122,12 @@ class AccountDetailActivity : SecureActivity() {
 
 
     companion object {
-        val BUNDLE_ACCOUNT_KEY = "account"
-        val BUNDLE_OPERATION_KEY = "operation"
-        val OPERATION_SHOW = "show"
-        val OPERATION_EDIT = "edit"
-        val OPERATION_NEW = "new"
-        val RETURN_MODIFIED = "modified"
+        const val BUNDLE_ACCOUNT_KEY = "account"
+        const val BUNDLE_OPERATION_KEY = "operation"
+        const val OPERATION_SHOW = "show"
+        const val OPERATION_EDIT = "edit"
+        const val OPERATION_NEW = "new"
+        const val RETURN_MODIFIED = "modified"
     }
 
 }

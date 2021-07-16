@@ -4,27 +4,25 @@ package ch.derlin.easypass
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.fragment.app.Fragment
-import androidx.appcompat.app.AlertDialog
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
 import android.widget.Toast
-import ch.derlin.easypass.easypass.R
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
 import ch.derlin.easypass.data.Account
+import ch.derlin.easypass.easypass.R
 import ch.derlin.easypass.helper.DbxManager
 import ch.derlin.easypass.helper.MiscUtils.hideKeyboard
+import ch.derlin.easypass.helper.MiscUtils.rootView
 import ch.derlin.easypass.helper.PasswordGenerator
-import com.shawnlin.numberpicker.NumberPicker
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.account_edit.*
 import kotlinx.android.synthetic.main.activity_account_detail.*
+import kotlinx.android.synthetic.main.dialog_generate_password.*
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
 
@@ -52,28 +50,24 @@ class AccountEditFragment : Fragment() {
         get() = progressBar.visibility == View.VISIBLE
         set(value) = progressBar.setVisibility(if (value) View.VISIBLE else View.INVISIBLE)
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        if (arguments?.containsKey(AccountDetailActivity.BUNDLE_ACCOUNT_KEY) ?: false) {
-            mItem = arguments.getParcelable(AccountDetailActivity.BUNDLE_ACCOUNT_KEY)
-            if (mItem != null) {
-                originalAccountIndex =
-                        DbxManager.accounts!!.indexOfFirst { acc -> acc.name == mItem!!.name }
-            }
+        mItem = arguments?.getParcelable(AccountDetailActivity.BUNDLE_ACCOUNT_KEY)
+        mItem?.name?.let { name ->
+            originalAccountIndex = DbxManager.accounts!!.indexOfFirst { acc -> acc.name == name }
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? =
-            inflater!!.inflate(R.layout.account_edit, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
+            inflater.inflate(R.layout.account_edit, container, false)
 
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         working = false
-
         val theActivity = activity as? AccountDetailActivity
+
         theActivity?.updateTitle(if (mItem != null) "Editing ${mItem?.name}" else "New account")
 
         // Show the dummy content as text in a TextView.
@@ -102,7 +96,7 @@ class AccountEditFragment : Fragment() {
         details_notes.maxLines = 5
         details_notes.setOnEditorActionListener { textView, actionId, keyEvent ->
             if (actionId == EditorInfo.IME_ACTION_GO) {
-                activity.hideKeyboard()
+                requireActivity().hideKeyboard()
                 true
             } else {
                 false
@@ -114,7 +108,7 @@ class AccountEditFragment : Fragment() {
 
         // save and cancel buttons
         button_edit_save.setOnClickListener { saveAccount() }
-        button_edit_cancel.setOnClickListener { activity.onBackPressed() }
+        button_edit_cancel.setOnClickListener { requireActivity().onBackPressed() }
 
         theActivity?.fab?.setImageResource(R.drawable.ic_save)
         theActivity?.fab?.setOnClickListener { _ ->
@@ -127,27 +121,27 @@ class AccountEditFragment : Fragment() {
 
     private fun generatePassword() {
 
-        val dialogView = activity.layoutInflater.inflate(R.layout.dialog_generate_password, null)
-
-        val resultText = dialogView.findViewById<EditText>(R.id.generate_password_result)
-        val sizePicker = dialogView.findViewById<NumberPicker>(R.id.number_picker)
-        val specialChars = dialogView.findViewById<CheckBox>(R.id.generate_password_special_chars)
+        val dialogView = requireActivity().layoutInflater.inflate(R.layout.dialog_generate_password, null)
 
         // generate action
-        dialogView.findViewById<Button>(R.id.generate_password_button).setOnClickListener {
-            resultText.setText(PasswordGenerator.generate(sizePicker.value, specialChars.isChecked))
+        generate_password_button.setOnClickListener {
+            PasswordGenerator.generate(number_picker.value, generate_password_special_chars.isChecked).let {
+                generate_password_result.setText(it)
+            }
         }
 
         // default value
-        resultText.setText(PasswordGenerator.generate(sizePicker.value, specialChars.isChecked))
+        PasswordGenerator.generate(number_picker.value, generate_password_special_chars.isChecked).let {
+            generate_password_result.setText(it)
+        }
 
-        val dialog = AlertDialog.Builder(activity, R.style.AppTheme_AlertDialog)
+        val dialog = AlertDialog.Builder(requireContext(), R.style.AppTheme_AlertDialog)
                 .setView(dialogView)
                 .setTitle("Generate a password")
-                .setPositiveButton("Use", { _, _ ->
-                    details_password.setText(resultText.text.toString())
-                })
-                .setNegativeButton("Cancel", { dialog, _ -> })
+                .setPositiveButton("Use") { _, _ ->
+                    details_password.setText(generate_password_result.text.toString())
+                }
+                .setNegativeButton("Cancel") { _, _ -> }
                 .create()
 
         dialog.show()
@@ -213,8 +207,8 @@ class AccountEditFragment : Fragment() {
                 DbxManager.accounts!!.remove(newAccount)
             }
             // show error
-            Snackbar.make(getActivity().findViewById(android.R.id.content),
-                    "Error " + it, Snackbar.LENGTH_LONG)
+            Snackbar.make(requireActivity().rootView(),
+                    "Error $it", Snackbar.LENGTH_LONG)
                     .show()
         }
     }

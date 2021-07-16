@@ -4,22 +4,22 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.TextInputEditText
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.RecyclerView
 import ch.derlin.changelog.Changelog
 import ch.derlin.easypass.easypass.R
 import ch.derlin.easypass.helper.*
 import ch.derlin.easypass.helper.MiscUtils.rootView
 import ch.derlin.easypass.helper.MiscUtils.showIntro
 import ch.derlin.easypass.helper.SelectFileDialog.createSelectFileDialog
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.android.synthetic.main.activity_settings.*
 import nl.komponents.kovenant.task
 import nl.komponents.kovenant.ui.alwaysUi
@@ -38,7 +38,7 @@ class SettingsActivity : AppCompatActivity() {
                   val isHeader: Boolean = false)
 
 
-    val settings = listOf<Setting>(
+    private val settings = listOf(
             Setting("Generator", isHeader = true),
             Setting("Special chars",
                     "Set the characters used in passwords.",
@@ -71,7 +71,7 @@ class SettingsActivity : AppCompatActivity() {
                     { -> showChangelog() }, R.drawable.ic_info_outline)
     )
 
-    var working: Boolean
+    private var working: Boolean
         get() = progressBar.visibility == View.VISIBLE
         set(value) = progressBar.setVisibility(if (value) View.VISIBLE else View.INVISIBLE)
 
@@ -86,24 +86,23 @@ class SettingsActivity : AppCompatActivity() {
         recyclerView.adapter = SettingsAdapter(this, settings)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when (item?.itemId) {
-            android.R.id.home -> {
-                onBackPressed(); return true
-            }
-            else -> return super.onOptionsItemSelected(item)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        android.R.id.home -> {
+            onBackPressed(); true
         }
+        else -> super.onOptionsItemSelected(item)
     }
+
 
     // ----------------------------------------- implement actions
 
-    fun clearPassword() {
+    private fun clearPassword() {
         CachedCredentials.clearPassword()
         Snackbar.make(rootView(), "password cleared.", Snackbar.LENGTH_SHORT).show()
     }
 
 
-    fun unbindDropbox() {
+    private fun unbindDropbox() {
         working = true
         task {
             Timber.d("revoking Dropbox token ${Preferences().dbxAccessToken}")
@@ -113,21 +112,21 @@ class SettingsActivity : AppCompatActivity() {
             exitApp()
         } failUi {
             working = false
-            Snackbar.make(rootView(), "Error: " + it, Snackbar.LENGTH_LONG).show()
+            Snackbar.make(rootView(), "Error: $it", Snackbar.LENGTH_LONG).show()
         }
     }
 
-    fun clearCache() {
+    private fun clearCache() {
         if (DbxManager.removeLocalFile()) {
             Snackbar.make(rootView(), "Local file removed.", Snackbar.LENGTH_SHORT).show()
         }
     }
 
-    fun setSpecialChars() {
+    private fun setSpecialChars() {
         val prefs = Preferences(this)
         val view = layoutInflater.inflate(R.layout.dialog_settings_special_chars, null)
         val editText = view.findViewById<EditText>(R.id.specialChars)
-        view.findViewById<Button>(R.id.defaultButton).setOnClickListener { _ ->
+        view.findViewById<Button>(R.id.defaultButton).setOnClickListener {
             editText.setText(PasswordGenerator.allSpecialChars)
         }
 
@@ -136,40 +135,40 @@ class SettingsActivity : AppCompatActivity() {
         AlertDialog.Builder(this, R.style.AppTheme_AlertDialog)
                 .setView(view)
                 .setTitle("Generator special chars")
-                .setNegativeButton("cancel", { dialog, _ -> dialog.dismiss() })
-                .setPositiveButton("use", { _, _ ->
+                .setNegativeButton("cancel") { dialog, _ -> dialog.dismiss() }
+                .setPositiveButton("use") { _, _ ->
                     if (editText.text.isNotBlank()) {
                         prefs.specialChars = editText.text.toString()
                         Toast.makeText(this, "preference updated.", Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(this, "invalid empty sequence", Toast.LENGTH_SHORT).show()
                     }
-                })
+                }
                 .show()
     }
 
-    fun changePasswordDialog() {
+    private fun changePasswordDialog() {
         val view = layoutInflater.inflate(R.layout.dialog_change_password, null)
         AlertDialog.Builder(this, R.style.AppTheme_AlertDialog)
                 .setView(view)
                 .setTitle("New password")
-                .setNegativeButton("cancel", { dialog, _ -> dialog.dismiss() })
-                .setPositiveButton("change", { dialog, _ ->
-                    val pass = view.findViewById<TextInputEditText>(R.id.passwordField).text
+                .setNegativeButton("cancel") { dialog, _ -> dialog.dismiss() }
+                .setPositiveButton("change") { _, _ ->
+                    val pass = view.findViewById<TextInputEditText>(R.id.passwordField).text ?: ""
                     if (pass.isBlank() || pass.length < LoadSessionActivity.PasswordFragment.MIN_PASSWORD_LENGTH) {
                         Toast.makeText(this@SettingsActivity,
                                 "Password too short", Toast.LENGTH_SHORT).show()
-                    } else if (pass.equals(DbxManager.accounts!!.password)) {
+                    } else if (pass == DbxManager.accounts!!.password) {
                         Toast.makeText(this@SettingsActivity,
                                 "Password did not change.", Toast.LENGTH_SHORT).show()
                     } else {
                         changePassword(pass.toString())
                     }
-                })
+                }
                 .show()
     }
 
-    fun changePassword(newPassword: String, firstTime: Boolean = true) {
+    private fun changePassword(newPassword: String, firstTime: Boolean = true) {
         working = true
         val oldPassword = DbxManager.accounts!!.password
         DbxManager.accounts!!.password = newPassword
@@ -179,26 +178,26 @@ class SettingsActivity : AppCompatActivity() {
             CachedCredentials.clearPassword()
             val snack = Snackbar.make(rootView(), "Password changed.", Snackbar.LENGTH_LONG)
             if (firstTime)
-                snack.setAction("undo", { _ -> changePassword(oldPassword, false) })
+                snack.setAction("undo") { changePassword(oldPassword, false) }
             snack.show()
         } failUi {
             DbxManager.accounts!!.password = oldPassword
-            Snackbar.make(rootView(), "Error: " + it, Snackbar.LENGTH_LONG)
+            Snackbar.make(rootView(), "Error: $it", Snackbar.LENGTH_LONG)
                     .show()
         }
     }
 
-    fun showChangelog(){
+    private fun showChangelog() {
         Changelog.createDialog(this).show()
     }
 
     private fun changeSessionFileDialog() {
-        createSelectFileDialog({
+        createSelectFileDialog {
             val intent = Intent(this, LoadSessionActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()
-        }).show()
+        }.show()
     }
 
     private fun exitApp() {
@@ -212,9 +211,9 @@ class SettingsActivity : AppCompatActivity() {
 
     class SettingsAdapter(val context: Context, val settings: List<Setting>) : RecyclerView.Adapter<SettingsAdapter.ViewHolder>() {
 
-        override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item: Setting = settings[position]
-            holder!!.titleView.text = item.title
+            holder.titleView.text = item.title
 
             if (holder is ItemViewHolder) {
                 holder.subtitleView.text = item.subtitle
@@ -223,18 +222,17 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             // create a new view
-            if (viewType == 0) {
-                val v = LayoutInflater.from(parent!!.context).inflate(
+            return if (viewType == 0) {
+                val v = LayoutInflater.from(parent.context).inflate(
                         R.layout.settings_list_header, parent, false)
-                return ViewHolder(v)
+                ViewHolder(v)
 
             } else {
                 val v: View = LayoutInflater.from(parent!!.context).inflate(
                         R.layout.settings_list_content, parent, false)
-
-                return ItemViewHolder(v)
+                ItemViewHolder(v)
             }
         }
 
@@ -242,17 +240,15 @@ class SettingsActivity : AppCompatActivity() {
 
         override fun getItemCount(): Int = settings.size
 
-        fun onItemClick(s: Setting) {
+        private fun onItemClick(s: Setting) {
             if (s.confirm == null) {
                 s.onClick?.invoke()
             } else {
                 // confirmation dialog
                 AlertDialog.Builder(context)
                         .setMessage(s.confirm)
-                        .setPositiveButton("OK", { _, _ ->
-                            s.onClick?.invoke()
-                        })
-                        .setNegativeButton("Cancel", { _, _ -> })
+                        .setPositiveButton("OK") { _, _ -> s.onClick?.invoke() }
+                        .setNegativeButton("Cancel") { _, _ -> }
                         .show()
             }
         }
@@ -270,7 +266,7 @@ class SettingsActivity : AppCompatActivity() {
 // -----------------------------------------
 
     companion object {
-        val BUNDLE_RESTART_KEY = "restart"
+        const val BUNDLE_RESTART_KEY = "restart"
     }
 
 }

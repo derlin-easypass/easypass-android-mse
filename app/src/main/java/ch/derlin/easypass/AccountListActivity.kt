@@ -7,12 +7,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.snackbar.Snackbar
-import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.RecyclerView
-import androidx.appcompat.widget.SearchView
-import androidx.recyclerview.widget.ItemTouchHelper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -20,11 +14,18 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
-import ch.derlin.easypass.easypass.R
+import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import ch.derlin.easypass.data.Account
+import ch.derlin.easypass.easypass.R
 import ch.derlin.easypass.helper.*
 import ch.derlin.easypass.helper.MiscUtils.attrColor
 import ch.derlin.easypass.helper.MiscUtils.restartApp
+import ch.derlin.easypass.helper.MiscUtils.rootView
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.account_list.*
 import kotlinx.android.synthetic.main.activity_account_list.*
 import nl.komponents.kovenant.ui.alwaysUi
@@ -51,8 +52,8 @@ class AccountListActivity : SecureActivity() {
     private var mTwoPaneCurrentFragment: Fragment? = null
 
     lateinit var mAdapter: AccountAdapter
-    lateinit var searchView: SearchView
-    var mOfflineIndicator: MenuItem? = null
+    private lateinit var searchView: SearchView
+    private var mOfflineIndicator: MenuItem? = null
     private var bottomSheetDialog: BottomSheetDialog? = null
     private var selectedAccount: Account? = null
 
@@ -83,7 +84,7 @@ class AccountListActivity : SecureActivity() {
             return
         }
 
-        fab.setOnClickListener { view ->
+        fab.setOnClickListener { _ ->
             if (NetworkStatus.isInternetAvailable()) {
                 openDetailActivity(null, AccountDetailActivity.OPERATION_NEW)
             } else {
@@ -106,20 +107,17 @@ class AccountListActivity : SecureActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == DETAIL_ACTIVITY_REQUEST_CODE) {
-            if (data?.getBooleanExtra(AccountDetailActivity.RETURN_MODIFIED, false) ?: false) {
+            if (data?.getBooleanExtra(AccountDetailActivity.RETURN_MODIFIED, false) == true) {
                 // update the list in case of modification
-                selectedAccount = data!!.getParcelableExtra(AccountDetailActivity.BUNDLE_ACCOUNT_KEY)
+                selectedAccount = data.getParcelableExtra(AccountDetailActivity.BUNDLE_ACCOUNT_KEY)
                 notifyAccountUpdate(selectedAccount!!)
             }
         } else if (requestCode == SETTINGS_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                data?.let {
-                    // if asking for restart, kill current activity
-                    // TODO: find a better way
-                    if (it.getBooleanExtra(SettingsActivity.BUNDLE_RESTART_KEY, false)) {
-                        restartApp()
-                    }
-                }
+            if (resultCode == Activity.RESULT_OK
+                    && data?.getBooleanExtra(SettingsActivity.BUNDLE_RESTART_KEY, false) == true) {
+                // if asking for restart, kill current activity
+                // TODO: find a better way
+                restartApp()
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data)
@@ -145,7 +143,7 @@ class AccountListActivity : SecureActivity() {
             if (selectedAccount != null) {
                 openDetailActivity(selectedAccount!!, AccountDetailActivity.OPERATION_SHOW)
             } else {
-                supportFragmentManager.beginTransaction().remove(mTwoPaneCurrentFragment).commit()
+                supportFragmentManager.beginTransaction().remove(mTwoPaneCurrentFragment as AccountEditFragment).commit()
             }
         } else {
             super.onBackPressed()
@@ -172,14 +170,14 @@ class AccountListActivity : SecureActivity() {
     }
 
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item?.groupId == R.id.group_menu_sort) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.groupId == R.id.group_menu_sort) {
             Preferences(this).sortOrder = item.itemId
             mAdapter.comparator = getSortOrder(item.itemId)
             item.isChecked = true
             return true
         } else {
-            when (item?.itemId) {
+            when (item.itemId) {
                 R.id.action_settings -> startActivityForResult(Intent(this, SettingsActivity::class.java), SETTINGS_REQUEST_CODE)
                 R.id.action_sync -> syncWithRemote()
                 else -> return super.onOptionsItemSelected(item)
@@ -189,15 +187,14 @@ class AccountListActivity : SecureActivity() {
 
     }
 
-    private fun getSortOrder(itemId: Int): Comparator<Account> {
-        when (itemId) {
-            R.id.submenu_sort_title_asc -> return Account.nameComparatorAsc
-            R.id.submenu_sort_title_desc -> return Account.nameComparatorDesc
-            R.id.submenu_sort_year_asc -> return Account.modifiedComparatorAsc
-            R.id.submenu_sort_year_desc -> return Account.modifiedComparatorDesc
-            else -> return Account.nameComparatorAsc
-        }
+    private fun getSortOrder(itemId: Int): Comparator<Account> = when (itemId) {
+        R.id.submenu_sort_title_asc -> Account.nameComparatorAsc
+        R.id.submenu_sort_title_desc -> Account.nameComparatorDesc
+        R.id.submenu_sort_year_asc -> Account.modifiedComparatorAsc
+        R.id.submenu_sort_year_desc -> Account.modifiedComparatorDesc
+        else -> Account.nameComparatorAsc
     }
+
 
     private fun showBottomSheet(item: Account) {
 
@@ -210,27 +207,24 @@ class AccountListActivity : SecureActivity() {
             return
         }
 
+        bottomSheetDialog = BottomSheetDialog(this).also { sheet ->
+            val view = layoutInflater.inflate(R.layout.bottom_sheet_layout, null)
 
-        bottomSheetDialog = BottomSheetDialog(this)
-        val view = layoutInflater.inflate(R.layout.bottom_sheet_layout, null)
+            view.findViewById<TextView>(R.id.bottomSheetTitle).text = item.name
+            view.findViewById<Button>(R.id.copy_username_btn).let {
+                it.text = MiscUtils.toSpannable(getString(R.string.fmt_copy_xx).format("username", item.pseudo))
+                it.isEnabled = item.pseudo.isNotBlank()
+            }
+            view.findViewById<Button>(R.id.copy_email_btn).let {
+                it.text = MiscUtils.toSpannable(getString(R.string.fmt_copy_xx).format("email", item.email))
+                it.isEnabled = item.email.isNotBlank()
+            }
+            view.findViewById<Button>(R.id.view_password_btn).isEnabled = item.password.isNotBlank()
+            view.findViewById<Button>(R.id.view_edit_btn).isEnabled = NetworkStatus.isInternetAvailable(this)
 
-        view.findViewById<TextView>(R.id.bottomSheetTitle).text = item.name
-
-        var tv = view.findViewById<Button>(R.id.copy_username_btn)
-        tv.text = MiscUtils.toSpannable(getString(R.string.fmt_copy_xx).format("username", item.pseudo))
-        tv.isEnabled = item.pseudo.isNotBlank()
-
-        tv = view.findViewById<Button>(R.id.copy_email_btn)
-        tv.text = MiscUtils.toSpannable(getString(R.string.fmt_copy_xx).format("email", item.email))
-        tv.isEnabled = item.email.isNotBlank()
-
-        tv = view.findViewById<Button>(R.id.view_password_btn)
-        tv.isEnabled = item.password.isNotBlank()
-
-        view.findViewById<Button>(R.id.view_edit_btn).isEnabled = NetworkStatus.isInternetAvailable(this)
-
-        bottomSheetDialog!!.setContentView(view)
-        bottomSheetDialog!!.show()
+            sheet.setContentView(view)
+            sheet.show()
+        }
     }
 
     // this is bound from the xml layout
@@ -260,8 +254,8 @@ class AccountListActivity : SecureActivity() {
 
     private fun showPassword(account: Account) {
         val view = layoutInflater.inflate(R.layout.show_password, null)
-        view.findViewById<TextView>(R.id.show_password).setText(account.password)
-        view.findViewById<ImageButton>(R.id.copy_pass_btn).setOnClickListener { _ ->
+        view.findViewById<TextView>(R.id.show_password_textview).text = account.password
+        view.findViewById<ImageButton>(R.id.show_password_copy_btn).setOnClickListener {
             copyToClipboard(selectedAccount!!.password, "password copied!")
         }
         AlertDialog.Builder(this)
@@ -270,11 +264,12 @@ class AccountListActivity : SecureActivity() {
     }
 
     private fun copyToClipboard(text: String, toastDescription: String = "") {
-        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.primaryClip = ClipData.newPlainText("easypass", text)
+        ClipData.newPlainText("easypass", text).let { clipData ->
+            (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(clipData)
+        }
         if (toastDescription != "") {
-            if (bottomSheetDialog != null && bottomSheetDialog!!.isShowing)
-                Snackbar.make(bottomSheetDialog!!.findViewById(android.R.id.content)!!, toastDescription, Snackbar.LENGTH_SHORT).show()
+            if (bottomSheetDialog?.isShowing == true)
+                Snackbar.make(bottomSheetDialog!!.rootView(), toastDescription, Snackbar.LENGTH_SHORT).show()
             else
                 Toast.makeText(this, toastDescription, Toast.LENGTH_SHORT).show()
         }
@@ -285,26 +280,27 @@ class AccountListActivity : SecureActivity() {
         if (mTwoPane) {
             val arguments = Bundle()
             arguments.putParcelable(AccountDetailActivity.BUNDLE_ACCOUNT_KEY, item)
-            mTwoPaneCurrentFragment = if (operation == AccountDetailActivity.OPERATION_SHOW)
-                AccountDetailFragment() else AccountEditFragment()
-            mTwoPaneCurrentFragment!!.arguments = arguments
-            supportFragmentManager.beginTransaction()
-                    .replace(R.id.accountDetailContainer, mTwoPaneCurrentFragment)
-                    .commit()
+            (if (operation == AccountDetailActivity.OPERATION_SHOW) AccountDetailFragment() else AccountEditFragment()).let { fragment ->
+                fragment.arguments = arguments
+                mTwoPaneCurrentFragment = fragment
+                supportFragmentManager.beginTransaction()
+                        .replace(R.id.accountDetailContainer, fragment)
+                        .commit()
+            }
         } else {
-            val context = this
-            val intent = Intent(context, AccountDetailActivity::class.java)
-            intent.putExtra(AccountDetailActivity.BUNDLE_OPERATION_KEY, operation)
-            intent.putExtra(AccountDetailActivity.BUNDLE_ACCOUNT_KEY, item)
-            context.startActivityForResult(intent, DETAIL_ACTIVITY_REQUEST_CODE)
+            val intent = Intent(this, AccountDetailActivity::class.java).let {
+                it.putExtra(AccountDetailActivity.BUNDLE_OPERATION_KEY, operation)
+                it.putExtra(AccountDetailActivity.BUNDLE_ACCOUNT_KEY, item)
+            }
+            startActivityForResult(intent, DETAIL_ACTIVITY_REQUEST_CODE)
         }
         return true
     }
 
     // only called in mTwoPane mode
     fun notifyAccountUpdate(item: Account) {
+        selectedAccount?.let { mAdapter.replace(it, item) }
         selectedAccount = item
-        mAdapter.replace(selectedAccount!!, item)
         val idx = mAdapter.positionOf(item)
         if (idx >= 0) recyclerView.scrollToPosition(idx)
 
@@ -331,7 +327,7 @@ class AccountListActivity : SecureActivity() {
         }
 
         mAdapter.onFavoriteClick = { holder, account ->
-            if (NetworkStatus.isConnected ?: false) {
+            if (NetworkStatus.isConnected == true) {
                 working = true
                 account.toggleFavorite()
                 mAdapter.resetAndNotify()
@@ -350,8 +346,9 @@ class AccountListActivity : SecureActivity() {
         }
 
         fun createSwipeHandler(): SwipeToDeleteCallback = object : SwipeToDeleteCallback(this, attrColor(R.attr.colorAccent)) {
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder?, direction: Int) {
-                val item = mAdapter.removeAt(viewHolder!!.adapterPosition)
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val item = mAdapter.removeAt(viewHolder.adapterPosition)
                 working = true
 
                 DbxManager.saveAccounts()
@@ -364,14 +361,14 @@ class AccountListActivity : SecureActivity() {
 
                             Timber.d("removed account: %s", item)
                             Snackbar.make(fab, "Account deleted", Snackbar.LENGTH_LONG)
-                                    .setAction("undo", { _ ->
+                                    .setAction("undo") { _ ->
                                         working = true
                                         mAdapter.add(item)
                                         DbxManager.saveAccounts()
                                                 // TODO: what if it fails
                                                 .alwaysUi { working = false }
                                                 .failUi { showToast("Failed to undo changes !") }
-                                    })
+                                    }
                                     .show()
                         }
                         .failUi {
@@ -396,7 +393,7 @@ class AccountListActivity : SecureActivity() {
         DbxManager.fetchRemoteFileInfo().alwaysUi {
             working = false
         } successUi {
-            syncButton.visibility = if(DbxManager.isInSync) View.GONE else View.VISIBLE
+            syncButton.visibility = if (DbxManager.isInSync) View.GONE else View.VISIBLE
         } failUi {
             Snackbar.make(fab, "Sync error: " + it.message, Snackbar.LENGTH_SHORT).show()
         }
@@ -407,7 +404,7 @@ class AccountListActivity : SecureActivity() {
     }
 
     companion object {
-        val DETAIL_ACTIVITY_REQUEST_CODE = 1984
-        val SETTINGS_REQUEST_CODE = 1985
+        const val DETAIL_ACTIVITY_REQUEST_CODE = 1984
+        const val SETTINGS_REQUEST_CODE = 1985
     }
 }

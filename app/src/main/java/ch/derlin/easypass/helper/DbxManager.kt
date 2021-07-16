@@ -17,8 +17,8 @@ import nl.komponents.kovenant.Promise
 import nl.komponents.kovenant.deferred
 import nl.komponents.kovenant.task
 import timber.log.Timber
-import java.io.FileInputStream
 import java.io.File
+import java.io.FileInputStream
 
 
 /**
@@ -35,14 +35,18 @@ import java.io.File
 object DbxManager {
 
     /** Filename used locally as a cache */
-    const val localFileName = "easypass_cached.data_ser"
+    private const val localFileName = "easypass_cached.data_ser"
+
     /** The list of accounts */
     var accounts: Accounts? = null
+
     /** Are metadata about the current session from Dropbox fetched ?  */
-    var metaFetched = false
+    private var metaFetched = false
         private set
+
     /** The metadata concerning the current session file fetched from Dropbox */
-    var metadata: FileMetadata? = null
+    private var metadata: FileMetadata? = null
+
     /**
      * Is the current session a new one ? i.e. Does the file already exist on Dropbox ?
      * Note: this flag is always file when working offline (no metadata fetched)
@@ -94,7 +98,7 @@ object DbxManager {
                 } catch (e: GetMetadataErrorException) {
                     // session does not exist
                     prefs.cachedPassword = null // ensure it is clean
-                    prefs.revision == null
+                    prefs.revision = null
                     isInSync = true
                     prefs.revision = null
                     metaFetched = true // flag for isNewSession
@@ -114,7 +118,7 @@ object DbxManager {
      * Delete the local cache file.
      */
     fun removeLocalFile(): Boolean {
-        val localFile = File(App.appContext.filesDir.getAbsolutePath(), localFileName)
+        val localFile = File(App.appContext.filesDir.absolutePath, localFileName)
         val ok = localFile.delete()
         Timber.d("""removed local file ? $ok""")
         prefs.revision = null
@@ -171,7 +175,7 @@ object DbxManager {
      * Encrypt and save the [accounts] to dropbox.
      */
     fun saveAccounts(): Promise<Boolean, Exception> {
-        assert(accounts != null)
+        requireNotNull(accounts)
 
         val deferred = deferred<Boolean, Exception>()
         task {

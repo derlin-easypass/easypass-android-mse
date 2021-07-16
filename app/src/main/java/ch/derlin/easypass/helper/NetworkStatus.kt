@@ -11,15 +11,12 @@ import ch.derlin.easypass.App
  * @author Lucy Linder
  */
 object NetworkStatus {
+    var isConnected: Boolean = false
 
-    /** The connectivity status on the last query */
-    var isConnected: Boolean? = null
-
-    /** Ask the system for connectivity status. The result is cached in [isConnected] as well. */
     fun isInternetAvailable(context: Context = App.appContext): Boolean {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        isConnected = cm.activeNetworkInfo != null && cm.activeNetworkInfo.isConnected
-        return isConnected!!
+        isConnected = cm.activeNetworkInfo?.isConnectedOrConnecting == true
+        return isConnected
     }
 }
 

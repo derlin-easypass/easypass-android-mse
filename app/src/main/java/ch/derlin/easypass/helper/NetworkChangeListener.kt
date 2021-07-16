@@ -26,12 +26,7 @@ open class NetworkChangeListener : BroadcastReceiver() {
     private var isRegistered = false
 
     companion object {
-        private var INTENT_FILTER: IntentFilter
-
-        init {
-            // listen to connectivities actions
-            INTENT_FILTER = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-        }
+        private var INTENT_FILTER: IntentFilter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
     }
 
     // ----------------------------------------------------
@@ -39,7 +34,7 @@ open class NetworkChangeListener : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val oldStatus = NetworkStatus.isConnected
         val status = NetworkStatus.isInternetAvailable(App.appContext)
-        if(oldStatus != status){
+        if (oldStatus != status) {
             onNetworkChange(status)
         }
     }

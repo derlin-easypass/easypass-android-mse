@@ -2,9 +2,9 @@ package ch.derlin.easypass.helper
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
-import android.view.WindowManager
 import ch.derlin.easypass.LoadSessionActivity
 import java.util.concurrent.TimeUnit
 
@@ -54,7 +54,7 @@ abstract class SecureActivity : AppCompatActivity() {
     }
 
     /** @return false if the accounts list is still in memory and that the keyguard is secure.*/
-    fun shouldAskCredentials(): Boolean {
+    private fun shouldAskCredentials(): Boolean {
         if (CachedCredentials.isPasswordCached) {
             try {
                 CachedCredentials.getPassword()
@@ -73,7 +73,7 @@ abstract class SecureActivity : AppCompatActivity() {
     }
 
     /** Set the window flags to secure */
-    fun makeSecure() {
+    private fun makeSecure() {
         window.setFlags(WindowManager.LayoutParams.FLAG_SECURE,
                 WindowManager.LayoutParams.FLAG_SECURE);
     }
@@ -81,6 +81,7 @@ abstract class SecureActivity : AppCompatActivity() {
     companion object {
         /** Minimum time required in background before eventually restarting */
         val secureTimeoutMillis = TimeUnit.MINUTES.toMillis(5)
+
         /** (Static) Time the last secure activity went in background */
         private var lastActiveTime: Long? = null
     }

@@ -10,8 +10,6 @@ import ch.derlin.easypass.App
  */
 class Preferences(context: Context = App.appContext) {
 
-    private val PREFERENCES_FILENAME = "ch.derlin.easypass.preferences"
-
     val sharedPrefs: SharedPreferences = context.getSharedPreferences(PREFERENCES_FILENAME, Context.MODE_PRIVATE)
 
     /** The OAuth token for accessing Dropbox, if any. */
@@ -27,7 +25,7 @@ class Preferences(context: Context = App.appContext) {
         set(value) = sharedPrefs.edit().putString("revision", value).apply()
 
     /** Is the Android Keystore initialised, i.e. is the AES key already created ? */
-    var keysoreInitialised: Boolean
+    var keystoreInitialised: Boolean
         get() = sharedPrefs.getBoolean("keystore_initialised", false)
         set(value) = sharedPrefs.edit().putBoolean("keystore_initialised", value).apply()
 
@@ -61,7 +59,7 @@ class Preferences(context: Context = App.appContext) {
 
     /** The list of special characters to use for the generation of password. */
     var specialChars: String
-        get() = sharedPrefs.getString("generatorSpecialChars", PasswordGenerator.allSpecialChars)
+        get() = sharedPrefs.getString("generatorSpecialChars", null) ?: PasswordGenerator.allSpecialChars
         set(value) = sharedPrefs.edit().putString("generatorSpecialChars", value).apply()
 
     /** Are the intro slides already displayed once ? */
@@ -77,6 +75,7 @@ class Preferences(context: Context = App.appContext) {
 
     companion object {
         /** Default session path in Dropbox */
-        val defaultRemoteFilePath = "easypass.data_ser"
+        const val defaultRemoteFilePath = "easypass.data_ser"
+        const val PREFERENCES_FILENAME = "ch.derlin.easypass.preferences"
     }
 }

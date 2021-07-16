@@ -11,7 +11,7 @@ import com.github.paolorotolo.appintro.AppIntroFragment
 import com.github.paolorotolo.appintro.model.SliderPage
 
 
-class IntroActivity : AppIntro(){
+class IntroActivity : AppIntro() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,17 +55,18 @@ class IntroActivity : AppIntro(){
     }
 
     private fun addSlide(title: String, description: String, color: Int, drawable: Int, fgColor: Int = -1) {
-        val fg = if(fgColor == -1) getColor(R.color.whity) else fgColor
+        val fg = if (fgColor == -1) getColor(R.color.whity) else fgColor
 
-        val sliderPage = SliderPage()
-        sliderPage.title = title
-        sliderPage.description = description
-        sliderPage.imageDrawable = drawable
-        sliderPage.bgColor = Color.TRANSPARENT
-        sliderPage.titleColor = fg
-        sliderPage.descColor = fg
-        sliderPage.bgColor = color
-        addSlide(AppIntroFragment.newInstance(sliderPage))
+        SliderPage().let { sliderPage ->
+            sliderPage.title = title
+            sliderPage.description = description
+            sliderPage.imageDrawable = drawable
+            sliderPage.bgColor = Color.TRANSPARENT
+            sliderPage.titleColor = fg
+            sliderPage.descColor = fg
+            sliderPage.bgColor = color
+            addSlide(AppIntroFragment.newInstance(sliderPage))
+        }
     }
 
     private fun exitIntro() {
@@ -84,7 +85,7 @@ class IntroActivity : AppIntro(){
     }
 
     companion object {
-        val INTENT_INTRO = 5553
+        const val INTENT_INTRO = 5553
     }
 
 }

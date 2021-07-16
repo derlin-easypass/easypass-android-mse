@@ -7,9 +7,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.UserNotAuthenticatedException
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
-import androidx.appcompat.app.AppCompatActivity
 import android.text.Editable
 import android.text.Html
 import android.text.TextWatcher
@@ -17,17 +14,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import ch.derlin.easypass.easypass.R
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 import ch.derlin.easypass.data.JsonManager
+import ch.derlin.easypass.easypass.R
 import ch.derlin.easypass.helper.CachedCredentials
 import ch.derlin.easypass.helper.DbxManager
 import ch.derlin.easypass.helper.Preferences
+import ch.derlin.easypass.helper.SelectFileDialog.createSelectFileDialog
+import kotlinx.android.synthetic.main.activity_load_session.*
 import kotlinx.android.synthetic.main.fragment_enter_password.*
 import kotlinx.android.synthetic.main.fragment_load_session_meta.*
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
-import ch.derlin.easypass.helper.SelectFileDialog.createSelectFileDialog
-import kotlinx.android.synthetic.main.activity_load_session.*
 
 class LoadSessionActivity : AppCompatActivity() {
 
@@ -81,13 +81,13 @@ class LoadSessionActivity : AppCompatActivity() {
     // ----------------------------------------- Metadata fetching Fragment
 
     class ProgressFragment : Fragment() {
-        override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             super.onCreateView(inflater, container, savedInstanceState)
             //(activity as AppCompatActivity).supportActionBar?.hide()
-            return inflater!!.inflate(R.layout.fragment_load_session_meta, container, false)
+            return inflater.inflate(R.layout.fragment_load_session_meta, container, false)
         }
 
-        override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
             loadLocalButton.setOnClickListener { _ -> next() }
             retryButton.setOnClickListener { _ -> fetchMeta() }
@@ -95,7 +95,7 @@ class LoadSessionActivity : AppCompatActivity() {
             fetchMeta()
         }
 
-        fun fetchMeta() {
+        private fun fetchMeta() {
             errorLayout.visibility = View.GONE
             loadingLayout.visibility = View.VISIBLE
             DbxManager.fetchRemoteFileInfo().successUi {
@@ -139,21 +139,21 @@ class LoadSessionActivity : AppCompatActivity() {
             }
 
 
-        override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             super.onCreateView(inflater, container, savedInstanceState)
             //(activity as AppCompatActivity).supportActionBar?.show()
-            return inflater!!.inflate(R.layout.fragment_enter_password, container, false)
+            return inflater.inflate(R.layout.fragment_enter_password, container, false)
         }
 
-        override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
 
             // setup prefs
-            mPrefs = Preferences(activity)
+            mPrefs = Preferences(requireContext())
 
             // setup auth
             // cf https://developer.android.com/training/articles/keystore.html
-            val keyguardManager = activity.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+            val keyguardManager = requireActivity().getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
             if (!keyguardManager.isKeyguardSecure) {
                 // no way to save the password if the device doesn't have a pin
                 rememberMeCheckbox.isEnabled = false
@@ -163,13 +163,13 @@ class LoadSessionActivity : AppCompatActivity() {
             // show text in case it is the first time
             if (DbxManager.isNewSession) {
                 rememberMeCheckbox.visibility = View.GONE // don't cache pass the first time
-                rememberMeCheckbox.setText("")
+                rememberMeCheckbox.text = ""
                 newSessionText.visibility = View.VISIBLE
                 newSessionText.text = Html.fromHtml(getString(R.string.header_new_session))
             }
 
             // register btn callback
-            loginButton.setOnClickListener({ _ ->
+            loginButton.setOnClickListener {
                 mPassword = passwordField.text.toString()
                 if (rememberMeCheckbox.isChecked) {
                     mPrefs.cachedPassword = null
@@ -177,12 +177,12 @@ class LoadSessionActivity : AppCompatActivity() {
                 } else {
                     decryptSession()
                 }
-            })
+            }
 
             // toggle button to avoid empty passwords
             passwordField.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(p0: Editable?) {
-                    loginButton.isEnabled = passwordField.text.length >= MIN_PASSWORD_LENGTH
+                    loginButton.isEnabled = (passwordField.text ?: "").length >= MIN_PASSWORD_LENGTH
                 }
 
                 override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -198,11 +198,11 @@ class LoadSessionActivity : AppCompatActivity() {
             }
 
             // show session name
-            sessionName.setText("session: ${mPrefs.remoteFilePathDisplay}")
+            sessionName.text = "session: ${mPrefs.remoteFilePathDisplay}"
             changeSessionBtn.setOnClickListener { _ ->
-                activity.createSelectFileDialog({
+                requireActivity().createSelectFileDialog {
                     (activity as LoadSessionActivity).initWorkflow()
-                }).show()
+                }.show()
             }
         }
 
@@ -244,7 +244,7 @@ class LoadSessionActivity : AppCompatActivity() {
             }
         }
 
-        fun savePasswordAndDecrypt() {
+        private fun savePasswordAndDecrypt() {
             try {
                 working = true
                 CachedCredentials.savePassword(mPassword!!)
@@ -254,7 +254,7 @@ class LoadSessionActivity : AppCompatActivity() {
             }
         }
 
-        fun getPasswordsFromFingerprint() {
+        private fun getPasswordsFromFingerprint() {
             try {
                 working = true
                 mPassword = CachedCredentials.getPassword()
@@ -270,14 +270,14 @@ class LoadSessionActivity : AppCompatActivity() {
         }
 
         private fun showAuthenticationScreen(requestCode: Int) {
-            val intent = CachedCredentials.getAuthenticationIntent(activity, requestCode)
+            val intent = CachedCredentials.getAuthenticationIntent(requireContext(), requestCode)
             if (intent != null) {
                 startActivityForResult(intent, requestCode)
             } else {
                 // keyguard ont secure !
                 val prefs = Preferences()
                 prefs.cachedPassword = null
-                prefs.keysoreInitialised = false
+                prefs.keystoreInitialised = false
                 working = false
             }
         }
@@ -286,9 +286,9 @@ class LoadSessionActivity : AppCompatActivity() {
         // -----------------------------------------
 
         companion object {
-            val SAVE_CREDENTIALS_REQUEST_CODE = 1
-            val LOGIN_WITH_CREDENTIALS_REQUEST_CODE = 2
-            val MIN_PASSWORD_LENGTH = 3
+            const val SAVE_CREDENTIALS_REQUEST_CODE = 1
+            const val LOGIN_WITH_CREDENTIALS_REQUEST_CODE = 2
+            const val MIN_PASSWORD_LENGTH = 3
         }
     }
 

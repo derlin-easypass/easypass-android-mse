@@ -2,8 +2,8 @@ package ch.derlin.easypass.data
 
 
 import android.os.Parcelable
-import com.google.gson.annotations.SerializedName
 import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
 import kotlinx.android.parcel.Parcelize
 import java.text.SimpleDateFormat
 import java.util.*
@@ -102,12 +102,16 @@ data class Account(
     companion object {
         /** Compare accounts based on names (ascending). The favorite flag is ignored. */
         val nameComparatorAsc = Comparator<Account> { a1, a2 -> a1.name.compareTo(a2.name, true) }
+
         /** Compare accounts based on names (descending). The favorite flag is ignored. */
         val nameComparatorDesc = Comparator<Account> { a1, a2 -> a2.name.compareTo(a1.name, true) }
+
         /** Compare accounts based on modified, then names (ascending). The favorite flag is ignored. */
         val modifiedComparatorAsc = Comparator<Account> { a1, a2 -> a1.modificationDate.compareTo(a2.modificationDate, true) }
+
         /** Compare accounts based on modified, then names (descending). The favorite flag is ignored. */
         val modifiedComparatorDesc = Comparator<Account> { a1, a2 -> a2.modificationDate.compareTo(a1.modificationDate, true) }
+
         /** Returns the current datetime for use in [Account.creationDate] and [Account.modificationDate] */
         val now: String
             get() = SimpleDateFormat("yyyy-MM-dd' 'HH:mm", Locale.FRENCH).format(Date())

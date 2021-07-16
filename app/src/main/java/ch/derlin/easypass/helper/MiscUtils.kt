@@ -2,11 +2,11 @@ package ch.derlin.easypass.helper
 
 import android.app.Activity
 import android.app.AlarmManager
+import android.app.Dialog
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import androidx.fragment.app.Fragment
 import android.text.Html
 import android.text.Spanned
 import android.util.TypedValue
@@ -27,10 +27,10 @@ object MiscUtils {
     /** Convert an HTML string into a [Spanned] that can be used in a [TextView] */
     fun toSpannable(str: String, vararg args: String): Spanned? {
         val content = if (args.size > 0) str.format(args) else str
-        if (Build.VERSION.SDK_INT >= 24) {
-            return Html.fromHtml(content, Html.FROM_HTML_MODE_LEGACY)
+        return if (Build.VERSION.SDK_INT >= 24) {
+            Html.fromHtml(content, Html.FROM_HTML_MODE_LEGACY)
         } else {
-            return Html.fromHtml(content)
+            Html.fromHtml(content)
         }
     }
 
@@ -71,7 +71,8 @@ object MiscUtils {
     }
 
     /** Get the activity root view, for example to create a snackbar */
-    fun Activity.rootView(): View = findViewById(android.R.id.content)
+    fun Activity.rootView(): View = this.findViewById(android.R.id.content)
+    fun Dialog.rootView(): View = this.findViewById(android.R.id.content)
 
     /** Resolve an attribute color, for example [android.R.attrcolorAccent] */
     fun Activity.attrColor(resourceId: Int): Int {

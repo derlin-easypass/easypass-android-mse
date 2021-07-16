@@ -1,17 +1,11 @@
 package ch.derlin.easypass.data
 
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonIOException
 import com.google.gson.JsonSyntaxException
-
 import org.apache.commons.ssl.OpenSSL
-
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.io.OutputStream
+import java.io.*
 import java.lang.reflect.Type
 import java.security.GeneralSecurityException
 
@@ -31,7 +25,7 @@ import java.security.GeneralSecurityException
 object JsonManager {
 
     /** A GSON instance configured to serialized only field with the @Expose annotation. */
-    val gson = GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
+    private val gson: Gson = GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
 
     /**
      * Encrypts the data with the cipher given in parameter and

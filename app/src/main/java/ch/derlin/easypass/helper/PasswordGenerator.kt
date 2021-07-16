@@ -12,11 +12,13 @@ import java.util.*
 object PasswordGenerator {
 
     /** The list of alpha numeric characters always used for generation */
-    val normalChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    const val normalChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
     /** The default list of special characters optionally used for generation */
-    val allSpecialChars = ".-_,;<>/+*ç%&/()=?'[]{}@#¬"
+    const val allSpecialChars = ".-_,;<>/+*ç%&/()=?'[]{}@#¬"
+
     /** The random generator */
-    val random = Random(System.currentTimeMillis())
+    private val random = Random(System.currentTimeMillis())
 
     /**
      * @param size the length of the password to generate

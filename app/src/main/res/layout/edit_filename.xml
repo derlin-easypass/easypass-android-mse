@@ -13,7 +13,7 @@
         android:layout_height="wrap_content">
 
         <EditText
-            android:id="@+id/filename"
+            android:id="@+id/file_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
@@ -34,14 +34,14 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/choose_btn"
+            android:id="@+id/choose_file_btn"
             style="@style/Widget.AppCompat.Button.Borderless.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="choose existing" />
 
         <Button
-            android:id="@+id/btn_default"
+            android:id="@+id/btn_filename_default"
             style="@android:style/Widget.Material.Button.Borderless.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

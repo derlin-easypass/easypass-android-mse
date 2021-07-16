@@ -33,11 +33,13 @@ import javax.crypto.spec.IvParameterSpec
 object CachedCredentials {
 
     /** The name of the keystore used. */
-    val keystoreName = "AndroidKeyStore"
+    const val keystoreName = "AndroidKeyStore"
+
     /** The name of the AES key used. */
-    val keyName = "key"
+    const val keyName = "key"
+
     /** how long the key can be used after authentication. > 0 to be able to use it ! */
-    val authenticationValiditySeconds: Int = 30
+    const val authenticationValiditySeconds: Int = 30
 
     // -----------------------------------------
 
@@ -86,7 +88,7 @@ object CachedCredentials {
         } catch (e: Exception) {
             Timber.d(e)
             when (e) {
-            // --> showAuthenticationScreen(SAVE_CREDENTIALS_REQUEST_CODE)
+                // --> showAuthenticationScreen(SAVE_CREDENTIALS_REQUEST_CODE)
                 is UserNotAuthenticatedException -> throw e
                 is KeyPermanentlyInvalidatedException -> {
                     // the screen lock has changed
@@ -119,8 +121,7 @@ object CachedCredentials {
     @Throws(UserNotAuthenticatedException::class, KeyPermanentlyInvalidatedException::class, RuntimeException::class)
     fun getPassword(): String {
         try {
-            val base64Content = Preferences().cachedPassword
-            if (base64Content == null) throw Exception("No password cached.")
+            val base64Content = Preferences().cachedPassword ?: throw Exception("No password cached.")
 
             val (base64iv, base64password) = base64Content.split(",")
             val encryptionIv = Base64.decode(base64iv, Base64.DEFAULT)
@@ -136,12 +137,12 @@ object CachedCredentials {
 
         } catch (e: Exception) {
             when (e) {
-            // --> showAuthenticationScreen(LOGIN_WITH_CREDENTIALS_REQUEST_CODE)
+                // --> showAuthenticationScreen(LOGIN_WITH_CREDENTIALS_REQUEST_CODE)
                 is UserNotAuthenticatedException -> throw e
-            // --> authentication disabled or changed, i.e. fingerprint added, pattern changed...
+                // --> authentication disabled or changed, i.e. fingerprint added, pattern changed...
                 is KeyPermanentlyInvalidatedException -> deleteKey()
                 is InvalidKeyException -> deleteKey()
-            // --> default
+                // --> default
                 else -> throw RuntimeException(e)
             }
             Timber.d(e)
@@ -186,7 +187,7 @@ object CachedCredentials {
     private fun deleteKey() {
         prefs.cachedPassword = null
         getKeyStore().deleteEntry(keyName)
-        prefs.keysoreInitialised = false
+        prefs.keystoreInitialised = false
         Timber.d("key deleted.")
     }
 
@@ -201,7 +202,7 @@ object CachedCredentials {
                     .setUserAuthenticationValidityDurationSeconds(authenticationValiditySeconds)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
                     .build())
-            prefs.keysoreInitialised = true
+            prefs.keystoreInitialised = true
             Timber.d("key created.")
             return keyGenerator.generateKey()
         } catch (e: Exception) {

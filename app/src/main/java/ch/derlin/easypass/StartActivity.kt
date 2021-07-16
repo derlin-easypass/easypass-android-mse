@@ -2,14 +2,15 @@ package ch.derlin.easypass
 
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import ch.derlin.changelog.Changelog
 import ch.derlin.changelog.Changelog.getAppVersion
 import ch.derlin.easypass.easypass.R
+import ch.derlin.easypass.helper.MiscUtils.rootView
 import ch.derlin.easypass.helper.MiscUtils.showIntro
 import ch.derlin.easypass.helper.Preferences
 import com.dropbox.core.android.Auth
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_start.*
 import timber.log.Timber
 
@@ -67,7 +68,7 @@ class StartActivity : AppCompatActivity() {
             isAuthenticating = true
             Auth.startOAuth2Authentication(this, getString(R.string.dbx_app_key))
         } else {
-            Timber.d("Dropbox token is ${token}")
+            Timber.d("Dropbox token is $token")
             startApp()
         }
     }
@@ -77,14 +78,12 @@ class StartActivity : AppCompatActivity() {
         val token = Auth.getOAuth2Token() //generate Access Token
         if (token != null) {
             Preferences(this).dbxAccessToken = token //Store accessToken in SharedPreferences
-            Timber.d("new Dropbox token is ${token}")
+            Timber.d("new Dropbox token is $token")
             isAuthenticating = false
             startApp()
         } else {
-            Snackbar.make(findViewById(android.R.id.content), "Error authenticating with Dropbox", Snackbar.LENGTH_INDEFINITE)
-                    .setAction("retry", { _ ->
-                        forceRestart()
-                    })
+            Snackbar.make(rootView(), "Error authenticating with Dropbox", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("retry") { forceRestart() }
                     .show()
             Timber.d("Error authenticating")
         }
@@ -100,7 +99,7 @@ class StartActivity : AppCompatActivity() {
                 val dialog = Changelog.createDialog(this,
                         title = resources.getString(R.string.whatsnew_title),
                         versionCode = getAppVersion().first)
-                dialog.setOnDismissListener({ _ -> _startApp() })
+                dialog.setOnDismissListener { _startApp() }
                 dialog.show()
             } else {
                 _startApp()

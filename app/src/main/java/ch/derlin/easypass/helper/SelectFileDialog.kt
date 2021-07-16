@@ -1,10 +1,10 @@
 package ch.derlin.easypass.helper
 
 import android.app.Activity
-import android.content.Context
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import android.view.View
-import android.widget.*
 import ch.derlin.easypass.easypass.R
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
@@ -32,42 +32,42 @@ object SelectFileDialog {
         val prefs = Preferences()
         // create an initialise the view
         val view = layoutInflater.inflate(R.layout.edit_filename, null)
-        val editText = view.findViewById<EditText>(R.id.filename)
-        val chooseBtn = view.findViewById<Button>(R.id.choose_btn)
+        val filenameEditText = view.findViewById<EditText>(R.id.file_name)
+        val chooseFileButton = view.findViewById<Button>(R.id.choose_file_btn)
         val oldFilename = prefs.remoteFilePathDisplay
 
-        editText.setText(oldFilename)
-        chooseBtn.isEnabled = false
+        filenameEditText.setText(oldFilename)
+        chooseFileButton.isEnabled = false
 
-        view.findViewById<Button>(R.id.btn_default).setOnClickListener { _ ->
-            editText.setText(Preferences.defaultRemoteFilePath)
+        view.findViewById<Button>(R.id.btn_filename_default).setOnClickListener { _ ->
+            filenameEditText.setText(Preferences.defaultRemoteFilePath)
         }
 
         // get the list of session and construct the dropdown on success
         DbxManager.listSessionFiles().successUi { files ->
-            if(files.isNotEmpty()) {
-                chooseBtn.isEnabled = true
-                chooseBtn.setOnClickListener { _ ->
+            if (files.isNotEmpty()) {
+                chooseFileButton.isEnabled = true
+                chooseFileButton.setOnClickListener {
                     AlertDialog.Builder(this)
-                            .setItems(files, { dialog, pos -> editText.setText(files[pos]) })
-                            .setNegativeButton("dismiss", { _, _ -> })
+                            .setItems(files) { dialog, pos -> filenameEditText.setText(files[pos]) }
+                            .setNegativeButton("dismiss") { _, _ -> }
                             .show()
                 }
             }
         } failUi {
-            Toast.makeText(this, "error: " + it, Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "error: $it", Toast.LENGTH_LONG).show()
         }
 
         // actually create the dialog
-        return androidx.appcompat.app.AlertDialog.Builder(this, R.style.AppTheme_AlertDialog)
+        return AlertDialog.Builder(this, R.style.AppTheme_AlertDialog)
                 .setView(view)
-                .setNegativeButton("cancel", { dialog, _ -> dialog.dismiss() })
-                .setPositiveButton("change", { dialog, _ ->
-                    val filename = editText.text.toString().trim()
+                .setNegativeButton("cancel") { dialog, _ -> dialog.dismiss() }
+                .setPositiveButton("change") { _, _ ->
+                    val filename = filenameEditText.text.toString().trim()
                     if (filename.isBlank() || !filename.matches(Regex("""^[0-9a-zA-Z_ -]+\.[a-zA-Z_-]+$"""))) {
                         Toast.makeText(this,
                                 "Wrong characters in filename", Toast.LENGTH_SHORT).show()
-                    } else if (filename.equals(oldFilename)) {
+                    } else if (filename == oldFilename) {
                         Toast.makeText(this,
                                 "Filename did not change.", Toast.LENGTH_SHORT).show()
                     } else {
@@ -75,7 +75,6 @@ object SelectFileDialog {
                         CachedCredentials.clearPassword()
                         callback()
                     }
-                }).create()
-
+                }.create()
     }
 }
