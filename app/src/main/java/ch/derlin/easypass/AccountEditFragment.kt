@@ -55,7 +55,7 @@ class AccountEditFragment : Fragment() {
 
         mItem = arguments?.getParcelable(AccountDetailActivity.BUNDLE_ACCOUNT_KEY)
         mItem?.name?.let { name ->
-            originalAccountIndex = DbxManager.accounts!!.indexOfFirst { acc -> acc.name == name }
+            originalAccountIndex = DbxManager.accounts.indexOfFirst { acc -> acc.name == name }
         }
     }
 
@@ -168,7 +168,7 @@ class AccountEditFragment : Fragment() {
         // ensure there are no duplicate names in the account list
         if (newAccount.name != mItem?.name) {
             // is new name already in the list ?
-            val idx = DbxManager.accounts!!.indexOfFirst { acc ->
+            val idx = DbxManager.accounts.indexOfFirst { acc ->
                 acc.name.equals(newAccount.name, ignoreCase = true)
             }
             // ensure it is not just a change of letter casing
@@ -185,9 +185,9 @@ class AccountEditFragment : Fragment() {
         // update accounts
         if (originalAccountIndex > -1) {
             newAccount.creationDate = mItem!!.creationDate
-            DbxManager.accounts!![originalAccountIndex] = newAccount
+            DbxManager.accounts[originalAccountIndex] = newAccount
         } else {
-            DbxManager.accounts!!.add(newAccount)
+            DbxManager.accounts.add(newAccount)
         }
 
         // try save
@@ -202,9 +202,9 @@ class AccountEditFragment : Fragment() {
             working = false
             // undo !
             if (originalAccountIndex >= -1) {
-                DbxManager.accounts!![originalAccountIndex] = mItem!!
+                DbxManager.accounts[originalAccountIndex] = mItem!!
             } else {
-                DbxManager.accounts!!.remove(newAccount)
+                DbxManager.accounts.remove(newAccount)
             }
             // show error
             Snackbar.make(requireActivity().rootView(),

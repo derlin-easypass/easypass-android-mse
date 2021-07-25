@@ -79,12 +79,12 @@ class AccountListActivity : SecureActivity() {
 
         setSupportActionBar(toolbar)
 
-        if (DbxManager.accounts == null) {
-            Timber.e("accounts is null in list activity !!!")
+        if (!DbxManager.isInitialized) {
+            Timber.e("Dropbox accounts is not initialized in list activity !!! (accounts null)")
             return
         }
 
-        fab.setOnClickListener { _ ->
+        fab.setOnClickListener {
             if (NetworkStatus.isInternetAvailable()) {
                 openDetailActivity(null, AccountDetailActivity.OPERATION_NEW)
             } else {
@@ -310,7 +310,7 @@ class AccountListActivity : SecureActivity() {
     private fun setupRecyclerView(recyclerView: RecyclerView) {
         val sort = Preferences(this).sortOrder
 
-        mAdapter = AccountAdapter(DbxManager.accounts!!,
+        mAdapter = AccountAdapter(DbxManager.accounts,
                 defaultComparator = getSortOrder(sort),
                 textviewCounter = countText)
 

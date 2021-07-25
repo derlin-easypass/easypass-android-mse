@@ -42,7 +42,7 @@ abstract class SecureActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        if (DbxManager.accounts == null) {
+        if (!DbxManager.isInitialized) {
             // object might have been reinitialised
             backToLoadingScreen()
         } else {

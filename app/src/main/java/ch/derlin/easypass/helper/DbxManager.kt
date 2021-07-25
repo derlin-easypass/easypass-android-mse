@@ -38,11 +38,17 @@ object DbxManager {
     private const val localFileName = "easypass_cached.data_ser"
 
     /** The list of accounts */
-    var accounts: Accounts? = null
+    private var _accounts: Accounts? = null
+
+    val accounts: Accounts
+        get() = requireNotNull(_accounts) { "Dropbox accounts is null !!" }
+
+    /** Whether the accounts are loaded */
+    val isInitialized: Boolean
+        get() = _accounts != null
 
     /** Are metadata about the current session from Dropbox fetched ?  */
     private var metaFetched = false
-        private set
 
     /** The metadata concerning the current session file fetched from Dropbox */
     private var metadata: FileMetadata? = null
@@ -66,14 +72,14 @@ object DbxManager {
         DbxClientV2(config, token)
     }
 
-    /** The preferences */
-    val prefs: Preferences by lazy {
-        Preferences(App.appContext)
-    }
-
     /** Is the local session in sync with Dropbox ? */
     var isInSync = false
         private set
+
+    /** The preferences */
+    private val prefs: Preferences by lazy {
+        Preferences(App.appContext)
+    }
 
     /**
      * Fetch the Dropbox metadata about the current session.
@@ -97,10 +103,11 @@ object DbxManager {
                     deferred.resolve(isInSync)
                 } catch (e: GetMetadataErrorException) {
                     // session does not exist
-                    prefs.cachedPassword = null // ensure it is clean
-                    prefs.revision = null
+                    with(prefs) {
+                        cachedPassword = null  // ensure it is clean
+                        revision = null
+                    }
                     isInSync = true
-                    prefs.revision = null
                     metaFetched = true // flag for isNewSession
                     deferred.resolve(isInSync)
                 }
@@ -140,7 +147,7 @@ object DbxManager {
 
             if (isNewSession) {
                 // new account
-                accounts = Accounts(password, prefs.remoteFilePath)
+                _accounts = Accounts(password, prefs.remoteFilePath)
                 deferred.resolve(true)
 
             } else if (!NetworkStatus.isInternetAvailable()) {
@@ -175,7 +182,7 @@ object DbxManager {
      * Encrypt and save the [accounts] to dropbox.
      */
     fun saveAccounts(): Promise<Boolean, Exception> {
-        requireNotNull(accounts)
+        requireNotNull(_accounts)
 
         val deferred = deferred<Boolean, Exception>()
         task {
@@ -183,13 +190,13 @@ object DbxManager {
             val tempFile = "lala"
             // serialize accounts to private file
             App.appContext.openFileOutput(tempFile, Context.MODE_PRIVATE).use { out ->
-                JsonManager.serialize(accounts!!, out, accounts!!.password)
+                JsonManager.serialize(accounts, out, accounts.password)
             }
 
             // upload file to dropbox
             App.appContext.openFileInput(tempFile).use { `in` ->
                 metadata = client.files()
-                        .uploadBuilder(accounts!!.path)
+                        .uploadBuilder(accounts.path)
                         .withMode(WriteMode.OVERWRITE)
                         .uploadAndFinish(`in`)
             }
@@ -239,7 +246,7 @@ object DbxManager {
                     .download(metadata!!.pathDisplay)
                     .download(App.appContext.openFileOutput(localFileName, Context.MODE_PRIVATE))
 
-            val isUpdate = accounts != null
+            val isUpdate = _accounts != null
             deserialize(App.appContext.openFileInput(localFileName), metadata?.pathDisplay, password)
             prefs.revision = metadata!!.rev
 
@@ -273,6 +280,6 @@ object DbxManager {
                 object : TypeToken<SessionSerialisationType>() {
                 }.type) as SessionSerialisationType
 
-        accounts = Accounts(password, pathName ?: "??", accountList)
+        _accounts = Accounts(password, pathName ?: "??", accountList)
     }
 }

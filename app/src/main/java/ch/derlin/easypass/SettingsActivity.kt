@@ -158,7 +158,7 @@ class SettingsActivity : AppCompatActivity() {
                     if (pass.isBlank() || pass.length < LoadSessionActivity.PasswordFragment.MIN_PASSWORD_LENGTH) {
                         Toast.makeText(this@SettingsActivity,
                                 "Password too short", Toast.LENGTH_SHORT).show()
-                    } else if (pass == DbxManager.accounts!!.password) {
+                    } else if (pass == DbxManager.accounts.password) {
                         Toast.makeText(this@SettingsActivity,
                                 "Password did not change.", Toast.LENGTH_SHORT).show()
                     } else {
@@ -170,8 +170,8 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun changePassword(newPassword: String, firstTime: Boolean = true) {
         working = true
-        val oldPassword = DbxManager.accounts!!.password
-        DbxManager.accounts!!.password = newPassword
+        val oldPassword = DbxManager.accounts.password
+        DbxManager.accounts.password = newPassword
         DbxManager.saveAccounts().alwaysUi {
             working = false
         } successUi {
@@ -181,7 +181,7 @@ class SettingsActivity : AppCompatActivity() {
                 snack.setAction("undo") { changePassword(oldPassword, false) }
             snack.show()
         } failUi {
-            DbxManager.accounts!!.password = oldPassword
+            DbxManager.accounts.password = oldPassword
             Snackbar.make(rootView(), "Error: $it", Snackbar.LENGTH_LONG)
                     .show()
         }
