@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:fitsSystemWindows="true"
     android:orientation="horizontal">
 
     <!--gridlayout with two columns-->
@@ -98,11 +99,11 @@
                 android:id="@+id/details_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearance"
-                android:hint="Password"
                 android:fontFamily="monospace"
+                android:hint="Password"
                 android:inputType="textPassword"
-                android:nextFocusForward="@id/details_notes" />
+                android:nextFocusForward="@id/details_notes"
+                android:textAppearance="?android:attr/textAppearance" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -139,7 +140,7 @@
             android:layout_gravity="fill_horizontal"
             android:imeOptions="actionGo"
             android:inputType="text"
-            android:padding="15dp"/>
+            android:padding="15dp" />
 
         <View
             style="@style/Divider"
@@ -168,11 +169,11 @@
             <Button
                 android:id="@+id/button_edit_save"
                 style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:textColor="?attr/colorPrimaryDark"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Save" />
+                android:text="Save"
+                android:textColor="?attr/colorPrimaryDark" />
         </LinearLayout>
 
     </GridLayout>

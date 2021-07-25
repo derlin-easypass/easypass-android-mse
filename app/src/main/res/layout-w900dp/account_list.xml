@@ -9,7 +9,7 @@
     android:divider="?android:attr/dividerHorizontal"
     android:orientation="horizontal"
     android:showDividers="middle"
-    tools:context="ch.derlin.easypass.easypass.ch.derlin.easypass.AccountListActivity">
+    tools:context="ch.derlin.easypass.AccountListActivity">
 
     <!--
     This layout is a two-pane layout for the Accounts
@@ -18,42 +18,40 @@
     -->
 
     <RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="@dimen/item_width"
         android:layout_height="match_parent">
 
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:name="ch.derlin.easypass.easypass.AccountListFragment"
-        android:layout_width="@dimen/item_width"
-        android:layout_height="match_parent"
-        android:scrollbars="vertical"
-        app:layoutManager="LinearLayoutManager"
-        tools:context="ch.derlin.easypass.easypass.ch.derlin.easypass.AccountListActivity"
-        tools:listitem="@layout/account_list_content" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:name="ch.derlin.easypass.easypass.AccountListFragment"
+            android:layout_width="@dimen/item_width"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical"
+            app:layoutManager="LinearLayoutManager"
+            tools:context="ch.derlin.easypass.easypass.ch.derlin.easypass.AccountListActivity"
+            tools:listitem="@layout/account_list_content" />
 
 
         <TextView
             android:id="@+id/countText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:background="?android:attr/windowBackground"
-            android:padding="5dip"
-            android:layout_alignParentEnd="true"
-            android:paddingStart="10dip"
-            android:text="XXX accounts"/>
+            android:paddingStart="15dip"
+            android:paddingTop="5dip"
+            android:paddingEnd="15dip"
+            android:paddingBottom="5dip"
+            android:text="XXX accounts" />
 
     </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/accountDetailContainer"
         android:layout_width="0dp"
-        android:padding="10dp"
         android:layout_height="match_parent"
-        android:layout_weight="3" />
-
+        android:layout_weight="3"
+        android:padding="10dp" />
 
 </LinearLayout>

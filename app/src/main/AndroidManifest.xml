@@ -58,7 +58,7 @@
             android:label="@string/title_account_detail"
             android:parentActivityName="ch.derlin.easypass.AccountListActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan">
+            android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ch.derlin.easypass.AccountListActivity" />
