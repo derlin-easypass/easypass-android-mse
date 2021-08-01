@@ -166,7 +166,7 @@ class AccountListActivity : SecureActivity() {
                 return true
             }
         })
-        val sort = Preferences(this).sortOrder
+        val sort = Preferences.sortOrder
         menu.findItem(sort).isChecked = true
         return true
     }
@@ -174,7 +174,7 @@ class AccountListActivity : SecureActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.groupId == R.id.group_menu_sort) {
-            Preferences(this).sortOrder = item.itemId
+            Preferences.sortOrder = item.itemId
             mAdapter.comparator = getSortOrder(item.itemId)
             item.isChecked = true
             return true
@@ -310,10 +310,8 @@ class AccountListActivity : SecureActivity() {
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
-        val sort = Preferences(this).sortOrder
-
         mAdapter = AccountAdapter(DbxManager.accounts,
-                defaultComparator = getSortOrder(sort),
+                defaultComparator = getSortOrder(Preferences.sortOrder),
                 textviewCounter = countText)
 
         //mAdapter = AccountAdapter(IntRange(0, 3).map { i -> Account("name " + i, "pseudo " + i, "", "") }.toMutableList())

@@ -33,11 +33,10 @@ class StartActivity : AppCompatActivity() {
         setContentView(R.layout.activity_start)
         setSupportActionBar(toolbar)
 
-        val prefs = Preferences()
-        if (!prefs.introDone) {
-            prefs.introDone = true
+        if (!Preferences.introDone) {
+            Preferences.introDone = true
             // update version on first load
-            prefs.versionCode = getAppVersion().first
+            Preferences.versionCode = getAppVersion().first
             showIntro()
         } else {
             checkToken()
@@ -62,7 +61,7 @@ class StartActivity : AppCompatActivity() {
     // ----------------------------------------------------
 
     private fun checkToken() {
-        val token = Preferences(this).dbxAccessToken
+        val token = Preferences.dbxAccessToken
         if (token == null) {
             Timber.d("Dropbox token is null")
             isAuthenticating = true
@@ -77,7 +76,7 @@ class StartActivity : AppCompatActivity() {
         // the dropbox linking happens in another activity.
         val token = Auth.getOAuth2Token() //generate Access Token
         if (token != null) {
-            Preferences(this).dbxAccessToken = token //Store accessToken in SharedPreferences
+            Preferences.dbxAccessToken = token //Store accessToken in SharedPreferences
             Timber.d("new Dropbox token is $token")
             isAuthenticating = false
             startApp()
@@ -91,11 +90,10 @@ class StartActivity : AppCompatActivity() {
 
     private fun startApp() {
         // service up and running, show changelog if needed and start the actual app
-        val prefs = Preferences(this)
         try {
             val version = getAppVersion()
-            if (prefs.versionCode < version.first) {
-                prefs.versionCode = version.first
+            if (Preferences.versionCode < version.first) {
+                Preferences.versionCode = version.first
                 val dialog = Changelog.createDialog(this,
                         title = resources.getString(R.string.whatsnew_title),
                         versionCode = getAppVersion().first)

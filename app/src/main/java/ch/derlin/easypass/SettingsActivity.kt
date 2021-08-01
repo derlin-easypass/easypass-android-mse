@@ -105,8 +105,8 @@ class SettingsActivity : AppCompatActivity() {
     private fun unbindDropbox() {
         working = true
         task {
-            Timber.d("revoking Dropbox token ${Preferences().dbxAccessToken}")
-            Preferences().dbxAccessToken = null
+            Timber.d("revoking Dropbox token ${Preferences.dbxAccessToken}")
+            Preferences.dbxAccessToken = null
             DbxManager.client.auth().tokenRevoke()
         } successUi {
             exitApp()
@@ -123,14 +123,13 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setSpecialChars() {
-        val prefs = Preferences(this)
         val view = layoutInflater.inflate(R.layout.dialog_settings_special_chars, null)
         val editText = view.findViewById<EditText>(R.id.specialChars)
         view.findViewById<Button>(R.id.defaultButton).setOnClickListener {
             editText.setText(PasswordGenerator.allSpecialChars)
         }
 
-        editText.setText(prefs.specialChars)
+        editText.setText(Preferences.specialChars)
 
         AlertDialog.Builder(this, R.style.AppTheme_AlertDialog)
                 .setView(view)
@@ -138,7 +137,7 @@ class SettingsActivity : AppCompatActivity() {
                 .setNegativeButton("cancel") { dialog, _ -> dialog.dismiss() }
                 .setPositiveButton("use") { _, _ ->
                     if (editText.text.isNotBlank()) {
-                        prefs.specialChars = editText.text.toString()
+                        Preferences.specialChars = editText.text.toString()
                         Toast.makeText(this, "preference updated.", Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(this, "invalid empty sequence", Toast.LENGTH_SHORT).show()

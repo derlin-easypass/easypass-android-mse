@@ -54,10 +54,7 @@ object CachedCredentials {
 
     /** returns true if a password is currently stored */
     val isPasswordCached: Boolean
-        get() = prefs.cachedPassword != null
-
-    val prefs: Preferences
-        get() = Preferences()
+        get() = Preferences.cachedPassword != null
 
     // -----------------------------------------
 
@@ -81,7 +78,7 @@ object CachedCredentials {
             val encryptedPassword = cipher.doFinal(password.toByteArray(charset))
 
             // save both password and IV
-            prefs.cachedPassword = "%s,%s".format(
+            Preferences.cachedPassword = "%s,%s".format(
                     Base64.encodeToString(cipher.iv, Base64.DEFAULT),
                     Base64.encodeToString(encryptedPassword, Base64.DEFAULT))
 
@@ -121,7 +118,7 @@ object CachedCredentials {
     @Throws(UserNotAuthenticatedException::class, KeyPermanentlyInvalidatedException::class, RuntimeException::class)
     fun getPassword(): String {
         try {
-            val base64Content = Preferences().cachedPassword ?: throw Exception("No password cached.")
+            val base64Content = Preferences.cachedPassword ?: throw Exception("No password cached.")
 
             val (base64iv, base64password) = base64Content.split(",")
             val encryptionIv = Base64.decode(base64iv, Base64.DEFAULT)
@@ -154,7 +151,7 @@ object CachedCredentials {
      * Delete the cached credentials.
      */
     fun clearPassword() {
-        prefs.cachedPassword = null
+        Preferences.cachedPassword = null
     }
 
     /**
@@ -185,9 +182,9 @@ object CachedCredentials {
 
     // delete the key. Should be called in case of [KeyPermanentlyInvalidatedException]
     private fun deleteKey() {
-        prefs.cachedPassword = null
+        Preferences.cachedPassword = null
         getKeyStore().deleteEntry(keyName)
-        prefs.keystoreInitialised = false
+        Preferences.keystoreInitialised = false
         Timber.d("key deleted.")
     }
 
@@ -202,7 +199,7 @@ object CachedCredentials {
                     .setUserAuthenticationValidityDurationSeconds(authenticationValiditySeconds)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
                     .build())
-            prefs.keystoreInitialised = true
+            Preferences.keystoreInitialised = true
             Timber.d("key created.")
             return keyGenerator.generateKey()
         } catch (e: Exception) {

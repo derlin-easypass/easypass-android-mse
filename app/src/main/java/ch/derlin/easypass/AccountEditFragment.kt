@@ -134,9 +134,8 @@ class AccountEditFragment : Fragment() {
 
         // generate action
         dialogView.findViewById<Button>(R.id.generate_password_button).run {
-            val specialChars = Preferences().specialChars
             setOnClickListener {
-                PasswordGenerator.generate(sizePicker.value, specialCharsToggle.isChecked, specialChars).let {
+                PasswordGenerator.generate(sizePicker.value, specialCharsToggle.isChecked, Preferences.specialChars).let {
                     resultText.setText(it.colorizePassword())
                 }
             }

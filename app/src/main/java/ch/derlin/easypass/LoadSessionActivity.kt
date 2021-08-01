@@ -123,8 +123,6 @@ class LoadSessionActivity : AppCompatActivity() {
 
     // inspired from https://github.com/Zlate87/android-fingerprint-example
     class PasswordFragment : Fragment() {
-
-        private lateinit var mPrefs: Preferences
         private var mPassword: String? = null
 
         private var working: Boolean
@@ -148,9 +146,6 @@ class LoadSessionActivity : AppCompatActivity() {
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
 
-            // setup prefs
-            mPrefs = Preferences(requireContext())
-
             // setup auth
             // cf https://developer.android.com/training/articles/keystore.html
             val keyguardManager = requireActivity().getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
@@ -172,7 +167,7 @@ class LoadSessionActivity : AppCompatActivity() {
             loginButton.setOnClickListener {
                 mPassword = passwordField.text.toString()
                 if (rememberMeCheckbox.isChecked) {
-                    mPrefs.cachedPassword = null
+                    Preferences.cachedPassword = null
                     savePasswordAndDecrypt()
                 } else {
                     decryptSession()
@@ -198,7 +193,7 @@ class LoadSessionActivity : AppCompatActivity() {
             }
 
             // show session name
-            sessionName.text = "session: ${mPrefs.remoteFilePathDisplay}"
+            sessionName.text = "session: ${Preferences.remoteFilePathDisplay}"
             changeSessionBtn.setOnClickListener { _ ->
                 requireActivity().createSelectFileDialog {
                     (activity as LoadSessionActivity).initWorkflow()
@@ -275,9 +270,8 @@ class LoadSessionActivity : AppCompatActivity() {
                 startActivityForResult(intent, requestCode)
             } else {
                 // keyguard ont secure !
-                val prefs = Preferences()
-                prefs.cachedPassword = null
-                prefs.keystoreInitialised = false
+                Preferences.cachedPassword = null
+                Preferences.keystoreInitialised = false
                 working = false
             }
         }

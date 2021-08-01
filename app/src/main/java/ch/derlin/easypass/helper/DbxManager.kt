@@ -62,11 +62,11 @@ object DbxManager {
 
     /** Do we have a cached file locally ? */
     val localFileExists: Boolean
-        get() = prefs.revision != null
+        get() = Preferences.revision != null
 
     /** The Dropbox client */
     val client: DbxClientV2 by lazy {
-        val token = Preferences(App.appContext).dbxAccessToken
+        val token = Preferences.dbxAccessToken
         Timber.d("Dropbox token ?? client created")
         val config = DbxRequestConfig.newBuilder("Easypass/2.0").build()
         DbxClientV2(config, token)
@@ -75,11 +75,6 @@ object DbxManager {
     /** Is the local session in sync with Dropbox ? */
     var isInSync = false
         private set
-
-    /** The preferences */
-    private val prefs: Preferences by lazy {
-        Preferences(App.appContext)
-    }
 
     /**
      * Fetch the Dropbox metadata about the current session.
@@ -97,13 +92,13 @@ object DbxManager {
                 metadata = null // ensure to clear any past state
 
                 try {
-                    metadata = client.files().getMetadata(prefs.remoteFilePath) as FileMetadata
+                    metadata = client.files().getMetadata(Preferences.remoteFilePath) as FileMetadata
                     metaFetched = true
-                    isInSync = metadata?.rev.equals(prefs.revision)
+                    isInSync = metadata?.rev.equals(Preferences.revision)
                     deferred.resolve(isInSync)
                 } catch (e: GetMetadataErrorException) {
                     // session does not exist
-                    with(prefs) {
+                    with(Preferences) {
                         cachedPassword = null  // ensure it is clean
                         revision = null
                     }
@@ -114,7 +109,7 @@ object DbxManager {
             }
         } fail {
             val ex = it
-            if (ex is InvalidAccessTokenException) prefs.dbxAccessToken = null
+            if (ex is InvalidAccessTokenException) Preferences.dbxAccessToken = null
             deferred.reject(ex)
         }
 
@@ -128,7 +123,7 @@ object DbxManager {
         val localFile = File(App.appContext.filesDir.absolutePath, localFileName)
         val ok = localFile.delete()
         Timber.d("""removed local file ? $ok""")
-        prefs.revision = null
+        Preferences.revision = null
         return ok
     }
 
@@ -147,7 +142,7 @@ object DbxManager {
 
             if (isNewSession) {
                 // new account
-                _accounts = Accounts(password, prefs.remoteFilePath)
+                _accounts = Accounts(password, Preferences.remoteFilePath)
                 deferred.resolve(true)
 
             } else if (!NetworkStatus.isInternetAvailable()) {
@@ -206,7 +201,7 @@ object DbxManager {
             IOUtil.copyStreamToStream(App.appContext.openFileInput(tempFile),
                     App.appContext.openFileOutput(localFileName, Context.MODE_PRIVATE))
 
-            prefs.revision = metadata!!.rev
+            Preferences.revision = metadata!!.rev
             deferred.resolve(true)
             Timber.d("end save accounts %s", Thread.currentThread())
         } fail {
@@ -248,7 +243,7 @@ object DbxManager {
 
             val isUpdate = _accounts != null
             deserialize(App.appContext.openFileInput(localFileName), metadata?.pathDisplay, password)
-            prefs.revision = metadata!!.rev
+            Preferences.revision = metadata!!.rev
 
             if (isUpdate) {
                 //notifyEvent(EVT_SESSION_CHANGED)
@@ -270,8 +265,8 @@ object DbxManager {
 
     // read the accounts from the cached file
     private fun loadCachedFile(password: String) {
-        deserialize(App.appContext.openFileInput(localFileName), prefs.remoteFilePath, password)
-        Timber.d("loaded cached file: rev=%s", prefs.revision)
+        deserialize(App.appContext.openFileInput(localFileName), Preferences.remoteFilePath, password)
+        Timber.d("loaded cached file: rev=%s", Preferences.revision)
     }
 
     // deserialize and decrypt a file. This will update the accounts variable

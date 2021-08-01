@@ -8,9 +8,11 @@ import ch.derlin.easypass.App
  * Simplify the manipulation of the app's [SharedPreferences].
  * @author Lucy Linder
  */
-class Preferences(context: Context = App.appContext) {
+object Preferences {
+    private val sharedPrefs: SharedPreferences = App.appContext.getSharedPreferences("ch.derlin.easypass.preferences", Context.MODE_PRIVATE)
 
-    val sharedPrefs: SharedPreferences = context.getSharedPreferences(PREFERENCES_FILENAME, Context.MODE_PRIVATE)
+    /** Default session path in Dropbox */
+    const val defaultRemoteFilePath = "easypass.data_ser" // Default session path in Dropbox
 
     /** The OAuth token for accessing Dropbox, if any. */
     var dbxAccessToken: String?
@@ -72,10 +74,4 @@ class Preferences(context: Context = App.appContext) {
         get() = sharedPrefs.getInt("version_code", 0)
         set(value) = sharedPrefs.edit().putInt("version_code", value).apply()
 
-
-    companion object {
-        /** Default session path in Dropbox */
-        const val defaultRemoteFilePath = "easypass.data_ser"
-        const val PREFERENCES_FILENAME = "ch.derlin.easypass.preferences"
-    }
 }

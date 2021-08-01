@@ -29,12 +29,11 @@ object SelectFileDialog {
      *  @return the dialog. Don't forget to call [AlertDialog.show] !
      */
     fun Activity.createSelectFileDialog(callback: () -> Unit): AlertDialog {
-        val prefs = Preferences()
         // create an initialise the view
         val view = layoutInflater.inflate(R.layout.edit_filename, null)
         val filenameEditText = view.findViewById<EditText>(R.id.file_name)
         val chooseFileButton = view.findViewById<Button>(R.id.choose_file_btn)
-        val oldFilename = prefs.remoteFilePathDisplay
+        val oldFilename = Preferences.remoteFilePathDisplay
 
         filenameEditText.setText(oldFilename)
         chooseFileButton.isEnabled = false
@@ -71,7 +70,7 @@ object SelectFileDialog {
                         Toast.makeText(this,
                                 "Filename did not change.", Toast.LENGTH_SHORT).show()
                     } else {
-                        prefs.remoteFilePath = filename
+                        Preferences.remoteFilePath = filename
                         CachedCredentials.clearPassword()
                         callback()
                     }

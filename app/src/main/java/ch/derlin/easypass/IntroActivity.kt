@@ -70,7 +70,7 @@ class IntroActivity : AppIntro() {
     }
 
     private fun exitIntro() {
-        Preferences().introDone = true
+        Preferences.introDone = true
         this.finish()
     }
 
