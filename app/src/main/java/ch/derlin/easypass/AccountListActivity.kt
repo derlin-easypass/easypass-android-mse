@@ -22,8 +22,10 @@ import ch.derlin.easypass.data.Account
 import ch.derlin.easypass.easypass.R
 import ch.derlin.easypass.helper.*
 import ch.derlin.easypass.helper.MiscUtils.attrColor
+import ch.derlin.easypass.helper.MiscUtils.colorizePassword
 import ch.derlin.easypass.helper.MiscUtils.restartApp
 import ch.derlin.easypass.helper.MiscUtils.rootView
+import ch.derlin.easypass.helper.MiscUtils.toSpannable
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.account_list.*
@@ -212,11 +214,11 @@ class AccountListActivity : SecureActivity() {
 
             view.findViewById<TextView>(R.id.bottomSheetTitle).text = item.name
             view.findViewById<Button>(R.id.copy_username_btn).let {
-                it.text = MiscUtils.toSpannable(getString(R.string.fmt_copy_xx).format("username", item.pseudo))
+                it.text = getString(R.string.fmt_copy_xx).format("username", item.pseudo).toSpannable()
                 it.isEnabled = item.pseudo.isNotBlank()
             }
             view.findViewById<Button>(R.id.copy_email_btn).let {
-                it.text = MiscUtils.toSpannable(getString(R.string.fmt_copy_xx).format("email", item.email))
+                it.text = getString(R.string.fmt_copy_xx).format("email", item.email).toSpannable()
                 it.isEnabled = item.email.isNotBlank()
             }
             view.findViewById<Button>(R.id.view_password_btn).isEnabled = item.password.isNotBlank()
@@ -254,7 +256,7 @@ class AccountListActivity : SecureActivity() {
 
     private fun showPassword(account: Account) {
         val view = layoutInflater.inflate(R.layout.show_password, null)
-        view.findViewById<TextView>(R.id.show_password_textview).text = account.password
+        view.findViewById<TextView>(R.id.show_password_textview).text = account.password.colorizePassword()
         view.findViewById<ImageButton>(R.id.show_password_copy_btn).setOnClickListener {
             copyToClipboard(selectedAccount!!.password, "password copied!")
         }

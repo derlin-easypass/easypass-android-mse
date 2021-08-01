@@ -9,6 +9,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import ch.derlin.easypass.data.Account
 import ch.derlin.easypass.easypass.R
+import ch.derlin.easypass.helper.MiscUtils.colorizePassword
 import kotlinx.android.synthetic.main.account_detail.*
 import kotlinx.android.synthetic.main.activity_account_detail.*
 
@@ -78,7 +79,7 @@ class AccountDetailFragment : Fragment() {
         } else {
             // show the edit button
             button_container.visibility = View.VISIBLE
-            button_edit.setOnClickListener { _ ->
+            button_edit.setOnClickListener {
                 (activity as? AccountListActivity)?.openDetailActivity(mItem!!, AccountDetailActivity.OPERATION_EDIT)
             }
         }
@@ -86,7 +87,7 @@ class AccountDetailFragment : Fragment() {
 
     private fun togglePassword() {
         isPasswordShowed = !isPasswordShowed
-        details_password.text = if (isPasswordShowed) mItem!!.password else hiddenPassword
+        details_password.text = if (isPasswordShowed) mItem!!.password.colorizePassword() else hiddenPassword
 
         details_show_password.background = AppCompatResources.getDrawable(requireContext(),
                 if (isPasswordShowed) R.drawable.ic_visibility_on

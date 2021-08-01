@@ -130,6 +130,7 @@
         <TextView
             android:id="@+id/details_notes"
             style="@style/DetailsLabel"
+            android:textIsSelectable="true"
             android:layout_columnSpan="2"
             android:layout_gravity="fill_horizontal" />
 

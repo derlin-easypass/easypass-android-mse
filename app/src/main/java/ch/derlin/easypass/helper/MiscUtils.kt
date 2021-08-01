@@ -25,14 +25,25 @@ import ch.derlin.easypass.IntroActivity
 object MiscUtils {
 
     /** Convert an HTML string into a [Spanned] that can be used in a [TextView] */
-    fun toSpannable(str: String, vararg args: String): Spanned? {
-        val content = if (args.size > 0) str.format(args) else str
+    fun String.toSpannable(): Spanned? {
         return if (Build.VERSION.SDK_INT >= 24) {
-            Html.fromHtml(content, Html.FROM_HTML_MODE_LEGACY)
+            Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY)
         } else {
-            Html.fromHtml(content)
+            Html.fromHtml(this)
         }
     }
+
+    /** Colorize digits and special chars in a password */
+    fun String.colorizePassword(): Spanned? = // TODO: don't hardcode colors
+            this.splitByCharacterClass().joinToString("") {
+                val c = it.first()
+                when {
+                    c.isLetter() -> it
+                    c.isDigit() -> "<font color=\"#EA4865\">$it</font>"
+                    else -> "<font color=\"#03A9F4\">$it</font>"
+                }
+            }.toSpannable()
+
 
     /** Hide the soft keyboard */
     fun Activity.hideKeyboard() {
@@ -82,5 +93,30 @@ object MiscUtils {
         val color = a.getColor(0, 0)
         a.recycle()
         return color
+    }
+
+    /** Split a string by character class: groups are consecutive letters, digits, or other  */
+    fun String.splitByCharacterClass(): List<String> {
+        fun Char.typ() = if (!isLetterOrDigit()) 2 else if (isDigit()) 1 else 0
+        return this.toList().splitConsecutiveBy { c, c2 ->
+            c.typ() == c2.typ()
+        }.map { it.joinToString("") }
+    }
+
+    /**
+     * Group consecutive items based on a predicate.
+     * The predicate receives two items, and should return whether or not they belong to the same group.
+     */
+    fun <T> Iterable<T>.splitConsecutiveBy(predicate: (T, T) -> Boolean): List<List<T>> {
+        var leftover = this.toList()
+        val groups = mutableListOf<List<T>>()
+
+        while (leftover.isNotEmpty()) {
+            val first = leftover.first()
+            val newGroup = leftover.takeWhile { predicate(first, it) }
+            groups += newGroup
+            leftover = leftover.drop(newGroup.size)
+        }
+        return groups
     }
 }

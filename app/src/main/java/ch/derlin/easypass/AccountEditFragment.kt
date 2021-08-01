@@ -10,19 +10,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import ch.derlin.easypass.data.Account
 import ch.derlin.easypass.easypass.R
 import ch.derlin.easypass.helper.DbxManager
+import ch.derlin.easypass.helper.MiscUtils.colorizePassword
 import ch.derlin.easypass.helper.MiscUtils.hideKeyboard
 import ch.derlin.easypass.helper.MiscUtils.rootView
 import ch.derlin.easypass.helper.PasswordGenerator
+import ch.derlin.easypass.helper.Preferences
 import com.google.android.material.snackbar.Snackbar
+import com.shawnlin.numberpicker.NumberPicker
 import kotlinx.android.synthetic.main.account_edit.*
 import kotlinx.android.synthetic.main.activity_account_detail.*
-import kotlinx.android.synthetic.main.dialog_generate_password.*
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
 
@@ -123,23 +128,26 @@ class AccountEditFragment : Fragment() {
 
         val dialogView = requireActivity().layoutInflater.inflate(R.layout.dialog_generate_password, null)
 
-        // generate action
-        generate_password_button.setOnClickListener {
-            PasswordGenerator.generate(number_picker.value, generate_password_special_chars.isChecked).let {
-                generate_password_result.setText(it)
-            }
-        }
+        val resultText = dialogView.findViewById<EditText>(R.id.generate_password_result)
+        val sizePicker = dialogView.findViewById<NumberPicker>(R.id.number_picker)
+        val specialCharsToggle = dialogView.findViewById<CheckBox>(R.id.generate_password_special_chars)
 
-        // default value
-        PasswordGenerator.generate(number_picker.value, generate_password_special_chars.isChecked).let {
-            generate_password_result.setText(it)
+        // generate action
+        dialogView.findViewById<Button>(R.id.generate_password_button).run {
+            val specialChars = Preferences().specialChars
+            setOnClickListener {
+                PasswordGenerator.generate(sizePicker.value, specialCharsToggle.isChecked, specialChars).let {
+                    resultText.setText(it.colorizePassword())
+                }
+            }
+            performClick() // default value
         }
 
         val dialog = AlertDialog.Builder(requireContext(), R.style.AppTheme_AlertDialog)
                 .setView(dialogView)
                 .setTitle("Generate a password")
                 .setPositiveButton("Use") { _, _ ->
-                    details_password.setText(generate_password_result.text.toString())
+                    details_password.setText(resultText.text.toString())
                 }
                 .setNegativeButton("Cancel") { _, _ -> }
                 .create()
