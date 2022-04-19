@@ -6,12 +6,17 @@ import android.app.Dialog
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
 import android.text.Html
+import android.text.Spannable
+import android.text.SpannableStringBuilder
 import android.text.Spanned
+import android.text.style.ForegroundColorSpan
 import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.annotation.ColorInt
 import ch.derlin.easypass.IntroActivity
 
 
@@ -34,7 +39,20 @@ object MiscUtils {
     }
 
     /** Colorize digits and special chars in a password */
-    fun String.colorizePassword(): Spanned? = // TODO: don't hardcode colors
+    fun String.colorizePassword(
+            @ColorInt digitsColor: Int = Color.parseColor("#EA4865"),
+            @ColorInt symbolsColor: Int = Color.parseColor("#03A9F4")
+    ): Spannable =
+            SpannableStringBuilder(this).also { ssb ->
+                this.withIndex().forEach {
+                    if (it.value.isDigit() || !it.value.isLetter()) {
+                        val color = if (it.value.isDigit()) digitsColor else symbolsColor
+                        ssb.setSpan(ForegroundColorSpan(color), it.index, it.index + 1, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+                    }
+                }
+            }
+
+    fun String._colorizePassword(): Spanned? = // TODO: don't hardcode colors
             this.splitByCharacterClass().joinToString("") {
                 val c = it.first()
                 when {
