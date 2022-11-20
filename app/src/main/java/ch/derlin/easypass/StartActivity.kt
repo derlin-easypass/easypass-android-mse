@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import ch.derlin.changelog.Changelog
 import ch.derlin.changelog.Changelog.getAppVersion
 import ch.derlin.easypass.easypass.R
+import ch.derlin.easypass.helper.DbxManager
 import ch.derlin.easypass.helper.MiscUtils.rootView
 import ch.derlin.easypass.helper.MiscUtils.showIntro
 import ch.derlin.easypass.helper.Preferences
@@ -65,7 +66,7 @@ class StartActivity : AppCompatActivity() {
         if (token == null) {
             Timber.d("Dropbox token is null")
             isAuthenticating = true
-            Auth.startOAuth2Authentication(this, getString(R.string.dbx_app_key))
+            Auth.startOAuth2PKCE(this, getString(R.string.dbx_app_key), DbxManager.requestConfig())
         } else {
             Timber.d("Dropbox token is $token")
             startApp()
@@ -74,9 +75,9 @@ class StartActivity : AppCompatActivity() {
 
     private fun finishAuth() {
         // the dropbox linking happens in another activity.
-        val token = Auth.getOAuth2Token() //generate Access Token
+        val token = Auth.getDbxCredential() //generate Access Token
         if (token != null) {
-            Preferences.dbxAccessToken = token //Store accessToken in SharedPreferences
+            Preferences.dbxAccessToken = token.toString() //Store accessToken in SharedPreferences
             Timber.d("new Dropbox token is $token")
             isAuthenticating = false
             startApp()

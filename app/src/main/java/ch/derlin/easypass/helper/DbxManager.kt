@@ -5,8 +5,10 @@ import ch.derlin.easypass.App
 import ch.derlin.easypass.data.Accounts
 import ch.derlin.easypass.data.JsonManager
 import ch.derlin.easypass.data.SessionSerialisationType
+import ch.derlin.easypass.easypass.R
 import com.dropbox.core.DbxRequestConfig
 import com.dropbox.core.InvalidAccessTokenException
+import com.dropbox.core.oauth.DbxCredential
 import com.dropbox.core.util.IOUtil
 import com.dropbox.core.v2.DbxClientV2
 import com.dropbox.core.v2.files.FileMetadata
@@ -64,17 +66,35 @@ object DbxManager {
     val localFileExists: Boolean
         get() = Preferences.revision != null
 
+    /** get the requestConfig necessary to start oauth authentication using 2PKCE */
+    fun requestConfig(): DbxRequestConfig = DbxRequestConfig
+            .newBuilder(App.appContext.getString(R.string.dbx_request_config_name)).build()
+
     /** The Dropbox client */
-    val client: DbxClientV2 by lazy {
+    private val client: DbxClientV2 by lazy {
         val token = Preferences.dbxAccessToken
         Timber.d("Dropbox token ?? client created")
-        val config = DbxRequestConfig.newBuilder("Easypass/2.0").build()
-        DbxClientV2(config, token)
+        DbxClientV2(requestConfig(), DbxCredential.Reader.readFully(token))
     }
 
     /** Is the local session in sync with Dropbox ? */
     var isInSync = false
         private set
+
+    /** Unbind from DropBox. */
+    fun unbind(): Promise<Boolean, Exception> {
+        val deferred = deferred<Boolean, Exception>()
+        task {
+            Timber.d("revoking Dropbox token")
+            Preferences.dbxAccessToken = null
+            Preferences.revision = null
+            client.auth().tokenRevoke()
+            deferred.resolve(true)
+        } fail {
+            deferred.reject(it)
+        }
+        return deferred.promise
+    }
 
     /**
      * Fetch the Dropbox metadata about the current session.

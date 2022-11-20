@@ -14,18 +14,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import ch.derlin.changelog.Changelog
 import ch.derlin.easypass.easypass.R
-import ch.derlin.easypass.helper.*
+import ch.derlin.easypass.helper.CachedCredentials
+import ch.derlin.easypass.helper.DbxManager
 import ch.derlin.easypass.helper.MiscUtils.rootView
 import ch.derlin.easypass.helper.MiscUtils.showIntro
+import ch.derlin.easypass.helper.PasswordGenerator
+import ch.derlin.easypass.helper.Preferences
 import ch.derlin.easypass.helper.SelectFileDialog.createSelectFileDialog
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.android.synthetic.main.activity_settings.*
-import nl.komponents.kovenant.task
 import nl.komponents.kovenant.ui.alwaysUi
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
-import timber.log.Timber
 
 // TODO: check connectivity to avoid errors (changing mdp for example...)
 class SettingsActivity : AppCompatActivity() {
@@ -104,13 +105,9 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun unbindDropbox() {
         working = true
-        task {
-            Timber.d("revoking Dropbox token ${Preferences.dbxAccessToken}")
-            Preferences.dbxAccessToken = null
-            DbxManager.client.auth().tokenRevoke()
-        } successUi {
+        DbxManager.unbind().successUi {
             exitApp()
-        } failUi {
+        }.failUi {
             working = false
             Snackbar.make(rootView(), "Error: $it", Snackbar.LENGTH_LONG).show()
         }
