@@ -83,15 +83,19 @@ data class Account(
 
     /** Test if two accounts are different. Case-sensitive. */
     fun isDifferentFrom(acc: Account): Boolean =
-            !this.name.equals(acc.name, ignoreCase = false) ||
-                    !this.pseudo.equals(acc.pseudo, ignoreCase = false) ||
-                    !this.email.equals(acc.email, ignoreCase = false) ||
-                    !this.password.equals(acc.password, ignoreCase = false) ||
-                    !this.notes.equals(acc.notes, ignoreCase = false)
+        !this.name.equals(acc.name, ignoreCase = false) ||
+                !this.pseudo.equals(acc.pseudo, ignoreCase = false) ||
+                !this.email.equals(acc.email, ignoreCase = false) ||
+                !this.password.equals(acc.password, ignoreCase = false) ||
+                !this.notes.equals(acc.notes, ignoreCase = false)
 
     /** Test if the account is valid. Currently, only the name is mandatory. */
     val isValid: Boolean
         get() = name.isNotBlank()
+
+    /** The last modified date, or "" if not known **/
+    val lastInteractionDate: String
+        get() = modificationDate.takeIf { it.isNotBlank() } ?: creationDate
 
     /** Toggle the favorite flag. */
     fun toggleFavorite() {
@@ -106,11 +110,11 @@ data class Account(
         /** Compare accounts based on names (descending). The favorite flag is ignored. */
         val nameComparatorDesc = Comparator<Account> { a1, a2 -> a2.name.compareTo(a1.name, true) }
 
-        /** Compare accounts based on modified, then names (ascending). The favorite flag is ignored. */
-        val modifiedComparatorAsc = Comparator<Account> { a1, a2 -> a1.modificationDate.compareTo(a2.modificationDate, true) }
+        /** Compare accounts based on modified (ascending). The favorite flag is ignored. */
+        val modifiedComparatorAsc = Comparator<Account> { a1, a2 -> a1.lastInteractionDate.compareTo(a2.lastInteractionDate, true) }
 
-        /** Compare accounts based on modified, then names (descending). The favorite flag is ignored. */
-        val modifiedComparatorDesc = Comparator<Account> { a1, a2 -> a2.modificationDate.compareTo(a1.modificationDate, true) }
+        /** Compare accounts based on modified (descending). The favorite flag is ignored. */
+        val modifiedComparatorDesc = Comparator<Account> { a1, a2 -> a2.lastInteractionDate.compareTo(a1.lastInteractionDate, true) }
 
         /** Returns the current datetime for use in [Account.creationDate] and [Account.modificationDate] */
         val now: String
