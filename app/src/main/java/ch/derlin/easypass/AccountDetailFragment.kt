@@ -45,7 +45,7 @@ class AccountDetailFragment : Fragment() {
         // Load the dummy content specified by the fragment
         // arguments. In a real-world scenario, use a Loader
         // to load content from a content provider.
-        mItem = arguments?.getParcelable(AccountDetailActivity.BUNDLE_ACCOUNT_KEY)
+        mItem = arguments?.getParcelable(AccountDetailActivity.BUNDLE_ACCOUNT_KEY, Account::class.java)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

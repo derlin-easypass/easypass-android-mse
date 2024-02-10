@@ -31,50 +31,68 @@ import nl.komponents.kovenant.ui.successUi
 // TODO: check connectivity to avoid errors (changing mdp for example...)
 class SettingsActivity : AppCompatActivity() {
 
-    class Setting(val title: String,
-                  val subtitle: String = "",
-                  val onClick: (() -> Unit)? = null,
-                  val icon: Int = R.drawable.ic_settings,
-                  val confirm: String? = null,
-                  val isHeader: Boolean = false)
+    class Setting(
+        val title: String,
+        val subtitle: String = "",
+        val onClick: (() -> Unit)? = null,
+        val icon: Int = R.drawable.ic_settings,
+        val confirm: String? = null,
+        val isHeader: Boolean = false
+    )
 
 
     private val settings = listOf(
-            Setting("Generator", isHeader = true),
-            Setting("Special chars",
-                    "Set the characters used in passwords.",
-                    this@SettingsActivity::setSpecialChars, R.drawable.ic_mode_edit),
-            Setting("Passwords", isHeader = true),
-            Setting("Change",
-                    "Change your master password.",
-                    this@SettingsActivity::changePasswordDialog, R.drawable.ic_mode_edit),
-            Setting("Clear",
-                    "Forget all cached passwords.",
-                    this@SettingsActivity::clearPassword, R.drawable.ic_fingerprint),
-            Setting("Data", isHeader = true),
-            Setting("File",
-                    "Change the session to use.",
-                    this@SettingsActivity::changeSessionFileDialog, R.drawable.ic_cloud_download),
-            Setting("Unlink",
-                    "Unlink EasyPass from your dropbox.",
-                    this@SettingsActivity::unbindDropbox, R.drawable.ic_dropbox,
-                    confirm = "Are you sure you want to unbind from Dropbox ?"),
-            Setting("Clear cache",
-                    "Clear the local cache by removing the file on the device.",
-                    this@SettingsActivity::clearCache, R.drawable.ic_broom,
-                    confirm = "Really clear all cached data ?"),
-            Setting("Other", isHeader = true),
-            Setting("Intro",
-                    "Show the introductory slides.",
-                    { -> showIntro() }, R.drawable.ic_info_outline),
-            Setting("Changelog",
-                    "Show the complete changelog.",
-                    { -> showChangelog() }, R.drawable.ic_info_outline)
+        Setting("Generator", isHeader = true),
+        Setting(
+            "Special chars",
+            "Set the characters used in passwords.",
+            this@SettingsActivity::setSpecialChars, R.drawable.ic_mode_edit
+        ),
+        Setting("Passwords", isHeader = true),
+        Setting(
+            "Change",
+            "Change your master password.",
+            this@SettingsActivity::changePasswordDialog, R.drawable.ic_mode_edit
+        ),
+        Setting(
+            "Clear",
+            "Forget all cached passwords.",
+            this@SettingsActivity::clearPassword, R.drawable.ic_fingerprint
+        ),
+        Setting("Data", isHeader = true),
+        Setting(
+            "File",
+            "Change the session to use.",
+            this@SettingsActivity::changeSessionFileDialog, R.drawable.ic_cloud_download
+        ),
+        Setting(
+            "Unlink",
+            "Unlink EasyPass from your dropbox.",
+            this@SettingsActivity::unbindDropbox, R.drawable.ic_dropbox,
+            confirm = "Are you sure you want to unbind from Dropbox ?"
+        ),
+        Setting(
+            "Clear cache",
+            "Clear the local cache by removing the file on the device.",
+            this@SettingsActivity::clearCache, R.drawable.ic_broom,
+            confirm = "Really clear all cached data ?"
+        ),
+        Setting("Other", isHeader = true),
+        Setting("Intro",
+            "Show the introductory slides.",
+            { showIntro() }, R.drawable.ic_info_outline
+        ),
+        Setting("Changelog",
+            "Show the complete changelog.",
+            { showChangelog() }, R.drawable.ic_info_outline
+        )
     )
 
     private var working: Boolean
         get() = progressBar.visibility == View.VISIBLE
-        set(value) = progressBar.setVisibility(if (value) View.VISIBLE else View.INVISIBLE)
+        set(value) {
+            progressBar.visibility = if (value) View.VISIBLE else View.INVISIBLE
+        }
 
 
     // ----------------------------------------- activity stuff
@@ -89,7 +107,7 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         android.R.id.home -> {
-            onBackPressed(); true
+            onBackPressedDispatcher.onBackPressed(); true
         }
         else -> super.onOptionsItemSelected(item)
     }
@@ -101,7 +119,6 @@ class SettingsActivity : AppCompatActivity() {
         CachedCredentials.clearPassword()
         Snackbar.make(rootView(), "password cleared.", Snackbar.LENGTH_SHORT).show()
     }
-
 
     private fun unbindDropbox() {
         working = true
@@ -129,39 +146,43 @@ class SettingsActivity : AppCompatActivity() {
         editText.setText(Preferences.specialChars)
 
         AlertDialog.Builder(this, R.style.AppTheme_AlertDialog)
-                .setView(view)
-                .setTitle("Generator special chars")
-                .setNegativeButton("cancel") { dialog, _ -> dialog.dismiss() }
-                .setPositiveButton("use") { _, _ ->
-                    if (editText.text.isNotBlank()) {
-                        Preferences.specialChars = editText.text.toString()
-                        Toast.makeText(this, "preference updated.", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this, "invalid empty sequence", Toast.LENGTH_SHORT).show()
-                    }
+            .setView(view)
+            .setTitle("Generator special chars")
+            .setNegativeButton("cancel") { dialog, _ -> dialog.dismiss() }
+            .setPositiveButton("use") { _, _ ->
+                if (editText.text.isNotBlank()) {
+                    Preferences.specialChars = editText.text.toString()
+                    Toast.makeText(this, "preference updated.", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "invalid empty sequence", Toast.LENGTH_SHORT).show()
                 }
-                .show()
+            }
+            .show()
     }
 
     private fun changePasswordDialog() {
         val view = layoutInflater.inflate(R.layout.dialog_change_password, null)
         AlertDialog.Builder(this, R.style.AppTheme_AlertDialog)
-                .setView(view)
-                .setTitle("New password")
-                .setNegativeButton("cancel") { dialog, _ -> dialog.dismiss() }
-                .setPositiveButton("change") { _, _ ->
-                    val pass = view.findViewById<TextInputEditText>(R.id.passwordField).text ?: ""
-                    if (pass.isBlank() || pass.length < LoadSessionActivity.PasswordFragment.MIN_PASSWORD_LENGTH) {
-                        Toast.makeText(this@SettingsActivity,
-                                "Password too short", Toast.LENGTH_SHORT).show()
-                    } else if (pass == DbxManager.accounts.password) {
-                        Toast.makeText(this@SettingsActivity,
-                                "Password did not change.", Toast.LENGTH_SHORT).show()
-                    } else {
-                        changePassword(pass.toString())
-                    }
+            .setView(view)
+            .setTitle("New password")
+            .setNegativeButton("cancel") { dialog, _ -> dialog.dismiss() }
+            .setPositiveButton("change") { _, _ ->
+                val pass = view.findViewById<TextInputEditText>(R.id.passwordField).text ?: ""
+                if (pass.isBlank() || pass.length < LoadSessionActivity.PasswordFragment.MIN_PASSWORD_LENGTH) {
+                    Toast.makeText(
+                        this@SettingsActivity,
+                        "Password too short", Toast.LENGTH_SHORT
+                    ).show()
+                } else if (pass == DbxManager.accounts.password) {
+                    Toast.makeText(
+                        this@SettingsActivity,
+                        "Password did not change.", Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    changePassword(pass.toString())
                 }
-                .show()
+            }
+            .show()
     }
 
     private fun changePassword(newPassword: String, firstTime: Boolean = true) {
@@ -179,7 +200,7 @@ class SettingsActivity : AppCompatActivity() {
         } failUi {
             DbxManager.accounts.password = oldPassword
             Snackbar.make(rootView(), "Error: $it", Snackbar.LENGTH_LONG)
-                    .show()
+                .show()
         }
     }
 
@@ -214,7 +235,7 @@ class SettingsActivity : AppCompatActivity() {
             if (holder is ItemViewHolder) {
                 holder.subtitleView.text = item.subtitle
                 holder.iconView.setBackgroundResource(item.icon)
-                holder.view.setOnClickListener { _ -> onItemClick(item) }
+                holder.view.setOnClickListener { onItemClick(item) }
             }
         }
 
@@ -222,12 +243,14 @@ class SettingsActivity : AppCompatActivity() {
             // create a new view
             return if (viewType == 0) {
                 val v = LayoutInflater.from(parent.context).inflate(
-                        R.layout.settings_list_header, parent, false)
+                    R.layout.settings_list_header, parent, false
+                )
                 ViewHolder(v)
 
             } else {
-                val v: View = LayoutInflater.from(parent!!.context).inflate(
-                        R.layout.settings_list_content, parent, false)
+                val v: View = LayoutInflater.from(parent.context).inflate(
+                    R.layout.settings_list_content, parent, false
+                )
                 ItemViewHolder(v)
             }
         }
@@ -242,10 +265,10 @@ class SettingsActivity : AppCompatActivity() {
             } else {
                 // confirmation dialog
                 AlertDialog.Builder(context)
-                        .setMessage(s.confirm)
-                        .setPositiveButton("OK") { _, _ -> s.onClick?.invoke() }
-                        .setNegativeButton("Cancel") { _, _ -> }
-                        .show()
+                    .setMessage(s.confirm)
+                    .setPositiveButton("OK") { _, _ -> s.onClick?.invoke() }
+                    .setNegativeButton("Cancel") { _, _ -> }
+                    .show()
             }
         }
 

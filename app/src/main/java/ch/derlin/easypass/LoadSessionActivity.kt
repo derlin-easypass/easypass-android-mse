@@ -9,6 +9,7 @@ import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.UserNotAuthenticatedException
 import android.text.Editable
 import android.text.Html
+import android.text.Html.FROM_HTML_MODE_LEGACY
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
@@ -70,7 +71,7 @@ class LoadSessionActivity : AppCompatActivity() {
     private fun switchFragments(f: Fragment) {
         // Execute a transaction, replacing any existing fragment
         // with this one inside the frame.
-        f.setRetainInstance(true)
+        f.retainInstance = true
         mCurrentFragment = f
         val ft = supportFragmentManager.beginTransaction()
         ft.replace(R.id.load_session_fragment_layout, f)
@@ -89,8 +90,8 @@ class LoadSessionActivity : AppCompatActivity() {
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-            loadLocalButton.setOnClickListener { _ -> next() }
-            retryButton.setOnClickListener { _ -> fetchMeta() }
+            loadLocalButton.setOnClickListener { next() }
+            retryButton.setOnClickListener { fetchMeta() }
 
             fetchMeta()
         }
@@ -152,7 +153,7 @@ class LoadSessionActivity : AppCompatActivity() {
             if (!keyguardManager.isKeyguardSecure) {
                 // no way to save the password if the device doesn't have a pin
                 rememberMeCheckbox.isEnabled = false
-                rememberMeCheckbox.setText("Caching disabled.\nYour device is not secure.")
+                rememberMeCheckbox.text = "Caching disabled.\nYour device is not secure."
             }
 
             // show text in case it is the first time
@@ -160,7 +161,7 @@ class LoadSessionActivity : AppCompatActivity() {
                 rememberMeCheckbox.visibility = View.GONE // don't cache pass the first time
                 rememberMeCheckbox.text = ""
                 newSessionText.visibility = View.VISIBLE
-                newSessionText.text = Html.fromHtml(getString(R.string.header_new_session))
+                newSessionText.text = Html.fromHtml(getString(R.string.header_new_session), FROM_HTML_MODE_LEGACY)
             }
 
             // register btn callback
@@ -194,7 +195,7 @@ class LoadSessionActivity : AppCompatActivity() {
 
             // show session name
             sessionName.text = "session: ${Preferences.remoteFilePathDisplay}"
-            changeSessionBtn.setOnClickListener { _ ->
+            changeSessionBtn.setOnClickListener {
                 requireActivity().createSelectFileDialog {
                     (activity as LoadSessionActivity).initWorkflow()
                 }.show()
@@ -259,8 +260,10 @@ class LoadSessionActivity : AppCompatActivity() {
                 showAuthenticationScreen(LOGIN_WITH_CREDENTIALS_REQUEST_CODE)
             } catch (e: KeyPermanentlyInvalidatedException) {
                 working = false
-                Toast.makeText(activity,
-                        "Lock screen changed. Key invalidated.", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    activity,
+                    "Lock screen changed. Key invalidated.", Toast.LENGTH_LONG
+                ).show()
             }
         }
 

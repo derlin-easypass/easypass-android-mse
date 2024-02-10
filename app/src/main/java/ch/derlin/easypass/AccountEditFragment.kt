@@ -53,19 +53,21 @@ class AccountEditFragment : Fragment() {
 
     private var working: Boolean
         get() = progressBar.visibility == View.VISIBLE
-        set(value) = progressBar.setVisibility(if (value) View.VISIBLE else View.INVISIBLE)
+        set(value) {
+            progressBar.visibility = if (value) View.VISIBLE else View.INVISIBLE
+        }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        mItem = arguments?.getParcelable(AccountDetailActivity.BUNDLE_ACCOUNT_KEY)
+        mItem = arguments?.getParcelable(AccountDetailActivity.BUNDLE_ACCOUNT_KEY, Account::class.java)
         mItem?.name?.let { name ->
             originalAccountIndex = DbxManager.accounts.indexOfFirst { acc -> acc.name == name }
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.account_edit, container, false)
+        inflater.inflate(R.layout.account_edit, container, false)
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -113,7 +115,7 @@ class AccountEditFragment : Fragment() {
 
         // save and cancel buttons
         button_edit_save.setOnClickListener { saveAccount() }
-        button_edit_cancel.setOnClickListener { requireActivity().onBackPressed() }
+        button_edit_cancel.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
 
         theActivity?.fab?.setImageResource(R.drawable.ic_save)
         theActivity?.fab?.setOnClickListener { _ ->
@@ -143,13 +145,13 @@ class AccountEditFragment : Fragment() {
         }
 
         val dialog = AlertDialog.Builder(requireContext(), R.style.AppTheme_AlertDialog)
-                .setView(dialogView)
-                .setTitle("Generate a password")
-                .setPositiveButton("Use") { _, _ ->
-                    details_password.setText(resultText.text.toString())
-                }
-                .setNegativeButton("Cancel") { _, _ -> }
-                .create()
+            .setView(dialogView)
+            .setTitle("Generate a password")
+            .setPositiveButton("Use") { _, _ ->
+                details_password.setText(resultText.text.toString())
+            }
+            .setNegativeButton("Cancel") { _, _ -> }
+            .create()
 
         dialog.show()
         dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.GRAY)
@@ -214,19 +216,22 @@ class AccountEditFragment : Fragment() {
                 DbxManager.accounts.remove(newAccount)
             }
             // show error
-            Snackbar.make(requireActivity().rootView(),
-                    "Error $it", Snackbar.LENGTH_LONG)
-                    .show()
+            Snackbar.make(
+                requireActivity().rootView(),
+                "Error $it", Snackbar.LENGTH_LONG
+            )
+                .show()
         }
     }
 
     private fun getAccount(): Account =
-            (mItem ?: Account()).copy(
-                    name = details_name.text.toString(),
-                    pseudo = details_pseudo.text.toString(),
-                    email = details_email.text.toString(),
-                    password = details_password.text.toString(),
-                    notes = details_notes.text.toString(),
-                    modificationDate = Account.now)
+        (mItem ?: Account()).copy(
+            name = details_name.text.toString(),
+            pseudo = details_pseudo.text.toString(),
+            email = details_email.text.toString(),
+            password = details_password.text.toString(),
+            notes = details_notes.text.toString(),
+            modificationDate = Account.now
+        )
 
 }

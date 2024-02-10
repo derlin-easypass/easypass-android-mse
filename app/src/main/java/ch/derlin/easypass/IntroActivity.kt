@@ -13,7 +13,6 @@ import com.github.paolorotolo.appintro.model.SliderPage
 
 class IntroActivity : AppIntro() {
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

@@ -2,9 +2,6 @@ package ch.derlin.easypass
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -14,6 +11,7 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -72,7 +70,9 @@ class AccountListActivity : SecureActivity() {
     }
 
     private var working: Boolean
-        set(value) = progressBar.setVisibility(if (value) View.VISIBLE else View.INVISIBLE)
+        set(value) {
+            progressBar.visibility = if (value) View.VISIBLE else View.INVISIBLE
+        }
         get() = progressBar.visibility == View.VISIBLE
 
 
@@ -95,7 +95,7 @@ class AccountListActivity : SecureActivity() {
             }
         }
 
-        syncButton.setOnClickListener { _ -> backToLoadingScreen() }
+        syncButton.setOnClickListener { backToLoadingScreen() }
 
         setupRecyclerView(recyclerView)
 
@@ -106,18 +106,21 @@ class AccountListActivity : SecureActivity() {
             // activity should be in two-pane mode.
             mTwoPane = true
         }
+
+        registerOnBackPressed()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == DETAIL_ACTIVITY_REQUEST_CODE) {
             if (data?.getBooleanExtra(AccountDetailActivity.RETURN_MODIFIED, false) == true) {
                 // update the list in case of modification
-                selectedAccount = data.getParcelableExtra(AccountDetailActivity.BUNDLE_ACCOUNT_KEY)
+                selectedAccount = data.getParcelableExtra(AccountDetailActivity.BUNDLE_ACCOUNT_KEY, Account::class.java)
                 notifyAccountUpdate(selectedAccount!!)
             }
         } else if (requestCode == SETTINGS_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK
-                    && data?.getBooleanExtra(SettingsActivity.BUNDLE_RESTART_KEY, false) == true) {
+                && data?.getBooleanExtra(SettingsActivity.BUNDLE_RESTART_KEY, false) == true
+            ) {
                 // if asking for restart, kill current activity
                 // TODO: find a better way
                 restartApp()
@@ -141,23 +144,27 @@ class AccountListActivity : SecureActivity() {
         mNetworkChangeListener.registerSelf(this)
     }
 
-    override fun onBackPressed() {
-        if (mTwoPane && mTwoPaneCurrentFragment is AccountEditFragment) {
-            if (selectedAccount != null) {
-                openDetailActivity(selectedAccount!!, AccountDetailActivity.OPERATION_SHOW)
-            } else {
-                supportFragmentManager.beginTransaction().remove(mTwoPaneCurrentFragment as AccountEditFragment).commit()
+    private fun registerOnBackPressed() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (mTwoPane && mTwoPaneCurrentFragment is AccountEditFragment) {
+                    if (selectedAccount != null) {
+                        openDetailActivity(selectedAccount!!, AccountDetailActivity.OPERATION_SHOW)
+                    } else {
+                        supportFragmentManager.beginTransaction().remove(mTwoPaneCurrentFragment as AccountEditFragment).commit()
+                    }
+                } else {
+                    onBackPressedDispatcher.onBackPressed()
+                }
             }
-        } else {
-            super.onBackPressed()
-        }
+        })
     }
 
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_list_accounts, menu)
         mOfflineIndicator = menu!!.findItem(R.id.action_offline)
-        mOfflineIndicator!!.isVisible = !(NetworkStatus.isConnected ?: false)
+        mOfflineIndicator!!.isVisible = !(NetworkStatus.isConnected)
         searchView = (menu.findItem(R.id.action_search).actionView as SearchView)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean = true
@@ -262,8 +269,8 @@ class AccountListActivity : SecureActivity() {
             copyText(selectedAccount?.password, "password copied!")
         }
         AlertDialog.Builder(this)
-                .setView(view)
-                .show()
+            .setView(view)
+            .show()
     }
 
     private fun copyText(text: String?, toastDescription: String = "") {
@@ -285,8 +292,8 @@ class AccountListActivity : SecureActivity() {
                 fragment.arguments = arguments
                 mTwoPaneCurrentFragment = fragment
                 supportFragmentManager.beginTransaction()
-                        .replace(R.id.accountDetailContainer, fragment)
-                        .commit()
+                    .replace(R.id.accountDetailContainer, fragment)
+                    .commit()
             }
         } else {
             val intent = Intent(this, AccountDetailActivity::class.java).let {
@@ -309,9 +316,11 @@ class AccountListActivity : SecureActivity() {
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
-        mAdapter = AccountAdapter(DbxManager.accounts,
-                defaultComparator = getSortOrder(Preferences.sortOrder),
-                textviewCounter = countText)
+        mAdapter = AccountAdapter(
+            DbxManager.accounts,
+            defaultComparator = getSortOrder(Preferences.sortOrder),
+            textviewCounter = countText
+        )
 
         //mAdapter = AccountAdapter(IntRange(0, 3).map { i -> Account("name " + i, "pseudo " + i, "", "") }.toMutableList())
         recyclerView.adapter = mAdapter
@@ -325,19 +334,19 @@ class AccountListActivity : SecureActivity() {
             openDetailActivity(account, AccountDetailActivity.OPERATION_SHOW)
         }
 
-        mAdapter.onFavoriteClick = { holder, account ->
-            if (NetworkStatus.isConnected == true) {
+        mAdapter.onFavoriteClick = { _, account ->
+            if (NetworkStatus.isConnected) {
                 working = true
                 account.toggleFavorite()
                 mAdapter.resetAndNotify()
                 recyclerView.scrollToPosition(mAdapter.positionOf(account))
                 DbxManager.saveAccounts()
-                        .alwaysUi { working = false }
-                        .failUi {
-                            account.toggleFavorite()
-                            mAdapter.resetAndNotify()
-                            Toast.makeText(this, "error: " + it, Toast.LENGTH_LONG).show()
-                        }
+                    .alwaysUi { working = false }
+                    .failUi {
+                        account.toggleFavorite()
+                        mAdapter.resetAndNotify()
+                        Toast.makeText(this, "error: $it", Toast.LENGTH_LONG).show()
+                    }
             } else {
                 Timber.d("trying to update favorite when no network available.")
                 Toast.makeText(this, "action not available in offline mode", Toast.LENGTH_SHORT).show()
@@ -347,35 +356,35 @@ class AccountListActivity : SecureActivity() {
         fun createSwipeHandler(): SwipeToDeleteCallback = object : SwipeToDeleteCallback(this, attrColor(R.attr.colorAccent)) {
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val item = mAdapter.removeAt(viewHolder.adapterPosition)
+                val item = mAdapter.removeAt(viewHolder.bindingAdapterPosition)
                 working = true
 
                 DbxManager.saveAccounts()
-                        .alwaysUi { working = false }
-                        .successUi {
-                            if (mTwoPane && selectedAccount == item)
-                                supportFragmentManager.beginTransaction()
-                                        .remove(mTwoPaneCurrentFragment!!)
-                                        .commit()
+                    .alwaysUi { working = false }
+                    .successUi {
+                        if (mTwoPane && selectedAccount == item)
+                            supportFragmentManager.beginTransaction()
+                                .remove(mTwoPaneCurrentFragment!!)
+                                .commit()
 
-                            Timber.d("removed account: %s", item)
-                            Snackbar.make(fab, "Account deleted", Snackbar.LENGTH_LONG)
-                                    .setAction("undo") { _ ->
-                                        working = true
-                                        mAdapter.add(item)
-                                        DbxManager.saveAccounts()
-                                                // TODO: what if it fails
-                                                .alwaysUi { working = false }
-                                                .failUi { showToast("Failed to undo changes !") }
-                                    }
-                                    .show()
-                        }
-                        .failUi {
-                            // undo swipe !
-                            mAdapter.add(item)
-                            showToast("Failed to save changes")
+                        Timber.d("removed account: %s", item)
+                        Snackbar.make(fab, "Account deleted", Snackbar.LENGTH_LONG)
+                            .setAction("undo") {
+                                working = true
+                                mAdapter.add(item)
+                                DbxManager.saveAccounts()
+                                    // TODO: what if it fails
+                                    .alwaysUi { working = false }
+                                    .failUi { showToast("Failed to undo changes !") }
+                            }
+                            .show()
+                    }
+                    .failUi {
+                        // undo swipe !
+                        mAdapter.add(item)
+                        showToast("Failed to save changes")
 
-                        }
+                    }
             }
         }
 

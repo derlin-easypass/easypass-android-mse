@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import ch.derlin.easypass.data.Account
 import ch.derlin.easypass.easypass.R
@@ -42,7 +43,7 @@ class AccountDetailActivity : SecureActivity() {
             selectedOperation = extras.getString(BUNDLE_OPERATION_KEY)
 
             if (selectedOperation == OPERATION_EDIT || selectedOperation == OPERATION_SHOW) {
-                selectedAccount = intent.getParcelableExtra(BUNDLE_ACCOUNT_KEY)
+                selectedAccount = intent.getParcelableExtra(BUNDLE_ACCOUNT_KEY, Account::class.java)
             }
         }
 
@@ -50,9 +51,13 @@ class AccountDetailActivity : SecureActivity() {
         if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction only the first time
-            switchFragment(if (selectedOperation == OPERATION_SHOW)
-                AccountDetailFragment() else AccountEditFragment())
+            switchFragment(
+                if (selectedOperation == OPERATION_SHOW)
+                    AccountDetailFragment() else AccountEditFragment()
+            )
         }
+
+        registerOnBackPressed()
     }
 
     fun updateTitle(title: String) {
@@ -94,7 +99,7 @@ class AccountDetailActivity : SecureActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
-            this.onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
             //navigateUpTo(Intent(this, AccountListActivity::class.java))
             return true
         }
@@ -108,16 +113,20 @@ class AccountDetailActivity : SecureActivity() {
     }
 
 
-    override fun onBackPressed() {
-        if (shouldGoBackToEditView) {
-            backToDetailsView()
-        } else {
-            val returnIntent = Intent()
-            returnIntent.putExtra("modified", accountModified)
-            returnIntent.putExtra(BUNDLE_ACCOUNT_KEY, selectedAccount)
-            setResult(Activity.RESULT_OK, returnIntent)
-            finish()
-        }
+    private fun registerOnBackPressed() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (shouldGoBackToEditView) {
+                    backToDetailsView()
+                } else {
+                    val returnIntent = Intent()
+                    returnIntent.putExtra("modified", accountModified)
+                    returnIntent.putExtra(BUNDLE_ACCOUNT_KEY, selectedAccount)
+                    setResult(Activity.RESULT_OK, returnIntent)
+                    finish()
+                }
+            }
+        })
     }
 
 

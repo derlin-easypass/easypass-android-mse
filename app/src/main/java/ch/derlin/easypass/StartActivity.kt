@@ -83,8 +83,8 @@ class StartActivity : AppCompatActivity() {
             startApp()
         } else {
             Snackbar.make(rootView(), "Error authenticating with Dropbox", Snackbar.LENGTH_INDEFINITE)
-                    .setAction("retry") { forceRestart() }
-                    .show()
+                .setAction("retry") { forceRestart() }
+                .show()
             Timber.d("Error authenticating")
         }
     }
@@ -95,9 +95,11 @@ class StartActivity : AppCompatActivity() {
             val version = getAppVersion()
             if (Preferences.versionCode < version.first) {
                 Preferences.versionCode = version.first
-                val dialog = Changelog.createDialog(this,
-                        title = resources.getString(R.string.whatsnew_title),
-                        versionCode = getAppVersion().first)
+                val dialog = Changelog.createDialog(
+                    this,
+                    title = resources.getString(R.string.whatsnew_title),
+                    versionCode = getAppVersion().first
+                )
                 dialog.setOnDismissListener { _startApp() }
                 dialog.show()
             } else {

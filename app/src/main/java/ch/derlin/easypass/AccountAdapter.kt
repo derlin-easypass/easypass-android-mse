@@ -33,10 +33,12 @@ import ch.derlin.easypass.easypass.R
  * the end...
  */
 
-class AccountAdapter(var accounts: MutableList<Account>,
-                     defaultComparator: Comparator<Account> = Account.nameComparatorAsc,
-                     var textviewCounter: TextView? = null) :
-        RecyclerView.Adapter<AccountAdapter.ViewHolder>() {
+class AccountAdapter(
+    var accounts: MutableList<Account>,
+    defaultComparator: Comparator<Account> = Account.nameComparatorAsc,
+    var textviewCounter: TextView? = null
+) :
+    RecyclerView.Adapter<AccountAdapter.ViewHolder>() {
 
     var comparator: Comparator<Account> = defaultComparator
         set(value) {
@@ -70,9 +72,11 @@ class AccountAdapter(var accounts: MutableList<Account>,
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-            // create a new view
-            ViewHolder(LayoutInflater.from(parent.context)
-                    .inflate(R.layout.account_list_content, parent, false))
+        // create a new view
+        ViewHolder(
+            LayoutInflater.from(parent.context)
+                .inflate(R.layout.account_list_content, parent, false)
+        )
 
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
@@ -80,11 +84,12 @@ class AccountAdapter(var accounts: MutableList<Account>,
             holder.titleView.text = item.name
             holder.subtitleView.text = if (item.pseudo != "") item.pseudo else item.email
             holder.favoriteIcon.setBackgroundResource(
-                    if (item.isFavorite) R.drawable.ic_pinned_on else R.drawable.ic_pinned_off)
+                if (item.isFavorite) R.drawable.ic_pinned_on else R.drawable.ic_pinned_off
+            )
 
-            holder.view.setOnClickListener { _ -> onClick?.invoke(item) }
-            holder.view.setOnLongClickListener { _ -> onLongClick?.invoke(item); true }
-            holder.favoriteIcon.setOnClickListener { _ -> onFavoriteClick?.invoke(holder, item) }
+            holder.view.setOnClickListener { onClick?.invoke(item) }
+            holder.view.setOnLongClickListener { onLongClick?.invoke(item); true }
+            holder.favoriteIcon.setOnClickListener { onFavoriteClick?.invoke(holder, item) }
         }
     }
 
@@ -103,7 +108,7 @@ class AccountAdapter(var accounts: MutableList<Account>,
         val item = filtered[position]
         accounts.remove(item)
         resetAndNotify()
-        return item;
+        return item
     }
 
     fun filter(search: String? = lastSearch) {
@@ -144,8 +149,9 @@ class AccountAdapter(var accounts: MutableList<Account>,
     private fun updateCounter() {
 
         textviewCounter?.text = App.appContext.getString(
-                if (filtered.size <= 1) R.string.account_list_counter_text_single
-                else R.string.account_list_counter_text, filtered.size)
+            if (filtered.size <= 1) R.string.account_list_counter_text_single
+            else R.string.account_list_counter_text, filtered.size
+        )
     }
     // -----------------------------------------
 

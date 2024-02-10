@@ -31,7 +31,7 @@ class App : Application() {
 
         if (BuildConfig.DEBUG) {
             Timber.plant(object : DebugTree() {
-                override fun createStackElementTag(element: StackTraceElement): String? =
+                override fun createStackElementTag(element: StackTraceElement): String =
                         "lucy:${super.createStackElementTag(element)}:${element.lineNumber}"
             })
             Timber.v("initialised Timber in debug mode")
