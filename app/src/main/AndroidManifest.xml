@@ -8,6 +8,7 @@
     <application
         android:name="ch.derlin.easypass.App"
         android:allowBackup="false"
+        android:exported="false"
         android:icon="@drawable/logo_launcher"
         android:label="@string/app_name"
         android:roundIcon="@drawable/logo_launcher_round"
@@ -16,10 +17,12 @@
 
         <activity
             android:name="ch.derlin.easypass.IntroActivity"
+            android:exported="false"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
             android:name="ch.derlin.easypass.StartActivity"
+            android:exported="true"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,6 +34,7 @@
         <activity
             android:name="com.dropbox.core.android.AuthActivity"
             android:configChanges="orientation|keyboard"
+            android:exported="true"
             android:launchMode="singleTask"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
@@ -46,15 +50,18 @@
         </activity>
         <activity
             android:name="ch.derlin.easypass.LoadSessionActivity"
+            android:exported="false"
             android:label="@string/title_activity_load"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="ch.derlin.easypass.AccountListActivity"
+            android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name="ch.derlin.easypass.AccountDetailActivity"
+            android:exported="false"
             android:label="@string/title_account_detail"
             android:parentActivityName="ch.derlin.easypass.AccountListActivity"
             android:theme="@style/AppTheme.NoActionBar"
@@ -65,6 +72,7 @@
         </activity>
         <activity
             android:name="ch.derlin.easypass.SettingsActivity"
+            android:exported="false"
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme.NoActionBar" />
     </application>
