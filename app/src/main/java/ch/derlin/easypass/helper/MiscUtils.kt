@@ -4,6 +4,8 @@ import android.app.Activity
 import android.app.AlarmManager
 import android.app.Dialog
 import android.app.PendingIntent
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -29,6 +31,14 @@ import ch.derlin.easypass.IntroActivity
 
 object MiscUtils {
 
+    fun Activity.copyToClipBoard(text: String?): Boolean {
+        if (text == null) return false
+        ClipData.newPlainText("easypass", text).let { clipData ->
+            (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(clipData)
+        }
+        return true
+    }
+
     /** Convert an HTML string into a [Spanned] that can be used in a [TextView] */
     fun String.toSpannable(): Spanned? {
         return if (Build.VERSION.SDK_INT >= 24) {
@@ -40,27 +50,27 @@ object MiscUtils {
 
     /** Colorize digits and special chars in a password */
     fun String.colorizePassword(
-            @ColorInt digitsColor: Int = Color.parseColor("#EA4865"),
-            @ColorInt symbolsColor: Int = Color.parseColor("#03A9F4")
+        @ColorInt digitsColor: Int = Color.parseColor("#EA4865"),
+        @ColorInt symbolsColor: Int = Color.parseColor("#03A9F4")
     ): Spannable =
-            SpannableStringBuilder(this).also { ssb ->
-                this.withIndex().forEach {
-                    if (it.value.isDigit() || !it.value.isLetter()) {
-                        val color = if (it.value.isDigit()) digitsColor else symbolsColor
-                        ssb.setSpan(ForegroundColorSpan(color), it.index, it.index + 1, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
-                    }
+        SpannableStringBuilder(this).also { ssb ->
+            this.withIndex().forEach {
+                if (it.value.isDigit() || !it.value.isLetter()) {
+                    val color = if (it.value.isDigit()) digitsColor else symbolsColor
+                    ssb.setSpan(ForegroundColorSpan(color), it.index, it.index + 1, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
                 }
             }
+        }
 
     fun String._colorizePassword(): Spanned? = // TODO: don't hardcode colors
-            this.splitByCharacterClass().joinToString("") {
-                val c = it.first()
-                when {
-                    c.isLetter() -> it
-                    c.isDigit() -> "<font color=\"#EA4865\">$it</font>"
-                    else -> "<font color=\"#03A9F4\">$it</font>"
-                }
-            }.toSpannable()
+        this.splitByCharacterClass().joinToString("") {
+            val c = it.first()
+            when {
+                c.isLetter() -> it
+                c.isDigit() -> "<font color=\"#EA4865\">$it</font>"
+                else -> "<font color=\"#03A9F4\">$it</font>"
+            }
+        }.toSpannable()
 
 
     /** Hide the soft keyboard */
@@ -81,11 +91,13 @@ object MiscUtils {
     fun Activity.restartApp() {
         // see https://stackoverflow.com/questions/17795189/how-to-programmatically-force-a-full-app-restart-e-g-kill-then-start
         val startIntent = packageManager.getLaunchIntentForPackage(packageName)
-        val pendingIntent = PendingIntent.getActivity(this, 123456, startIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT)
+        val pendingIntent = PendingIntent.getActivity(
+            this, 123456, startIntent,
+            PendingIntent.FLAG_CANCEL_CURRENT
+        )
 
         (getSystemService(Context.ALARM_SERVICE) as AlarmManager)
-                .set(AlarmManager.RTC, System.currentTimeMillis() + 10, pendingIntent)
+            .set(AlarmManager.RTC, System.currentTimeMillis() + 10, pendingIntent)
 
         finish()
         //System.exit(0)

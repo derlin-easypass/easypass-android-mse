@@ -81,6 +81,15 @@
                 android:background="@drawable/ic_visibility_on"
                 android:backgroundTint="?attr/colorAccent"
                 android:contentDescription="toggle password view" />
+
+            <ImageButton
+                android:id="@+id/details_copy_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="15dp"
+                android:background="@drawable/ic_content_copy"
+                android:backgroundTint="?attr/colorAccent"
+                android:contentDescription="copy password" />
         </LinearLayout>
 
 
@@ -130,9 +139,9 @@
         <TextView
             android:id="@+id/details_notes"
             style="@style/DetailsLabel"
-            android:textIsSelectable="true"
             android:layout_columnSpan="2"
-            android:layout_gravity="fill_horizontal" />
+            android:layout_gravity="fill_horizontal"
+            android:textIsSelectable="true" />
 
 
         <LinearLayout

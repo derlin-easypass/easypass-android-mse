@@ -23,6 +23,7 @@ import ch.derlin.easypass.easypass.R
 import ch.derlin.easypass.helper.*
 import ch.derlin.easypass.helper.MiscUtils.attrColor
 import ch.derlin.easypass.helper.MiscUtils.colorizePassword
+import ch.derlin.easypass.helper.MiscUtils.copyToClipBoard
 import ch.derlin.easypass.helper.MiscUtils.restartApp
 import ch.derlin.easypass.helper.MiscUtils.rootView
 import ch.derlin.easypass.helper.MiscUtils.toSpannable
@@ -234,9 +235,9 @@ class AccountListActivity : SecureActivity() {
         if (selectedAccount == null) return
 
         when (v.id) {
-            R.id.copy_pass_btn -> copyToClipboard(selectedAccount!!.password, "password copied!")
-            R.id.copy_username_btn -> copyToClipboard(selectedAccount!!.pseudo, "'${selectedAccount!!.pseudo}' copied!")
-            R.id.copy_email_btn -> copyToClipboard(selectedAccount!!.email, "'${selectedAccount!!.email}' copied!")
+            R.id.copy_pass_btn -> copyText(selectedAccount?.password, "password copied!")
+            R.id.copy_username_btn -> copyText(selectedAccount?.pseudo, "'${selectedAccount!!.pseudo}' copied!")
+            R.id.copy_email_btn -> copyText(selectedAccount?.email, "'${selectedAccount!!.email}' copied!")
             R.id.view_details_btn -> {
                 bottomSheetDialog!!.dismiss()
                 openDetailActivity(selectedAccount!!, AccountDetailActivity.OPERATION_SHOW)
@@ -258,18 +259,16 @@ class AccountListActivity : SecureActivity() {
         val view = layoutInflater.inflate(R.layout.show_password, null)
         view.findViewById<TextView>(R.id.show_password_textview).text = account.password.colorizePassword()
         view.findViewById<ImageButton>(R.id.show_password_copy_btn).setOnClickListener {
-            copyToClipboard(selectedAccount!!.password, "password copied!")
+            copyText(selectedAccount?.password, "password copied!")
         }
         AlertDialog.Builder(this)
                 .setView(view)
                 .show()
     }
 
-    private fun copyToClipboard(text: String, toastDescription: String = "") {
-        ClipData.newPlainText("easypass", text).let { clipData ->
-            (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(clipData)
-        }
-        if (toastDescription != "") {
+    private fun copyText(text: String?, toastDescription: String = "") {
+
+        if (copyToClipBoard(text) && toastDescription.isNotBlank()) {
             if (bottomSheetDialog?.isShowing == true)
                 Snackbar.make(bottomSheetDialog!!.rootView(), toastDescription, Snackbar.LENGTH_SHORT).show()
             else

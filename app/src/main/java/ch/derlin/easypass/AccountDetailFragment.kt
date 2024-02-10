@@ -10,6 +10,9 @@ import androidx.fragment.app.Fragment
 import ch.derlin.easypass.data.Account
 import ch.derlin.easypass.easypass.R
 import ch.derlin.easypass.helper.MiscUtils.colorizePassword
+import ch.derlin.easypass.helper.MiscUtils.copyToClipBoard
+import ch.derlin.easypass.helper.MiscUtils.rootView
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.account_detail.*
 import kotlinx.android.synthetic.main.activity_account_detail.*
 
@@ -35,7 +38,7 @@ class AccountDetailFragment : Fragment() {
     private lateinit var hiddenPassword: String
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.account_detail, container, false)
+        inflater.inflate(R.layout.account_detail, container, false)
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -65,6 +68,14 @@ class AccountDetailFragment : Fragment() {
 
             // register listener on the show password checkbox
             details_show_password.setOnClickListener { togglePassword() }
+            details_copy_password.setOnClickListener {
+                val activity = requireActivity()
+                activity.copyToClipBoard(password)
+                Snackbar.make(
+                    activity.rootView(),
+                    "Copied to clipboard", Snackbar.LENGTH_SHORT
+                ).show()
+            }
         }
 
         val theActivity = activity as? AccountDetailActivity
@@ -89,9 +100,11 @@ class AccountDetailFragment : Fragment() {
         isPasswordShowed = !isPasswordShowed
         details_password.text = if (isPasswordShowed) mItem!!.password.colorizePassword() else hiddenPassword
 
-        details_show_password.background = AppCompatResources.getDrawable(requireContext(),
-                if (isPasswordShowed) R.drawable.ic_visibility_on
-                else R.drawable.ic_visibility_off)
+        details_show_password.background = AppCompatResources.getDrawable(
+            requireContext(),
+            if (isPasswordShowed) R.drawable.ic_visibility_on
+            else R.drawable.ic_visibility_off
+        )
     }
 
     companion object {
