@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.0" versioncode="3" date="2024-02-10" summary="This app has evolved since 2018, time for a new release!">
+        <change>Support Android 13+</change>
+        <change>Support Dropbox TLS 1.2</change>
+        <change>Colorize passwords for better readability</change>
+        <change>Lots of small improvements and fixes</change>
+    </release>
     <release version="1.1" versioncode="2" date="2018-02-20" summary="The first publication to the Play Store was made behind my back, by someone else. This time, you get the 'real' thing !">
         <change>Take ownership back</change>
         <change>Remove ads, this app is totally free !</change>
