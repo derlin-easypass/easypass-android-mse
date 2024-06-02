@@ -50,7 +50,7 @@ class AccountDetailFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = AccountDetailBinding.inflate(inflater, container, false)
         return binding.root
     }

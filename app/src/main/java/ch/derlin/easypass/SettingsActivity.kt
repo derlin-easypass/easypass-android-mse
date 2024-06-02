@@ -151,7 +151,7 @@ class SettingsActivity : AppCompatActivity() {
         val view = layoutInflater.inflate(R.layout.dialog_settings_special_chars, null)
         val editText = view.findViewById<EditText>(R.id.specialChars)
         view.findViewById<Button>(R.id.defaultButton).setOnClickListener {
-            editText.setText(PasswordGenerator.allSpecialChars)
+            editText.setText(PasswordGenerator.ALL_SPECIAL_CHARS)
         }
 
         editText.setText(Preferences.specialChars)
@@ -237,7 +237,7 @@ class SettingsActivity : AppCompatActivity() {
 
 // ----------------------------------------- inner class
 
-    class SettingsAdapter(val context: Context, val settings: List<Setting>) :
+    class SettingsAdapter(val context: Context, private val settings: List<Setting>) :
         RecyclerView.Adapter<SettingsAdapter.ViewHolder>() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {

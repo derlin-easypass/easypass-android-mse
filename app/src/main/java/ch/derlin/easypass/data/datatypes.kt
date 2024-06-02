@@ -4,6 +4,7 @@ package ch.derlin.easypass.data
 import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import java.text.SimpleDateFormat
 import java.util.*
@@ -62,6 +63,7 @@ data class Account(
     }
 
     // compute the uid only once, so that it does not change if the name is edited
+    @IgnoredOnParcel
     private var _uid = 0L
 
     /**

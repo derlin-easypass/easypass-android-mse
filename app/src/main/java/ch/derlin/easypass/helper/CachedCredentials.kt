@@ -33,24 +33,23 @@ import javax.crypto.spec.IvParameterSpec
 object CachedCredentials {
 
     /** The name of the keystore used. */
-    const val keystoreName = "AndroidKeyStore"
+    private const val KEYSTORE_NAME = "AndroidKeyStore"
 
     /** The name of the AES key used. */
-    const val keyName = "key"
+    private const val KEY_NAME = "key"
 
     /** how long the key can be used after authentication. > 0 to be able to use it ! */
-    const val authenticationValiditySeconds: Int = 30
+    private const val AUTHENTICATION_VALIDITY_SECONDS: Int = 30
 
     // -----------------------------------------
 
     /** The encryption to use for storing credentials */
-    val transformation: String
+    private val transformation: String
         get() = (KeyProperties.KEY_ALGORITHM_AES + "/" + KeyProperties.BLOCK_MODE_CBC + "/"
                 + KeyProperties.ENCRYPTION_PADDING_PKCS7)
 
     /** The charset to encode the credentials */
-    val charset: Charset
-        get() = Charsets.UTF_8
+    private val charset: Charset = Charsets.UTF_8
 
     /** returns true if a password is currently stored */
     val isPasswordCached: Boolean
@@ -183,18 +182,18 @@ object CachedCredentials {
 
     // get and initialise the keystore
     private fun getKeyStore(): KeyStore {
-        val keyStore = KeyStore.getInstance(keystoreName)
+        val keyStore = KeyStore.getInstance(KEYSTORE_NAME)
         keyStore.load(null)
         return keyStore
     }
 
     // load an existing key from the keystore
-    private fun getKey(): SecretKey? = getKeyStore().getKey(keyName, null) as SecretKey?
+    private fun getKey(): SecretKey? = getKeyStore().getKey(KEY_NAME, null) as SecretKey?
 
     // delete the key. Should be called in case of [KeyPermanentlyInvalidatedException]
     private fun deleteKey() {
         Preferences.cachedPassword = null
-        getKeyStore().deleteEntry(keyName)
+        getKeyStore().deleteEntry(KEY_NAME)
         Preferences.keystoreInitialised = false
         Timber.d("key deleted.")
     }
@@ -203,15 +202,15 @@ object CachedCredentials {
     private fun createKey(): SecretKey {
         try {
             val keyGenerator =
-                KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, keystoreName)
+                KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_NAME)
             keyGenerator.init(
                 KeyGenParameterSpec.Builder(
-                    keyName,
+                    KEY_NAME,
                     KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
                 )
                     .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
                     .setUserAuthenticationRequired(true)
-                    .setUserAuthenticationValidityDurationSeconds(authenticationValiditySeconds)
+                    .setUserAuthenticationValidityDurationSeconds(AUTHENTICATION_VALIDITY_SECONDS)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
                     .build()
             )

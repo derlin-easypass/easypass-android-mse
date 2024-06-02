@@ -37,7 +37,7 @@ import java.io.FileInputStream
 object DbxManager {
 
     /** Filename used locally as a cache */
-    private const val localFileName = "easypass_cached.data_ser"
+    private const val LOCAL_FILE_NAME = "easypass_cached.data_ser"
 
     /** The list of accounts */
     private var _accounts: Accounts? = null
@@ -141,7 +141,7 @@ object DbxManager {
      * Delete the local cache file.
      */
     fun removeLocalFile(): Boolean {
-        val localFile = File(App.appContext.filesDir.absolutePath, localFileName)
+        val localFile = File(App.appContext.filesDir.absolutePath, LOCAL_FILE_NAME)
         val ok = localFile.delete()
         Timber.d("""removed local file ? $ok""")
         Preferences.revision = null
@@ -221,7 +221,7 @@ object DbxManager {
             // TODO
             IOUtil.copyStreamToStream(
                 App.appContext.openFileInput(tempFile),
-                App.appContext.openFileOutput(localFileName, Context.MODE_PRIVATE)
+                App.appContext.openFileOutput(LOCAL_FILE_NAME, Context.MODE_PRIVATE)
             )
 
             Preferences.revision = metadata!!.rev
@@ -265,11 +265,11 @@ object DbxManager {
         try {
             metadata = client.files()
                 .download(metadata!!.pathDisplay)
-                .download(App.appContext.openFileOutput(localFileName, Context.MODE_PRIVATE))
+                .download(App.appContext.openFileOutput(LOCAL_FILE_NAME, Context.MODE_PRIVATE))
 
             val isUpdate = _accounts != null
             deserialize(
-                App.appContext.openFileInput(localFileName),
+                App.appContext.openFileInput(LOCAL_FILE_NAME),
                 metadata?.pathDisplay,
                 password
             )
@@ -296,7 +296,7 @@ object DbxManager {
     // read the accounts from the cached file
     private fun loadCachedFile(password: String) {
         deserialize(
-            App.appContext.openFileInput(localFileName),
+            App.appContext.openFileInput(LOCAL_FILE_NAME),
             Preferences.remoteFilePath,
             password
         )
@@ -305,7 +305,8 @@ object DbxManager {
 
     // deserialize and decrypt a file. This will update the accounts variable
     private fun deserialize(fin: FileInputStream, pathName: String?, password: String) {
-        val accountList = JsonManager.deserialize(fin, password,
+        val accountList = JsonManager.deserialize(
+            fin, password,
             object : TypeToken<SessionSerialisationType>() {
             }.type
         ) as SessionSerialisationType

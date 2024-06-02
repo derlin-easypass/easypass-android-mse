@@ -12,7 +12,7 @@ import ch.derlin.easypass.easypass.R
 // from https://medium.com/@kitek/recyclerview-swipe-to-delete-easier-than-you-thought-cff67ff5e5f6
 abstract class SwipeToDeleteCallback(
     context: Context,
-    val backgroundColor: Int = Color.parseColor("#f44336")
+    private val backgroundColor: Int = Color.parseColor("#f44336")
 ) :
     ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 

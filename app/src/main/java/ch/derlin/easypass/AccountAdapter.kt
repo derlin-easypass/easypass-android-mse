@@ -58,7 +58,7 @@ class AccountAdapter(
     }
 
     private var lastSearch: String = ""
-    var filtered = accounts.map { i -> i }.toMutableList()
+    private var filtered = accounts.map { i -> i }.toMutableList()
 
     init {
         //accounts = accounts .toMutableList() // make a copy

@@ -91,7 +91,7 @@ class LoadSessionActivity : AppCompatActivity() {
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
-        ): View? {
+        ): View {
             _binding = FragmentLoadSessionMetaBinding.inflate(inflater, container, false)
             return binding.root
         }
@@ -158,7 +158,7 @@ class LoadSessionActivity : AppCompatActivity() {
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
-        ): View? {
+        ): View {
             _binding = FragmentEnterPasswordBinding.inflate(inflater, container, false)
             return binding.root
         }

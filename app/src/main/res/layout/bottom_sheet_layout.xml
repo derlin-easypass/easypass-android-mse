@@ -9,7 +9,7 @@
     android:paddingBottom="40dip"
     app:behavior_hideable="true"
     app:layout_behavior="@string/bottom_sheet_behavior"
-    tools:context="ch.derlin.easypass.easypass.ch.derlin.easypass.AccountListActivity">
+    tools:context="ch.derlin.easypass.AccountListActivity">
 
     <TextView
         android:id="@+id/bottomSheetTitle"

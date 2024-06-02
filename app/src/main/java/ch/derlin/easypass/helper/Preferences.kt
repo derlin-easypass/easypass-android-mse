@@ -13,7 +13,7 @@ object Preferences {
         App.appContext.getSharedPreferences("ch.derlin.easypass.preferences", Context.MODE_PRIVATE)
 
     /** Default session path in Dropbox */
-    const val defaultRemoteFilePath = "easypass.data_ser" // Default session path in Dropbox
+    const val DEFAULT_REMOTE_FILE_PATH = "easypass.data_ser" // Default session path in Dropbox
 
     /** The OAuth token for accessing Dropbox, if any. */
     var dbxAccessToken: String?
@@ -41,7 +41,7 @@ object Preferences {
 
     /** Path of the session in Dropbox */
     var remoteFilePath: String
-        get() = "/" + sharedPrefs.getString("remote_filepath", defaultRemoteFilePath)
+        get() = "/" + sharedPrefs.getString("remote_filepath", DEFAULT_REMOTE_FILE_PATH)
         set(value) =
             if (value == "") sharedPrefs.edit().remove("remote_filepath").apply()
             else sharedPrefs.edit().putString("remote_filepath", value).apply()
@@ -65,7 +65,7 @@ object Preferences {
     /** The list of special characters to use for the generation of password. */
     var specialChars: String
         get() = sharedPrefs.getString("generatorSpecialChars", null)
-            ?: PasswordGenerator.allSpecialChars
+            ?: PasswordGenerator.ALL_SPECIAL_CHARS
         set(value) = sharedPrefs.edit().putString("generatorSpecialChars", value).apply()
 
     /** Are the intro slides already displayed once ? */

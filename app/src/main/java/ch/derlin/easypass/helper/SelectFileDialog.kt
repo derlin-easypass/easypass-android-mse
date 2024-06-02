@@ -39,7 +39,7 @@ object SelectFileDialog {
         chooseFileButton.isEnabled = false
 
         view.findViewById<Button>(R.id.btn_filename_default).setOnClickListener { _ ->
-            filenameEditText.setText(Preferences.defaultRemoteFilePath)
+            filenameEditText.setText(Preferences.DEFAULT_REMOTE_FILE_PATH)
         }
 
         // get the list of session and construct the dropdown on success
