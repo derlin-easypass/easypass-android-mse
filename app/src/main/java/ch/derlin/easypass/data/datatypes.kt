@@ -4,7 +4,7 @@ package ch.derlin.easypass.data
 import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -20,13 +20,13 @@ typealias SessionSerialisationType = ArrayList<Account>
 
 /** The accounts container */
 class Accounts(
-        /** The password (in memory only) */
-        var password: String,
-        /** The remote path to the file in Dropbox */
-        var path: String, data:
-        /** The actual list of accounts */
-        SessionSerialisationType = arrayListOf())
-    : ArrayList<Account>(data)
+    /** The password (in memory only) */
+    var password: String,
+    /** The remote path to the file in Dropbox */
+    var path: String, data:
+    /** The actual list of accounts */
+    SessionSerialisationType = arrayListOf()
+) : ArrayList<Account>(data)
 
 
 /**
@@ -35,22 +35,23 @@ class Accounts(
  */
 @Parcelize
 data class Account(
-        /** The display name for the account. Should be unique. */
-        @Expose @SerializedName("name") var name: String = "",
-        /** An optional username */
-        @Expose @SerializedName("pseudo") var pseudo: String = "",
-        /** An optional email address */
-        @Expose @SerializedName("email") var email: String = "",
-        /** The password */
-        @Expose @SerializedName("password") var password: String = "",
-        /** Optional notes */
-        @Expose @SerializedName("notes") var notes: String = "",
-        /** The creation date in the format: YYYY-MM-DD HH:mm */
-        @Expose @SerializedName("creation date") var creationDate: String = now,
-        /** The last modification date in the format: YYYY-MM-DD HH:mm */
-        @Expose @SerializedName("modification date") var modificationDate: String = "",
-        /** Whether it is pinned as favorite */
-        @Expose @SerializedName("favorite") var isFavorite: Boolean = false) : Parcelable {
+    /** The display name for the account. Should be unique. */
+    @Expose @SerializedName("name") var name: String = "",
+    /** An optional username */
+    @Expose @SerializedName("pseudo") var pseudo: String = "",
+    /** An optional email address */
+    @Expose @SerializedName("email") var email: String = "",
+    /** The password */
+    @Expose @SerializedName("password") var password: String = "",
+    /** Optional notes */
+    @Expose @SerializedName("notes") var notes: String = "",
+    /** The creation date in the format: YYYY-MM-DD HH:mm */
+    @Expose @SerializedName("creation date") var creationDate: String = now,
+    /** The last modification date in the format: YYYY-MM-DD HH:mm */
+    @Expose @SerializedName("modification date") var modificationDate: String = "",
+    /** Whether it is pinned as favorite */
+    @Expose @SerializedName("favorite") var isFavorite: Boolean = false
+) : Parcelable {
 
     init {
         // trim all the fields on load (was not always done by previous versions)
@@ -75,10 +76,10 @@ data class Account(
 
     /** Search for a substring in all fields except the password. Case insensitive. */
     fun contains(search: String): Boolean =
-            name.contains(search, ignoreCase = true) ||
-                    pseudo.contains(search, ignoreCase = true) ||
-                    email.contains(search, ignoreCase = true) ||
-                    notes.contains(search, ignoreCase = true)
+        name.contains(search, ignoreCase = true) ||
+                pseudo.contains(search, ignoreCase = true) ||
+                email.contains(search, ignoreCase = true) ||
+                notes.contains(search, ignoreCase = true)
 
 
     /** Test if two accounts are different. Case-sensitive. */
@@ -111,10 +112,20 @@ data class Account(
         val nameComparatorDesc = Comparator<Account> { a1, a2 -> a2.name.compareTo(a1.name, true) }
 
         /** Compare accounts based on modified (ascending). The favorite flag is ignored. */
-        val modifiedComparatorAsc = Comparator<Account> { a1, a2 -> a1.lastInteractionDate.compareTo(a2.lastInteractionDate, true) }
+        val modifiedComparatorAsc = Comparator<Account> { a1, a2 ->
+            a1.lastInteractionDate.compareTo(
+                a2.lastInteractionDate,
+                true
+            )
+        }
 
         /** Compare accounts based on modified (descending). The favorite flag is ignored. */
-        val modifiedComparatorDesc = Comparator<Account> { a1, a2 -> a2.lastInteractionDate.compareTo(a1.lastInteractionDate, true) }
+        val modifiedComparatorDesc = Comparator<Account> { a1, a2 ->
+            a2.lastInteractionDate.compareTo(
+                a1.lastInteractionDate,
+                true
+            )
+        }
 
         /** Returns the current datetime for use in [Account.creationDate] and [Account.modificationDate] */
         val now: String

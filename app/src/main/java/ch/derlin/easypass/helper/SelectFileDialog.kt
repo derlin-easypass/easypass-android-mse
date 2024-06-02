@@ -48,9 +48,9 @@ object SelectFileDialog {
                 chooseFileButton.isEnabled = true
                 chooseFileButton.setOnClickListener {
                     AlertDialog.Builder(this)
-                            .setItems(files) { dialog, pos -> filenameEditText.setText(files[pos]) }
-                            .setNegativeButton("dismiss") { _, _ -> }
-                            .show()
+                        .setItems(files) { dialog, pos -> filenameEditText.setText(files[pos]) }
+                        .setNegativeButton("dismiss") { _, _ -> }
+                        .show()
                 }
             }
         } failUi {
@@ -59,21 +59,25 @@ object SelectFileDialog {
 
         // actually create the dialog
         return AlertDialog.Builder(this, R.style.AppTheme_AlertDialog)
-                .setView(view)
-                .setNegativeButton("cancel") { dialog, _ -> dialog.dismiss() }
-                .setPositiveButton("change") { _, _ ->
-                    val filename = filenameEditText.text.toString().trim()
-                    if (filename.isBlank() || !filename.matches(Regex("""^[0-9a-zA-Z_ -]+\.[a-zA-Z_-]+$"""))) {
-                        Toast.makeText(this,
-                                "Wrong characters in filename", Toast.LENGTH_SHORT).show()
-                    } else if (filename == oldFilename) {
-                        Toast.makeText(this,
-                                "Filename did not change.", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Preferences.remoteFilePath = filename
-                        CachedCredentials.clearPassword()
-                        callback()
-                    }
-                }.create()
+            .setView(view)
+            .setNegativeButton("cancel") { dialog, _ -> dialog.dismiss() }
+            .setPositiveButton("change") { _, _ ->
+                val filename = filenameEditText.text.toString().trim()
+                if (filename.isBlank() || !filename.matches(Regex("""^[0-9a-zA-Z_ -]+\.[a-zA-Z_-]+$"""))) {
+                    Toast.makeText(
+                        this,
+                        "Wrong characters in filename", Toast.LENGTH_SHORT
+                    ).show()
+                } else if (filename == oldFilename) {
+                    Toast.makeText(
+                        this,
+                        "Filename did not change.", Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Preferences.remoteFilePath = filename
+                    CachedCredentials.clearPassword()
+                    callback()
+                }
+            }.create()
     }
 }

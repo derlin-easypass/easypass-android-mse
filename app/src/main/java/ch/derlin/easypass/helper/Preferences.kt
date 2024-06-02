@@ -9,7 +9,8 @@ import ch.derlin.easypass.App
  * @author Lucy Linder
  */
 object Preferences {
-    private val sharedPrefs: SharedPreferences = App.appContext.getSharedPreferences("ch.derlin.easypass.preferences", Context.MODE_PRIVATE)
+    private val sharedPrefs: SharedPreferences =
+        App.appContext.getSharedPreferences("ch.derlin.easypass.preferences", Context.MODE_PRIVATE)
 
     /** Default session path in Dropbox */
     const val defaultRemoteFilePath = "easypass.data_ser" // Default session path in Dropbox
@@ -55,13 +56,16 @@ object Preferences {
      */
     var sortOrder: Int
         get() = App.appContext.resources.getIdentifier(
-                sharedPrefs.getString("sortOrder", "submenu_sort_title_asc"),
-                "id", App.appContext.packageName)
-        set(value) = sharedPrefs.edit().putString("sortOrder", App.appContext.resources.getResourceName(value)).apply()
+            sharedPrefs.getString("sortOrder", "submenu_sort_title_asc"),
+            "id", App.appContext.packageName
+        )
+        set(value) = sharedPrefs.edit()
+            .putString("sortOrder", App.appContext.resources.getResourceName(value)).apply()
 
     /** The list of special characters to use for the generation of password. */
     var specialChars: String
-        get() = sharedPrefs.getString("generatorSpecialChars", null) ?: PasswordGenerator.allSpecialChars
+        get() = sharedPrefs.getString("generatorSpecialChars", null)
+            ?: PasswordGenerator.allSpecialChars
         set(value) = sharedPrefs.edit().putString("generatorSpecialChars", value).apply()
 
     /** Are the intro slides already displayed once ? */

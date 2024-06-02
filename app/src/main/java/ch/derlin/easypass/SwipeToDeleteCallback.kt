@@ -10,7 +10,10 @@ import androidx.recyclerview.widget.RecyclerView
 import ch.derlin.easypass.easypass.R
 
 // from https://medium.com/@kitek/recyclerview-swipe-to-delete-easier-than-you-thought-cff67ff5e5f6
-abstract class SwipeToDeleteCallback(context: Context, val backgroundColor: Int = Color.parseColor("#f44336")) :
+abstract class SwipeToDeleteCallback(
+    context: Context,
+    val backgroundColor: Int = Color.parseColor("#f44336")
+) :
     ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
     private val deleteIcon = ContextCompat.getDrawable(context, R.drawable.ic_delete_white)!!
@@ -18,7 +21,11 @@ abstract class SwipeToDeleteCallback(context: Context, val backgroundColor: Int 
     private val intrinsicHeight = deleteIcon.intrinsicHeight
     private val background = ColorDrawable()
 
-    override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean = false
+    override fun onMove(
+        recyclerView: RecyclerView,
+        viewHolder: RecyclerView.ViewHolder,
+        target: RecyclerView.ViewHolder
+    ): Boolean = false
 
     override fun onChildDraw(
         c: Canvas,
@@ -34,7 +41,12 @@ abstract class SwipeToDeleteCallback(context: Context, val backgroundColor: Int 
 
         // Draw the red delete background
         background.color = backgroundColor
-        background.setBounds(itemView.right + dX.toInt(), itemView.top, itemView.right, itemView.bottom)
+        background.setBounds(
+            itemView.right + dX.toInt(),
+            itemView.top,
+            itemView.right,
+            itemView.bottom
+        )
         background.draw(c)
 
         // Calculate position of delete icon

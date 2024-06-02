@@ -28,12 +28,16 @@ object PasswordGenerator {
      *
      * @return a randomly generated password
      */
-    fun generate(size: Int, useSpecialChars: Boolean, specialChars: String = allSpecialChars): String {
+    fun generate(
+        size: Int,
+        useSpecialChars: Boolean,
+        specialChars: String = allSpecialChars
+    ): String {
         var chars = normalChars;
         if (useSpecialChars) chars += specialChars
 
         return IntRange(0, size)
-                .map { chars[random.nextInt(chars.length)] }
-                .joinToString("")
+            .map { chars[random.nextInt(chars.length)] }
+            .joinToString("")
     }
 }

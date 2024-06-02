@@ -38,8 +38,10 @@ object JsonManager {
      * @throws IOException
      */
     @Throws(IOException::class)
-    fun serialize(data: Any, filepath: String,
-                  password: String, algo: String = "aes-128-cbc") {
+    fun serialize(
+        data: Any, filepath: String,
+        password: String, algo: String = "aes-128-cbc"
+    ) {
         serialize(data, FileOutputStream(filepath), password, algo)
     }// end serialize
 
@@ -55,16 +57,22 @@ object JsonManager {
      * @throws IOException
      */
     @Throws(IOException::class)
-    fun serialize(data: Any, outStream: OutputStream?,
-                  password: String, algo: String = "aes-128-cbc") {
+    fun serialize(
+        data: Any, outStream: OutputStream?,
+        password: String, algo: String = "aes-128-cbc"
+    ) {
 
         if (outStream == null) {
             throw IllegalStateException("The outputstream cannot be null !")
         }
 
         try {
-            outStream.write(OpenSSL.encrypt(algo, password.toCharArray(),
-                    gson.toJson(data).toByteArray(charset("UTF-8"))))
+            outStream.write(
+                OpenSSL.encrypt(
+                    algo, password.toCharArray(),
+                    gson.toJson(data).toByteArray(charset("UTF-8"))
+                )
+            )
             outStream.write("\r\n".toByteArray())
             outStream.write(System.getProperty("line.separator").toByteArray())
             outStream.flush()
@@ -93,8 +101,10 @@ object JsonManager {
      * @throws IOException
      */
     @Throws(WrongCredentialsException::class, IOException::class)
-    fun deserialize(filepath: String, password: String,
-                    type: Type, algo: String = "aes-128-cbc"): Any {
+    fun deserialize(
+        filepath: String, password: String,
+        type: Type, algo: String = "aes-128-cbc"
+    ): Any {
         return deserialize(FileInputStream(filepath), password, type, algo)
     }
 
@@ -114,16 +124,22 @@ object JsonManager {
      * @throws IOException
      */
     @Throws(WrongCredentialsException::class, IOException::class)
-    fun deserialize(stream: InputStream?, password: String,
-                    type: Type, algo: String = "aes-128-cbc"): Any {
+    fun deserialize(
+        stream: InputStream?, password: String,
+        type: Type, algo: String = "aes-128-cbc"
+    ): Any {
 
         if (stream == null || stream.available() == 0) {
             throw IllegalStateException("the stream is null or unavailable")
         }
         try {
 
-            val data = gson.fromJson<List<*>>(InputStreamReader(OpenSSL
-                    .decrypt(algo, password.toCharArray(), stream), "UTF-8"), type)
+            val data = gson.fromJson<List<*>>(
+                InputStreamReader(
+                    OpenSSL
+                        .decrypt(algo, password.toCharArray(), stream), "UTF-8"
+                ), type
+            )
             return data ?: throw WrongCredentialsException()
 
         } catch (e: JsonIOException) {

@@ -26,7 +26,8 @@ open class NetworkChangeListener : BroadcastReceiver() {
     private var isRegistered = false
 
     companion object {
-        private var INTENT_FILTER: IntentFilter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        private var INTENT_FILTER: IntentFilter =
+            IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
     }
 
     // ----------------------------------------------------

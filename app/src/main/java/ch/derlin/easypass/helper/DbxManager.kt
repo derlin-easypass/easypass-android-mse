@@ -68,7 +68,7 @@ object DbxManager {
 
     /** get the requestConfig necessary to start oauth authentication using 2PKCE */
     fun requestConfig(): DbxRequestConfig = DbxRequestConfig
-            .newBuilder(App.appContext.getString(R.string.dbx_request_config_name)).build()
+        .newBuilder(App.appContext.getString(R.string.dbx_request_config_name)).build()
 
     /** The Dropbox client */
     private val client: DbxClientV2 by lazy {
@@ -112,7 +112,8 @@ object DbxManager {
                 metadata = null // ensure to clear any past state
 
                 try {
-                    metadata = client.files().getMetadata(Preferences.remoteFilePath) as FileMetadata
+                    metadata =
+                        client.files().getMetadata(Preferences.remoteFilePath) as FileMetadata
                     metaFetched = true
                     isInSync = metadata?.rev.equals(Preferences.revision)
                     deferred.resolve(isInSync)
@@ -211,15 +212,17 @@ object DbxManager {
             // upload file to dropbox
             App.appContext.openFileInput(tempFile).use { `in` ->
                 metadata = client.files()
-                        .uploadBuilder(accounts.path)
-                        .withMode(WriteMode.OVERWRITE)
-                        .uploadAndFinish(`in`)
+                    .uploadBuilder(accounts.path)
+                    .withMode(WriteMode.OVERWRITE)
+                    .uploadAndFinish(`in`)
             }
 
             // make changes locally permanent
             // TODO
-            IOUtil.copyStreamToStream(App.appContext.openFileInput(tempFile),
-                    App.appContext.openFileOutput(localFileName, Context.MODE_PRIVATE))
+            IOUtil.copyStreamToStream(
+                App.appContext.openFileInput(tempFile),
+                App.appContext.openFileOutput(localFileName, Context.MODE_PRIVATE)
+            )
 
             Preferences.revision = metadata!!.rev
             deferred.resolve(true)
@@ -254,15 +257,22 @@ object DbxManager {
     // ----------------------------
 
     // fetch the accounts from Dropbox
-    private fun loadSession(password: String, deferred: nl.komponents.kovenant.Deferred<Boolean, Exception>) {
+    private fun loadSession(
+        password: String,
+        deferred: nl.komponents.kovenant.Deferred<Boolean, Exception>
+    ) {
 
         try {
             metadata = client.files()
-                    .download(metadata!!.pathDisplay)
-                    .download(App.appContext.openFileOutput(localFileName, Context.MODE_PRIVATE))
+                .download(metadata!!.pathDisplay)
+                .download(App.appContext.openFileOutput(localFileName, Context.MODE_PRIVATE))
 
             val isUpdate = _accounts != null
-            deserialize(App.appContext.openFileInput(localFileName), metadata?.pathDisplay, password)
+            deserialize(
+                App.appContext.openFileInput(localFileName),
+                metadata?.pathDisplay,
+                password
+            )
             Preferences.revision = metadata!!.rev
 
             if (isUpdate) {
@@ -285,15 +295,20 @@ object DbxManager {
 
     // read the accounts from the cached file
     private fun loadCachedFile(password: String) {
-        deserialize(App.appContext.openFileInput(localFileName), Preferences.remoteFilePath, password)
+        deserialize(
+            App.appContext.openFileInput(localFileName),
+            Preferences.remoteFilePath,
+            password
+        )
         Timber.d("loaded cached file: rev=%s", Preferences.revision)
     }
 
     // deserialize and decrypt a file. This will update the accounts variable
     private fun deserialize(fin: FileInputStream, pathName: String?, password: String) {
         val accountList = JsonManager.deserialize(fin, password,
-                object : TypeToken<SessionSerialisationType>() {
-                }.type) as SessionSerialisationType
+            object : TypeToken<SessionSerialisationType>() {
+            }.type
+        ) as SessionSerialisationType
 
         _accounts = Accounts(password, pathName ?: "??", accountList)
     }

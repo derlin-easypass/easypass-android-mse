@@ -9,7 +9,6 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
@@ -18,16 +17,14 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import ch.derlin.easypass.data.Account
 import ch.derlin.easypass.easypass.R
+import ch.derlin.easypass.easypass.databinding.AccountEditBinding
 import ch.derlin.easypass.helper.DbxManager
 import ch.derlin.easypass.helper.MiscUtils.colorizePassword
-import ch.derlin.easypass.helper.MiscUtils.hideKeyboard
 import ch.derlin.easypass.helper.MiscUtils.rootView
 import ch.derlin.easypass.helper.PasswordGenerator
 import ch.derlin.easypass.helper.Preferences
 import com.google.android.material.snackbar.Snackbar
 import com.shawnlin.numberpicker.NumberPicker
-import kotlinx.android.synthetic.main.account_edit.*
-import kotlinx.android.synthetic.main.activity_account_detail.*
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
 
@@ -45,6 +42,9 @@ import nl.komponents.kovenant.ui.successUi
 
 class AccountEditFragment : Fragment() {
 
+    private var _binding: AccountEditBinding? = null
+    private val binding get() = _binding!!
+
     /**
      * The dummy content this fragment is presenting.
      */
@@ -52,22 +52,41 @@ class AccountEditFragment : Fragment() {
     private var originalAccountIndex = -1
 
     private var working: Boolean
-        get() = progressBar.visibility == View.VISIBLE
+        get() = binding.progressBar.visibility == View.VISIBLE
         set(value) {
-            progressBar.visibility = if (value) View.VISIBLE else View.INVISIBLE
+            binding.progressBar.visibility = if (value) View.VISIBLE else View.INVISIBLE
         }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // do not recreate the menu when switching fragments,
+        // so the search state is kept in two panes mode
+        setHasOptionsMenu(false)
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        mItem = arguments?.getParcelable(AccountDetailActivity.BUNDLE_ACCOUNT_KEY, Account::class.java)
+        mItem =
+            arguments?.getParcelable(AccountDetailActivity.BUNDLE_ACCOUNT_KEY, Account::class.java)
         mItem?.name?.let { name ->
             originalAccountIndex = DbxManager.accounts.indexOfFirst { acc -> acc.name == name }
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-        inflater.inflate(R.layout.account_edit, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = AccountEditBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -79,31 +98,31 @@ class AccountEditFragment : Fragment() {
 
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
-            details_name.setText(mItem!!.name)
-            details_email.setText(mItem!!.email)
-            details_pseudo.setText(mItem!!.pseudo)
-            details_password.setText(mItem!!.password)
-            details_notes.setText(mItem!!.notes)
+            binding.detailsName.setText(mItem!!.name)
+            binding.detailsEmail.setText(mItem!!.email)
+            binding.detailsPseudo.setText(mItem!!.pseudo)
+            binding.detailsPassword.setText(mItem!!.password)
+            binding.detailsNotes.setText(mItem!!.notes)
         }
 
-        button_edit_save.isEnabled = mItem?.name?.isNotBlank() ?: false
+        binding.buttonEditSave.isEnabled = mItem?.name?.isNotBlank() ?: false
 
-        details_name.addTextChangedListener(object : TextWatcher {
+        binding.detailsName.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
             override fun afterTextChanged(p0: Editable?) {
                 val newName = p0?.toString() ?: ""
                 (activity as? AccountDetailActivity)?.fab?.isEnabled = newName.isNotBlank()
-                button_edit_save.isEnabled = newName.isNotBlank()
+                binding.buttonEditSave.isEnabled = newName.isNotBlank()
             }
         })
 
         // open generate password dialog
-        button_generate_password.setOnClickListener { generatePassword() }
+        binding.buttonGeneratePassword.setOnClickListener { generatePassword() }
 
         // save and cancel buttons
-        button_edit_save.setOnClickListener { saveAccount() }
-        button_edit_cancel.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
+        binding.buttonEditSave.setOnClickListener { saveAccount() }
+        binding.buttonEditCancel.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
 
         theActivity?.fab?.setImageResource(R.drawable.ic_save)
         theActivity?.fab?.setOnClickListener { _ ->
@@ -116,16 +135,22 @@ class AccountEditFragment : Fragment() {
 
     private fun generatePassword() {
 
-        val dialogView = requireActivity().layoutInflater.inflate(R.layout.dialog_generate_password, null)
+        val dialogView =
+            requireActivity().layoutInflater.inflate(R.layout.dialog_generate_password, null)
 
         val resultText = dialogView.findViewById<EditText>(R.id.generate_password_result)
         val sizePicker = dialogView.findViewById<NumberPicker>(R.id.number_picker)
-        val specialCharsToggle = dialogView.findViewById<CheckBox>(R.id.generate_password_special_chars)
+        val specialCharsToggle =
+            dialogView.findViewById<CheckBox>(R.id.generate_password_special_chars)
 
         // generate action
         dialogView.findViewById<Button>(R.id.generate_password_button).run {
             setOnClickListener {
-                PasswordGenerator.generate(sizePicker.value, specialCharsToggle.isChecked, Preferences.specialChars).let {
+                PasswordGenerator.generate(
+                    sizePicker.value,
+                    specialCharsToggle.isChecked,
+                    Preferences.specialChars
+                ).let {
                     resultText.setText(it.colorizePassword())
                 }
             }
@@ -136,7 +161,7 @@ class AccountEditFragment : Fragment() {
             .setView(dialogView)
             .setTitle("Generate a password")
             .setPositiveButton("Use") { _, _ ->
-                details_password.setText(resultText.text.toString())
+                binding.detailsPassword.setText(resultText.text.toString())
             }
             .setNegativeButton("Cancel") { _, _ -> }
             .create()
@@ -170,7 +195,11 @@ class AccountEditFragment : Fragment() {
             }
             // ensure it is not just a change of letter casing
             if (idx >= 0 && idx != originalAccountIndex) {
-                Toast.makeText(activity, "an account with this name already exists", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    activity,
+                    "an account with this name already exists",
+                    Toast.LENGTH_LONG
+                ).show()
                 return
             }
         }
@@ -214,11 +243,11 @@ class AccountEditFragment : Fragment() {
 
     private fun getAccount(): Account =
         (mItem ?: Account()).copy(
-            name = details_name.text.toString(),
-            pseudo = details_pseudo.text.toString(),
-            email = details_email.text.toString(),
-            password = details_password.text.toString(),
-            notes = details_notes.text.toString(),
+            name = binding.detailsName.text.toString(),
+            pseudo = binding.detailsPseudo.text.toString(),
+            email = binding.detailsEmail.text.toString(),
+            password = binding.detailsPassword.text.toString(),
+            notes = binding.detailsNotes.text.toString(),
             modificationDate = Account.now
         )
 

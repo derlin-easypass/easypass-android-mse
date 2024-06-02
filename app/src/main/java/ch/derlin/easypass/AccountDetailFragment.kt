@@ -9,12 +9,11 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import ch.derlin.easypass.data.Account
 import ch.derlin.easypass.easypass.R
+import ch.derlin.easypass.easypass.databinding.AccountDetailBinding
 import ch.derlin.easypass.helper.MiscUtils.colorizePassword
 import ch.derlin.easypass.helper.MiscUtils.copyToClipBoard
 import ch.derlin.easypass.helper.MiscUtils.rootView
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.account_detail.*
-import kotlinx.android.synthetic.main.activity_account_detail.*
 
 /**
  * A fragment representing a single Account detail screen.
@@ -28,6 +27,9 @@ import kotlinx.android.synthetic.main.activity_account_detail.*
  */
 class AccountDetailFragment : Fragment() {
 
+    private var _binding: AccountDetailBinding? = null
+    private val binding get() = _binding!!
+
     /**
      * The dummy content this fragment is presenting.
      */
@@ -37,27 +39,46 @@ class AccountDetailFragment : Fragment() {
     private lateinit var password: String
     private lateinit var hiddenPassword: String
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-        inflater.inflate(R.layout.account_detail, container, false)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // do not recreate the menu when switching fragments,
+        // so the search state is kept in two panes mode
+        setHasOptionsMenu(false)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = AccountDetailBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         // Load the dummy content specified by the fragment
         // arguments. In a real-world scenario, use a Loader
         // to load content from a content provider.
-        mItem = arguments?.getParcelable(AccountDetailActivity.BUNDLE_ACCOUNT_KEY, Account::class.java)
+        mItem =
+            arguments?.getParcelable(AccountDetailActivity.BUNDLE_ACCOUNT_KEY, Account::class.java)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // Show the dummy content as text in a TextView.
         mItem?.run {
-            details_name.text = name
-            details_email.text = email
-            details_pseudo.text = pseudo
-            details_notes.text = notes
-            details_created_date.text = creationDate
-            details_modified_date.text = modificationDate
+            binding.detailsName.text = name
+            binding.detailsEmail.text = email
+            binding.detailsPseudo.text = pseudo
+            binding.detailsNotes.text = notes
+            binding.detailsCreatedDate.text = creationDate
+            binding.detailsModifiedDate.text = modificationDate
 
             // handle password
             this@AccountDetailFragment.password = password
@@ -67,8 +88,8 @@ class AccountDetailFragment : Fragment() {
             togglePassword()
 
             // register listener on the show password checkbox
-            details_show_password.setOnClickListener { togglePassword() }
-            details_copy_password.setOnClickListener {
+            binding.detailsShowPassword.setOnClickListener { togglePassword() }
+            binding.detailsCopyPassword.setOnClickListener {
                 val activity = requireActivity()
                 activity.copyToClipBoard(password)
                 Snackbar.make(
@@ -84,23 +105,27 @@ class AccountDetailFragment : Fragment() {
             // set the title
             theActivity.updateTitle(mItem?.name ?: "Details")
             // handle the fab icon + action
-            theActivity.fab?.setImageResource(R.drawable.ic_mode_edit)
-            theActivity.fab?.setOnClickListener { theActivity.editAccount() }
+            theActivity.fab.setImageResource(R.drawable.ic_mode_edit)
+            theActivity.fab.setOnClickListener { theActivity.editAccount() }
 
         } else {
             // show the edit button
-            button_container.visibility = View.VISIBLE
-            button_edit.setOnClickListener {
-                (activity as? AccountListActivity)?.openDetailActivity(mItem!!, AccountDetailActivity.OPERATION_EDIT)
+            binding.buttonContainer.visibility = View.VISIBLE
+            binding.buttonEdit.setOnClickListener {
+                (activity as? AccountListActivity)?.openDetailActivity(
+                    mItem!!,
+                    AccountDetailActivity.OPERATION_EDIT
+                )
             }
         }
     }
 
     private fun togglePassword() {
         isPasswordShowed = !isPasswordShowed
-        details_password.text = if (isPasswordShowed) mItem!!.password.colorizePassword() else hiddenPassword
+        binding.detailsPassword.text =
+            if (isPasswordShowed) mItem!!.password.colorizePassword() else hiddenPassword
 
-        details_show_password.background = AppCompatResources.getDrawable(
+        binding.detailsShowPassword.background = AppCompatResources.getDrawable(
             requireContext(),
             if (isPasswordShowed) R.drawable.ic_visibility_on
             else R.drawable.ic_visibility_off

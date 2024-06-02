@@ -34,7 +34,9 @@ object MiscUtils {
     fun Activity.copyToClipBoard(text: String?): Boolean {
         if (text == null) return false
         ClipData.newPlainText("easypass", text).let { clipData ->
-            (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(clipData)
+            (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(
+                clipData
+            )
         }
         return true
     }
@@ -57,7 +59,12 @@ object MiscUtils {
             this.withIndex().forEach {
                 if (it.value.isDigit() || !it.value.isLetter()) {
                     val color = if (it.value.isDigit()) digitsColor else symbolsColor
-                    ssb.setSpan(ForegroundColorSpan(color), it.index, it.index + 1, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+                    ssb.setSpan(
+                        ForegroundColorSpan(color),
+                        it.index,
+                        it.index + 1,
+                        Spannable.SPAN_INCLUSIVE_INCLUSIVE
+                    )
                 }
             }
         }

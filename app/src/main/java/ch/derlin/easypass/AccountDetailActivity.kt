@@ -9,9 +9,10 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import ch.derlin.easypass.data.Account
 import ch.derlin.easypass.easypass.R
+import ch.derlin.easypass.easypass.databinding.ActivityAccountDetailBinding
 import ch.derlin.easypass.helper.NetworkStatus
 import ch.derlin.easypass.helper.SecureActivity
-import kotlinx.android.synthetic.main.activity_account_detail.*
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
 /**
@@ -22,6 +23,9 @@ import kotlinx.android.synthetic.main.activity_account_detail.*
  */
 class AccountDetailActivity : SecureActivity() {
 
+    private lateinit var binding: ActivityAccountDetailBinding
+    val fab: FloatingActionButton get() = binding.fab
+
     private var selectedAccount: Account? = null
     private var selectedOperation: String? = null
     private var shouldGoBackToEditView = false
@@ -29,10 +33,11 @@ class AccountDetailActivity : SecureActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_account_detail)
-        setSupportActionBar(toolbar)
+        binding = ActivityAccountDetailBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
 
-        fab.setOnClickListener { editAccount() }
+        binding.fab.setOnClickListener { editAccount() }
 
         // Show the Up button in the action bar.
         val actionBar = supportActionBar
@@ -47,7 +52,7 @@ class AccountDetailActivity : SecureActivity() {
             }
         }
 
-        app_bar.setExpanded(selectedOperation == OPERATION_SHOW, false)
+        binding.appBar.setExpanded(selectedOperation == OPERATION_SHOW, false)
         if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction only the first time
@@ -61,14 +66,14 @@ class AccountDetailActivity : SecureActivity() {
     }
 
     fun updateTitle(title: String) {
-        toolbarLayout.title = title
+        binding.toolbarLayout.title = title
     }
 
     fun editAccount(): Boolean {
         return if (NetworkStatus.isInternetAvailable()) {
             switchFragment(AccountEditFragment())
             shouldGoBackToEditView = true
-            app_bar.setExpanded(false, true)
+            binding.appBar.setExpanded(false, true)
             true
         } else {
             Toast.makeText(this, "no internet connection available.", Toast.LENGTH_SHORT).show()
@@ -108,7 +113,7 @@ class AccountDetailActivity : SecureActivity() {
 
     private fun backToDetailsView() {
         switchFragment(AccountDetailFragment())
-        app_bar.setExpanded(true, true)
+        binding.appBar.setExpanded(true, true)
         shouldGoBackToEditView = false
     }
 

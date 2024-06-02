@@ -20,18 +20,19 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import ch.derlin.easypass.data.JsonManager
 import ch.derlin.easypass.easypass.R
+import ch.derlin.easypass.easypass.databinding.ActivityLoadSessionBinding
+import ch.derlin.easypass.easypass.databinding.FragmentEnterPasswordBinding
+import ch.derlin.easypass.easypass.databinding.FragmentLoadSessionMetaBinding
 import ch.derlin.easypass.helper.CachedCredentials
 import ch.derlin.easypass.helper.DbxManager
 import ch.derlin.easypass.helper.Preferences
 import ch.derlin.easypass.helper.SelectFileDialog.createSelectFileDialog
-import kotlinx.android.synthetic.main.activity_load_session.*
-import kotlinx.android.synthetic.main.fragment_enter_password.*
-import kotlinx.android.synthetic.main.fragment_load_session_meta.*
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
 
 class LoadSessionActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityLoadSessionBinding
     private var mCurrentFragment: Fragment? = null
 
     // ----------------------------------------- Service callbacks
@@ -58,8 +59,9 @@ class LoadSessionActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_load_session)
-        setSupportActionBar(toolbar)
+        binding = ActivityLoadSessionBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
         initWorkflow()
     }
 
@@ -82,23 +84,34 @@ class LoadSessionActivity : AppCompatActivity() {
     // ----------------------------------------- Metadata fetching Fragment
 
     class ProgressFragment : Fragment() {
-        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-            super.onCreateView(inflater, container, savedInstanceState)
-            //(activity as AppCompatActivity).supportActionBar?.hide()
-            return inflater.inflate(R.layout.fragment_load_session_meta, container, false)
+        private var _binding: FragmentLoadSessionMetaBinding? = null
+        private val binding get() = _binding!!
+
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View? {
+            _binding = FragmentLoadSessionMetaBinding.inflate(inflater, container, false)
+            return binding.root
+        }
+
+        override fun onDestroyView() {
+            super.onDestroyView()
+            _binding = null
         }
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-            loadLocalButton.setOnClickListener { next() }
-            retryButton.setOnClickListener { fetchMeta() }
+            binding.loadLocalButton.setOnClickListener { next() }
+            binding.retryButton.setOnClickListener { fetchMeta() }
 
             fetchMeta()
         }
 
         private fun fetchMeta() {
-            errorLayout.visibility = View.GONE
-            loadingLayout.visibility = View.VISIBLE
+            binding.errorLayout.visibility = View.GONE
+            binding.loadingLayout.visibility = View.VISIBLE
             DbxManager.fetchRemoteFileInfo().successUi {
                 next()
             } failUi {
@@ -108,11 +121,12 @@ class LoadSessionActivity : AppCompatActivity() {
         }
 
         private fun showError(e: Exception) {
-            errorText.text = e.message
-            loadLocalButton.visibility = if (DbxManager.localFileExists) View.VISIBLE else View.GONE
+            binding.errorText.text = e.message
+            binding.loadLocalButton.visibility =
+                if (DbxManager.localFileExists) View.VISIBLE else View.GONE
 
-            loadingLayout.visibility = View.GONE
-            errorLayout.visibility = View.VISIBLE
+            binding.loadingLayout.visibility = View.GONE
+            binding.errorLayout.visibility = View.VISIBLE
         }
 
         fun next() {
@@ -124,24 +138,34 @@ class LoadSessionActivity : AppCompatActivity() {
 
     // inspired from https://github.com/Zlate87/android-fingerprint-example
     class PasswordFragment : Fragment() {
+        private var _binding: FragmentEnterPasswordBinding? = null
+        private val binding get() = _binding!!
         private var mPassword: String? = null
 
         private var working: Boolean
-            get() = progressBar.visibility == View.VISIBLE
+            get() = binding.progressBar.visibility == View.VISIBLE
             set(value) = if (value) {
                 // show progressbar and disable the button
-                progressBar.visibility = View.VISIBLE
-                loginButton.isEnabled = false
+                binding.progressBar.visibility = View.VISIBLE
+                binding.loginButton.isEnabled = false
             } else {
-                progressBar.visibility = View.INVISIBLE
-                loginButton.isEnabled = true
+                binding.progressBar.visibility = View.INVISIBLE
+                binding.loginButton.isEnabled = true
             }
 
 
-        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-            super.onCreateView(inflater, container, savedInstanceState)
-            //(activity as AppCompatActivity).supportActionBar?.show()
-            return inflater.inflate(R.layout.fragment_enter_password, container, false)
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View? {
+            _binding = FragmentEnterPasswordBinding.inflate(inflater, container, false)
+            return binding.root
+        }
+
+        override fun onDestroyView() {
+            super.onDestroyView()
+            _binding = null
         }
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -149,25 +173,27 @@ class LoadSessionActivity : AppCompatActivity() {
 
             // setup auth
             // cf https://developer.android.com/training/articles/keystore.html
-            val keyguardManager = requireActivity().getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+            val keyguardManager =
+                requireActivity().getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
             if (!keyguardManager.isKeyguardSecure) {
                 // no way to save the password if the device doesn't have a pin
-                rememberMeCheckbox.isEnabled = false
-                rememberMeCheckbox.text = "Caching disabled.\nYour device is not secure."
+                binding.rememberMeCheckbox.isEnabled = false
+                binding.rememberMeCheckbox.text = "Caching disabled.\nYour device is not secure."
             }
 
             // show text in case it is the first time
             if (DbxManager.isNewSession) {
-                rememberMeCheckbox.visibility = View.GONE // don't cache pass the first time
-                rememberMeCheckbox.text = ""
-                newSessionText.visibility = View.VISIBLE
-                newSessionText.text = Html.fromHtml(getString(R.string.header_new_session), FROM_HTML_MODE_LEGACY)
+                binding.rememberMeCheckbox.visibility = View.GONE // don't cache pass the first time
+                binding.rememberMeCheckbox.text = ""
+                binding.newSessionText.visibility = View.VISIBLE
+                binding.newSessionText.text =
+                    Html.fromHtml(getString(R.string.header_new_session), FROM_HTML_MODE_LEGACY)
             }
 
             // register btn callback
-            loginButton.setOnClickListener {
-                mPassword = passwordField.text.toString()
-                if (rememberMeCheckbox.isChecked) {
+            binding.loginButton.setOnClickListener {
+                mPassword = binding.passwordField.text.toString()
+                if (binding.rememberMeCheckbox.isChecked) {
                     Preferences.cachedPassword = null
                     savePasswordAndDecrypt()
                 } else {
@@ -176,9 +202,10 @@ class LoadSessionActivity : AppCompatActivity() {
             }
 
             // toggle button to avoid empty passwords
-            passwordField.addTextChangedListener(object : TextWatcher {
+            binding.passwordField.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(p0: Editable?) {
-                    loginButton.isEnabled = (passwordField.text ?: "").length >= MIN_PASSWORD_LENGTH
+                    binding.loginButton.isEnabled =
+                        (binding.passwordField.text ?: "").length >= MIN_PASSWORD_LENGTH
                 }
 
                 override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -194,8 +221,8 @@ class LoadSessionActivity : AppCompatActivity() {
             }
 
             // show session name
-            sessionName.text = "session: ${Preferences.remoteFilePathDisplay}"
-            changeSessionBtn.setOnClickListener {
+            binding.sessionName.text = "session: ${Preferences.remoteFilePathDisplay}"
+            binding.changeSessionBtn.setOnClickListener {
                 requireActivity().createSelectFileDialog {
                     (activity as LoadSessionActivity).initWorkflow()
                 }.show()
@@ -216,7 +243,11 @@ class LoadSessionActivity : AppCompatActivity() {
                     if (resultCode == Activity.RESULT_OK) {
                         getPasswordsFromFingerprint()
                     } else {
-                        Toast.makeText(activity, "Confirming credentials failed", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            activity,
+                            "Confirming credentials failed",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         working = false
                     }
                 }
@@ -235,7 +266,8 @@ class LoadSessionActivity : AppCompatActivity() {
                     CachedCredentials.clearPassword()
                     Toast.makeText(activity, "Wrong credentials", Toast.LENGTH_LONG).show()
                 } else {
-                    Toast.makeText(activity, "An error occurred: " + ex.message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(activity, "An error occurred: " + ex.message, Toast.LENGTH_LONG)
+                        .show()
                 }
             }
         }
@@ -254,7 +286,7 @@ class LoadSessionActivity : AppCompatActivity() {
             try {
                 working = true
                 mPassword = CachedCredentials.getPassword()
-                passwordField.setText(mPassword)
+                binding.passwordField.setText(mPassword)
                 decryptSession()
             } catch (e: UserNotAuthenticatedException) {
                 showAuthenticationScreen(LOGIN_WITH_CREDENTIALS_REQUEST_CODE)

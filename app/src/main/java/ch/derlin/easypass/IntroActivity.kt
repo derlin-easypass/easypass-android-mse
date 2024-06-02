@@ -17,35 +17,35 @@ class IntroActivity : AppIntro() {
         super.onCreate(savedInstanceState)
 
         addSlide(
-                "Welcome!",
-                "One safe vault for all your credentials, anywhere, anytime.",
-                attrColor(R.attr.colorPrimary),
-                R.drawable.splashscreen
+            "Welcome!",
+            "One safe vault for all your credentials, anywhere, anytime.",
+            attrColor(R.attr.colorPrimary),
+            R.drawable.splashscreen
         )
         addSlide(
-                "Synchronization",
-                "Store your credentials in Dropbox for automatic backup, history and synchronization on all your devices.",
-                Color.parseColor("#0093D8"),
-                R.drawable.ic_dropbox
+            "Synchronization",
+            "Store your credentials in Dropbox for automatic backup, history and synchronization on all your devices.",
+            Color.parseColor("#0093D8"),
+            R.drawable.ic_dropbox
         )
         addSlide(
-                "Security",
-                "Everything is encrypted using AES-CBC-128 for high security. Passwords are cached using your fingerprints for quick access.",
-                Color.parseColor("#EA4865"),
-                R.drawable.ic_fingerprint
+            "Security",
+            "Everything is encrypted using AES-CBC-128 for high security. Passwords are cached using your fingerprints for quick access.",
+            Color.parseColor("#EA4865"),
+            R.drawable.ic_fingerprint
         )
         addSlide(
-                "Integration",
-                "Whatever happens, you can always use OpenSSL or another tool from the EasyPass suit" +
-                        "to get your credentials back!",
-                Color.parseColor("#F18805"),
-                R.drawable.puzzle
+            "Integration",
+            "Whatever happens, you can always use OpenSSL or another tool from the EasyPass suit" +
+                    "to get your credentials back!",
+            Color.parseColor("#F18805"),
+            R.drawable.puzzle
         )
         addSlide(
-                "Let's do it!",
-                "Start enjoying EasyPass now.",
-                attrColor(R.attr.colorPrimary),
-                R.drawable.splashscreen
+            "Let's do it!",
+            "Start enjoying EasyPass now.",
+            attrColor(R.attr.colorPrimary),
+            R.drawable.splashscreen
         )
 
         setNavBarColor(R.color.blacky)
@@ -53,7 +53,13 @@ class IntroActivity : AppIntro() {
 
     }
 
-    private fun addSlide(title: String, description: String, color: Int, drawable: Int, fgColor: Int = -1) {
+    private fun addSlide(
+        title: String,
+        description: String,
+        color: Int,
+        drawable: Int,
+        fgColor: Int = -1
+    ) {
         val fg = if (fgColor == -1) getColor(R.color.whity) else fgColor
 
         SliderPage().let { sliderPage ->

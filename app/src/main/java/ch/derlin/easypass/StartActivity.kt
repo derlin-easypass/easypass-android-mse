@@ -6,13 +6,13 @@ import androidx.appcompat.app.AppCompatActivity
 import ch.derlin.changelog.Changelog
 import ch.derlin.changelog.Changelog.getAppVersion
 import ch.derlin.easypass.easypass.R
+import ch.derlin.easypass.easypass.databinding.ActivityStartBinding
 import ch.derlin.easypass.helper.DbxManager
 import ch.derlin.easypass.helper.MiscUtils.rootView
 import ch.derlin.easypass.helper.MiscUtils.showIntro
 import ch.derlin.easypass.helper.Preferences
 import com.dropbox.core.android.Auth
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.activity_start.*
 import timber.log.Timber
 
 /**
@@ -24,6 +24,7 @@ import timber.log.Timber
  */
 class StartActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityStartBinding
     private var isAuthenticating = false
 
     // ----------------------------------------------------
@@ -31,8 +32,9 @@ class StartActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_start)
-        setSupportActionBar(toolbar)
+        binding = ActivityStartBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
 
         if (!Preferences.introDone) {
             Preferences.introDone = true
@@ -82,7 +84,11 @@ class StartActivity : AppCompatActivity() {
             isAuthenticating = false
             startApp()
         } else {
-            Snackbar.make(rootView(), "Error authenticating with Dropbox", Snackbar.LENGTH_INDEFINITE)
+            Snackbar.make(
+                rootView(),
+                "Error authenticating with Dropbox",
+                Snackbar.LENGTH_INDEFINITE
+            )
                 .setAction("retry") { forceRestart() }
                 .show()
             Timber.d("Error authenticating")
@@ -121,7 +127,8 @@ class StartActivity : AppCompatActivity() {
 
     private fun forceRestart() {
         val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
-        launchIntent!!.flags = Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS or Intent.FLAG_ACTIVITY_NEW_TASK
+        launchIntent!!.flags =
+            Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(launchIntent)
     }
 }

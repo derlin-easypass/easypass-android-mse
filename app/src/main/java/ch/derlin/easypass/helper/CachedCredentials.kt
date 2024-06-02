@@ -79,8 +79,9 @@ object CachedCredentials {
 
             // save both password and IV
             Preferences.cachedPassword = "%s,%s".format(
-                    Base64.encodeToString(cipher.iv, Base64.DEFAULT),
-                    Base64.encodeToString(encryptedPassword, Base64.DEFAULT))
+                Base64.encodeToString(cipher.iv, Base64.DEFAULT),
+                Base64.encodeToString(encryptedPassword, Base64.DEFAULT)
+            )
 
         } catch (e: Exception) {
             Timber.d(e)
@@ -92,6 +93,7 @@ object CachedCredentials {
                     deleteKey()
                     savePassword(password) // try again, it should create the key this time
                 }
+
                 else -> throw RuntimeException(e)
             }
         }
@@ -115,7 +117,11 @@ object CachedCredentials {
      * new lock screen -> ask for password again) or no security (-> can't store password anymore)
      * @throws RuntimeException for any other exception
      */
-    @Throws(UserNotAuthenticatedException::class, KeyPermanentlyInvalidatedException::class, RuntimeException::class)
+    @Throws(
+        UserNotAuthenticatedException::class,
+        KeyPermanentlyInvalidatedException::class,
+        RuntimeException::class
+    )
     fun getPassword(): String {
         try {
             val base64Content = Preferences.cachedPassword ?: throw Exception("No password cached.")
@@ -163,7 +169,12 @@ object CachedCredentials {
      * @param title the title in the authentication screen
      * @param description the description in the authentication screen
      */
-    fun getAuthenticationIntent(ctx: Context, requestCode: Int, title: String? = null, description: String? = null): Intent? {
+    fun getAuthenticationIntent(
+        ctx: Context,
+        requestCode: Int,
+        title: String? = null,
+        description: String? = null
+    ): Intent? {
         val keyguardManager = ctx.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         return keyguardManager.createConfirmDeviceCredentialIntent(null, null)
     }
@@ -191,14 +202,19 @@ object CachedCredentials {
     // create a new key. Should be called only once, hence the [Preferences.keysoreInitialised] flag.
     private fun createKey(): SecretKey {
         try {
-            val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, keystoreName)
-            keyGenerator.init(KeyGenParameterSpec.Builder(keyName,
-                    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+            val keyGenerator =
+                KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, keystoreName)
+            keyGenerator.init(
+                KeyGenParameterSpec.Builder(
+                    keyName,
+                    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+                )
                     .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
                     .setUserAuthenticationRequired(true)
                     .setUserAuthenticationValidityDurationSeconds(authenticationValiditySeconds)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
-                    .build())
+                    .build()
+            )
             Preferences.keystoreInitialised = true
             Timber.d("key created.")
             return keyGenerator.generateKey()

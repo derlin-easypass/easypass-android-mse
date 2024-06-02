@@ -146,7 +146,7 @@
 
         <LinearLayout
             android:id="@+id/button_container"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_columnSpan="2"
             android:layout_gravity="end"
@@ -160,7 +160,7 @@
             <Button
                 android:id="@+id/button_edit"
                 style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:text="Edit"

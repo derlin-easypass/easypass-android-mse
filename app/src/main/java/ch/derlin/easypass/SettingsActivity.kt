@@ -8,12 +8,17 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import ch.derlin.changelog.Changelog
 import ch.derlin.easypass.easypass.R
+import ch.derlin.easypass.easypass.databinding.ActivitySettingsBinding
 import ch.derlin.easypass.helper.CachedCredentials
 import ch.derlin.easypass.helper.DbxManager
 import ch.derlin.easypass.helper.MiscUtils.rootView
@@ -23,13 +28,14 @@ import ch.derlin.easypass.helper.Preferences
 import ch.derlin.easypass.helper.SelectFileDialog.createSelectFileDialog
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
-import kotlinx.android.synthetic.main.activity_settings.*
 import nl.komponents.kovenant.ui.alwaysUi
 import nl.komponents.kovenant.ui.failUi
 import nl.komponents.kovenant.ui.successUi
 
 // TODO: check connectivity to avoid errors (changing mdp for example...)
 class SettingsActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivitySettingsBinding
 
     class Setting(
         val title: String,
@@ -78,20 +84,22 @@ class SettingsActivity : AppCompatActivity() {
             confirm = "Really clear all cached data ?"
         ),
         Setting("Other", isHeader = true),
-        Setting("Intro",
+        Setting(
+            "Intro",
             "Show the introductory slides.",
             { showIntro() }, R.drawable.ic_info_outline
         ),
-        Setting("Changelog",
+        Setting(
+            "Changelog",
             "Show the complete changelog.",
             { showChangelog() }, R.drawable.ic_info_outline
         )
     )
 
     private var working: Boolean
-        get() = progressBar.visibility == View.VISIBLE
+        get() = binding.progressBar.visibility == View.VISIBLE
         set(value) {
-            progressBar.visibility = if (value) View.VISIBLE else View.INVISIBLE
+            binding.progressBar.visibility = if (value) View.VISIBLE else View.INVISIBLE
         }
 
 
@@ -99,16 +107,19 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings)
-        setSupportActionBar(toolbar)
+        binding = ActivitySettingsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        recyclerView.adapter = SettingsAdapter(this, settings)
+        binding.recyclerView.adapter = SettingsAdapter(this, settings)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         android.R.id.home -> {
             onBackPressedDispatcher.onBackPressed(); true
         }
+
         else -> super.onOptionsItemSelected(item)
     }
 
@@ -226,7 +237,8 @@ class SettingsActivity : AppCompatActivity() {
 
 // ----------------------------------------- inner class
 
-    class SettingsAdapter(val context: Context, val settings: List<Setting>) : RecyclerView.Adapter<SettingsAdapter.ViewHolder>() {
+    class SettingsAdapter(val context: Context, val settings: List<Setting>) :
+        RecyclerView.Adapter<SettingsAdapter.ViewHolder>() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item: Setting = settings[position]

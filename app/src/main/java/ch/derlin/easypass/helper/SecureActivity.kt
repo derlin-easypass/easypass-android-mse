@@ -74,8 +74,10 @@ abstract class SecureActivity : AppCompatActivity() {
 
     /** Set the window flags to secure */
     private fun makeSecure() {
-        window.setFlags(WindowManager.LayoutParams.FLAG_SECURE,
-                WindowManager.LayoutParams.FLAG_SECURE);
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE
+        );
     }
 
     companion object {
