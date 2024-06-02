@@ -98,18 +98,6 @@ class AccountEditFragment : Fragment() {
             }
         })
 
-        // see https://stackoverflow.com/a/39770984/2667536
-        details_notes.setHorizontallyScrolling(false)
-        details_notes.maxLines = 5
-        details_notes.setOnEditorActionListener { textView, actionId, keyEvent ->
-            if (actionId == EditorInfo.IME_ACTION_GO) {
-                requireActivity().hideKeyboard()
-                true
-            } else {
-                false
-            }
-        }
-
         // open generate password dialog
         button_generate_password.setOnClickListener { generatePassword() }
 
