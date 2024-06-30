@@ -16,6 +16,8 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import ch.derlin.easypass.AccountDetailActivity.Companion.OPERATION_EDIT
+import ch.derlin.easypass.AccountDetailActivity.Companion.OPERATION_SHOW
 import ch.derlin.easypass.data.Account
 import ch.derlin.easypass.easypass.R
 import ch.derlin.easypass.easypass.databinding.ActivityAccountListBinding
@@ -58,6 +60,7 @@ class AccountListActivity : SecureActivity() {
     private var mTwoPane: Boolean = false
     private var mTwoPaneCurrentFragment: Fragment? = null
     private var mTwoPaneSearch: String? = null
+    private lateinit var mTwoPaneBackToDetail: OnBackPressedCallback
 
     lateinit var mAdapter: AccountAdapter
     private lateinit var searchView: SearchView
@@ -114,18 +117,18 @@ class AccountListActivity : SecureActivity() {
             mTwoPane = true
         }
 
-        registerOnBackPressed()
+        if (mTwoPane) registerOnBackPressed()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == DETAIL_ACTIVITY_REQUEST_CODE) {
             if (data?.getBooleanExtra(AccountDetailActivity.RETURN_MODIFIED, false) == true) {
                 // update the list in case of modification
-                selectedAccount = data.getParcelableExtra(
+                val account = data.getParcelableExtra(
                     AccountDetailActivity.BUNDLE_ACCOUNT_KEY,
                     Account::class.java
                 )
-                notifyAccountUpdate(selectedAccount!!)
+                notifyAccountUpdate(requireNotNull(account))
             }
         } else if (requestCode == SETTINGS_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK
@@ -156,20 +159,21 @@ class AccountListActivity : SecureActivity() {
     }
 
     private fun registerOnBackPressed() {
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+        check(mTwoPane) {
+            "Custom onBackPressed is only necessary in mTwoPane mode"
+        }
+        mTwoPaneBackToDetail = object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
-                if (mTwoPane && mTwoPaneCurrentFragment is AccountEditFragment) {
-                    if (selectedAccount != null) {
-                        openDetailActivity(selectedAccount!!, AccountDetailActivity.OPERATION_SHOW)
-                    } else {
-                        supportFragmentManager.beginTransaction()
-                            .remove(mTwoPaneCurrentFragment as AccountEditFragment).commit()
-                    }
+                mTwoPaneBackToDetail.isEnabled = false
+                if (selectedAccount != null) {
+                    openDetailActivity(selectedAccount!!, OPERATION_SHOW)
                 } else {
-                    onBackPressedDispatcher.onBackPressed()
+                    supportFragmentManager.beginTransaction()
+                        .remove(mTwoPaneCurrentFragment as AccountEditFragment).commit()
                 }
             }
-        })
+        }
+        onBackPressedDispatcher.addCallback(this, mTwoPaneBackToDetail)
     }
 
 
@@ -237,14 +241,7 @@ class AccountListActivity : SecureActivity() {
 
 
     private fun showBottomSheet(item: Account) {
-
         selectedAccount = item
-
-        if (mTwoPane) {
-            hideKeyboard()
-            openDetailActivity(selectedAccount!!, AccountDetailActivity.OPERATION_SHOW)
-            return
-        }
         if (searchView.hasFocus()) searchView.clearFocus()
 
         bottomSheetDialog = BottomSheetDialog(this).also { sheet ->
@@ -287,7 +284,7 @@ class AccountListActivity : SecureActivity() {
 
             R.id.view_details_btn -> {
                 bottomSheetDialog!!.dismiss()
-                openDetailActivity(selectedAccount!!, AccountDetailActivity.OPERATION_SHOW)
+                openDetailActivity(selectedAccount!!, OPERATION_SHOW)
             }
 
             R.id.view_password_btn -> {
@@ -297,7 +294,7 @@ class AccountListActivity : SecureActivity() {
 
             R.id.view_edit_btn -> {
                 bottomSheetDialog!!.dismiss()
-                openDetailActivity(selectedAccount!!, AccountDetailActivity.OPERATION_EDIT)
+                openDetailActivity(selectedAccount!!, OPERATION_EDIT)
             }
 
             else -> Toast.makeText(this, "something clicked", Toast.LENGTH_SHORT).show()
@@ -334,9 +331,12 @@ class AccountListActivity : SecureActivity() {
 
     fun openDetailActivity(item: Account?, operation: String): Boolean {
         if (mTwoPane) {
+            hideKeyboard()
             val arguments = Bundle()
+            selectedAccount = item
+            mTwoPaneBackToDetail.isEnabled = (operation != OPERATION_SHOW)
             arguments.putParcelable(AccountDetailActivity.BUNDLE_ACCOUNT_KEY, item)
-            (if (operation == AccountDetailActivity.OPERATION_SHOW) AccountDetailFragment() else AccountEditFragment()).let { fragment ->
+            (if (operation == OPERATION_SHOW) AccountDetailFragment() else AccountEditFragment()).let { fragment ->
                 fragment.arguments = arguments
                 mTwoPaneCurrentFragment = fragment
                 supportFragmentManager.beginTransaction()
@@ -354,12 +354,14 @@ class AccountListActivity : SecureActivity() {
     }
 
     fun notifyAccountUpdate(item: Account) {
-        selectedAccount?.let { mAdapter.replace(it, item) }
+        mAdapter.resetAndNotify()
         selectedAccount = item
         val idx = mAdapter.positionOf(item)
         if (idx >= 0) findViewById<RecyclerView>(R.id.recyclerView).scrollToPosition(idx)
 
-        if (mTwoPane) openDetailActivity(item, AccountDetailActivity.OPERATION_SHOW)
+        if (mTwoPane) {
+            openDetailActivity(item, OPERATION_SHOW)
+        }
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
@@ -374,11 +376,15 @@ class AccountListActivity : SecureActivity() {
         //recyclerView.layoutManager.isItemPrefetchEnabled = false
 
         mAdapter.onClick = { account ->
-            showBottomSheet(account)
+            if (mTwoPane) {
+                openDetailActivity(account, OPERATION_SHOW)
+            } else {
+                showBottomSheet(account)
+            }
         }
 
         mAdapter.onLongClick = { account ->
-            openDetailActivity(account, AccountDetailActivity.OPERATION_SHOW)
+            openDetailActivity(account, OPERATION_SHOW)
         }
 
         mAdapter.onFavoriteClick = { _, account ->
