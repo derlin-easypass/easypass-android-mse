@@ -57,6 +57,7 @@ class AccountListActivity : SecureActivity() {
      */
     private var mTwoPane: Boolean = false
     private var mTwoPaneCurrentFragment: Fragment? = null
+    private var mTwoPaneSearch: String? = null
 
     lateinit var mAdapter: AccountAdapter
     private lateinit var searchView: SearchView
@@ -185,11 +186,20 @@ class AccountListActivity : SecureActivity() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 mAdapter.filter(newText)
+                mTwoPaneSearch = newText.takeUnless { it.isNullOrBlank() }
                 return true
             }
         })
         val sort = Preferences.sortOrder
         menu.findItem(sort).isChecked = true
+
+        if (mTwoPane && !mTwoPaneSearch.isNullOrEmpty()) {
+            // The menu for some reason is recreated on fragment transactions.
+            // Ensure the search is shown if currently filtering.
+            searchView.setQuery(mTwoPaneSearch, true)
+            searchView.isIconified = false
+            searchView.clearFocus()
+        }
         return true
     }
 
