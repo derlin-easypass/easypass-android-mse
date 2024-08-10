@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.1" versioncode="4" date="2024-08-10" summary="Chores, multiline notes and tablet fixes.">
+        <change>Upgrade dependencies</change>
+        <change>Support multiline notes</change>
+        <change>(tablet) Keep search opened when filtering</change>
+        <change>(tablet) Fix overwrite issues when adding/editing entries</change>
+    </release>
     <release version="2.0" versioncode="3" date="2024-02-10" summary="This app has evolved since 2018, time for a new release!">
         <change>Support Android 13+</change>
         <change>Support Dropbox TLS 1.2</change>
