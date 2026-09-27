@@ -25,8 +25,9 @@ import ch.derlin.easypass.helper.PasswordGenerator
 import ch.derlin.easypass.helper.Preferences
 import com.google.android.material.snackbar.Snackbar
 import com.shawnlin.numberpicker.NumberPicker
-import nl.komponents.kovenant.ui.failUi
-import nl.komponents.kovenant.ui.successUi
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 
 
 /**
@@ -217,27 +218,31 @@ class AccountEditFragment : Fragment() {
         }
 
         // try save
-        DbxManager.saveAccounts().successUi {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                DbxManager.saveAccounts()
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                // failed ... oups
+                working = false
+                // undo !
+                if (originalAccountIndex > -1) {
+                    DbxManager.accounts[originalAccountIndex] = mItem!!
+                } else {
+                    DbxManager.accounts.remove(newAccount)
+                }
+                // show error
+                Snackbar.make(
+                    requireActivity().rootView(),
+                    "Error $e", Snackbar.LENGTH_LONG
+                )
+                    .show()
+                return@launch
+            }
             // saved ok, end the edit activity
             Toast.makeText(activity, "Saved!", Toast.LENGTH_SHORT).show()
             (activity as? AccountDetailActivity)?.setUpdatedAccount(newAccount)
             (activity as? AccountListActivity)?.notifyAccountUpdate(newAccount)
-
-        } failUi {
-            // failed ... oups
-            working = false
-            // undo !
-            if (originalAccountIndex >= -1) {
-                DbxManager.accounts[originalAccountIndex] = mItem!!
-            } else {
-                DbxManager.accounts.remove(newAccount)
-            }
-            // show error
-            Snackbar.make(
-                requireActivity().rootView(),
-                "Error $it", Snackbar.LENGTH_LONG
-            )
-                .show()
         }
     }
 

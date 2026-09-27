@@ -35,9 +35,9 @@ import ch.derlin.easypass.helper.Preferences
 import ch.derlin.easypass.helper.SecureActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
-import nl.komponents.kovenant.ui.alwaysUi
-import nl.komponents.kovenant.ui.failUi
-import nl.komponents.kovenant.ui.successUi
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
@@ -393,13 +393,17 @@ class AccountListActivity : SecureActivity() {
                 account.toggleFavorite()
                 mAdapter.resetAndNotify()
                 recyclerView.scrollToPosition(mAdapter.positionOf(account))
-                DbxManager.saveAccounts()
-                    .alwaysUi { working = false }
-                    .failUi {
+                lifecycleScope.launch {
+                    try {
+                        DbxManager.saveAccounts()
+                    } catch (e: Exception) {
+                        if (e is CancellationException) throw e
                         account.toggleFavorite()
                         mAdapter.resetAndNotify()
-                        Toast.makeText(this, "error: $it", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@AccountListActivity, "error: $e", Toast.LENGTH_LONG).show()
                     }
+                    working = false
+                }
             } else {
                 Timber.d("trying to update favorite when no network available.")
                 Toast.makeText(this, "action not available in offline mode", Toast.LENGTH_SHORT)
@@ -414,32 +418,41 @@ class AccountListActivity : SecureActivity() {
                     val item = mAdapter.removeAt(viewHolder.bindingAdapterPosition)
                     working = true
 
-                    DbxManager.saveAccounts()
-                        .alwaysUi { working = false }
-                        .successUi {
-                            if (mTwoPane && selectedAccount == item)
-                                supportFragmentManager.beginTransaction()
-                                    .remove(mTwoPaneCurrentFragment!!)
-                                    .commit()
-
-                            Timber.d("removed account: %s", item)
-                            Snackbar.make(binding.fab, "Account deleted", Snackbar.LENGTH_LONG)
-                                .setAction("undo") {
-                                    working = true
-                                    mAdapter.add(item)
-                                    DbxManager.saveAccounts()
-                                        // TODO: what if it fails
-                                        .alwaysUi { working = false }
-                                        .failUi { showToast("Failed to undo changes !") }
-                                }
-                                .show()
-                        }
-                        .failUi {
+                    lifecycleScope.launch {
+                        try {
+                            DbxManager.saveAccounts()
+                        } catch (e: Exception) {
+                            if (e is CancellationException) throw e
+                            working = false
                             // undo swipe !
                             mAdapter.add(item)
                             showToast("Failed to save changes")
-
+                            return@launch
                         }
+                        working = false
+                        if (mTwoPane && selectedAccount == item)
+                            supportFragmentManager.beginTransaction()
+                                .remove(mTwoPaneCurrentFragment!!)
+                                .commit()
+
+                        Timber.d("removed account: %s", item)
+                        Snackbar.make(binding.fab, "Account deleted", Snackbar.LENGTH_LONG)
+                            .setAction("undo") {
+                                working = true
+                                mAdapter.add(item)
+                                lifecycleScope.launch {
+                                    // TODO: what if it fails
+                                    try {
+                                        DbxManager.saveAccounts()
+                                    } catch (e: Exception) {
+                                        if (e is CancellationException) throw e
+                                        showToast("Failed to undo changes !")
+                                    }
+                                    working = false
+                                }
+                            }
+                            .show()
+                    }
                 }
             }
 
@@ -453,12 +466,15 @@ class AccountListActivity : SecureActivity() {
 
     private fun syncWithRemote() {
         working = true
-        DbxManager.fetchRemoteFileInfo().alwaysUi {
+        lifecycleScope.launch {
+            try {
+                DbxManager.fetchRemoteFileInfo()
+                binding.syncButton.visibility = if (DbxManager.isInSync) View.GONE else View.VISIBLE
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                Snackbar.make(binding.fab, "Sync error: " + e.message, Snackbar.LENGTH_SHORT).show()
+            }
             working = false
-        } successUi {
-            binding.syncButton.visibility = if (DbxManager.isInSync) View.GONE else View.VISIBLE
-        } failUi {
-            Snackbar.make(binding.fab, "Sync error: " + it.message, Snackbar.LENGTH_SHORT).show()
         }
     }
 

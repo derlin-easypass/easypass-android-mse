@@ -1,13 +1,14 @@
 package ch.derlin.easypass.helper
 
-import android.app.Activity
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import ch.derlin.easypass.easypass.R
-import nl.komponents.kovenant.ui.failUi
-import nl.komponents.kovenant.ui.successUi
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 
 /**
  * This class lets you create a dialog in order to change the session to use.
@@ -28,7 +29,7 @@ object SelectFileDialog {
      *      application (preferences already updated)
      *  @return the dialog. Don't forget to call [AlertDialog.show] !
      */
-    fun Activity.createSelectFileDialog(callback: () -> Unit): AlertDialog {
+    fun FragmentActivity.createSelectFileDialog(callback: () -> Unit): AlertDialog {
         // create an initialise the view
         val view = layoutInflater.inflate(R.layout.edit_filename, null)
         val filenameEditText = view.findViewById<EditText>(R.id.file_name)
@@ -43,18 +44,23 @@ object SelectFileDialog {
         }
 
         // get the list of session and construct the dropdown on success
-        DbxManager.listSessionFiles().successUi { files ->
+        lifecycleScope.launch {
+            val files = try {
+                DbxManager.listSessionFiles()
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                Toast.makeText(this@createSelectFileDialog, "error: $e", Toast.LENGTH_LONG).show()
+                return@launch
+            }
             if (files.isNotEmpty()) {
                 chooseFileButton.isEnabled = true
                 chooseFileButton.setOnClickListener {
-                    AlertDialog.Builder(this)
+                    AlertDialog.Builder(this@createSelectFileDialog)
                         .setItems(files) { dialog, pos -> filenameEditText.setText(files[pos]) }
                         .setNegativeButton("dismiss") { _, _ -> }
                         .show()
                 }
             }
-        } failUi {
-            Toast.makeText(this, "error: $it", Toast.LENGTH_LONG).show()
         }
 
         // actually create the dialog

@@ -15,9 +15,9 @@ import com.dropbox.core.v2.files.FileMetadata
 import com.dropbox.core.v2.files.GetMetadataErrorException
 import com.dropbox.core.v2.files.WriteMode
 import com.google.gson.reflect.TypeToken
-import nl.komponents.kovenant.Promise
-import nl.komponents.kovenant.deferred
-import nl.komponents.kovenant.task
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
 import java.io.FileInputStream
@@ -81,60 +81,51 @@ object DbxManager {
     var isInSync = false
         private set
 
+    // One worker thread avoids concurrent account updates. NonCancellable lets a started
+    // save finish even if the caller's screen is closed.
+    private val worker = Dispatchers.IO.limitedParallelism(1)
+
+    private suspend fun <T> onWorker(block: () -> T): T =
+        withContext(NonCancellable + worker) { block() }
+
     /** Unbind from DropBox. */
-    fun unbind(): Promise<Boolean, Exception> {
-        val deferred = deferred<Boolean, Exception>()
-        task {
-            Timber.d("revoking Dropbox token")
-            Preferences.dbxAccessToken = null
-            Preferences.revision = null
-            client.auth().tokenRevoke()
-            deferred.resolve(true)
-        } fail {
-            deferred.reject(it)
-        }
-        return deferred.promise
+    suspend fun unbind() = onWorker {
+        Timber.d("revoking Dropbox token")
+        Preferences.dbxAccessToken = null
+        Preferences.revision = null
+        client.auth().tokenRevoke()
     }
 
     /**
      * Fetch the Dropbox metadata about the current session.
-     * @return A promise resolved with [isInSync] and rejected with an [Exception]
-     * in case we are offline
+     * @return [isInSync]
+     * @throws Exception in case we are offline
      */
-    fun fetchRemoteFileInfo(): Promise<Boolean, Exception> {
-
-        val deferred = deferred<Boolean, Exception>()
-        task {
-            // TODO
-            if (!NetworkStatus.isInternetAvailable(App.appContext)) {
-                deferred.reject(Exception("Network not available"))
-            } else {
-                metadata = null // ensure to clear any past state
-
-                try {
-                    metadata =
-                        client.files().getMetadata(Preferences.remoteFilePath) as FileMetadata
-                    metaFetched = true
-                    isInSync = metadata?.rev.equals(Preferences.revision)
-                    deferred.resolve(isInSync)
-                } catch (e: GetMetadataErrorException) {
-                    // session does not exist
-                    with(Preferences) {
-                        cachedPassword = null  // ensure it is clean
-                        revision = null
-                    }
-                    isInSync = true
-                    metaFetched = true // flag for isNewSession
-                    deferred.resolve(isInSync)
-                }
-            }
-        } fail {
-            val ex = it
-            if (ex is InvalidAccessTokenException) Preferences.dbxAccessToken = null
-            deferred.reject(ex)
+    suspend fun fetchRemoteFileInfo(): Boolean = onWorker {
+        // TODO
+        if (!NetworkStatus.isInternetAvailable(App.appContext)) {
+            throw Exception("Network not available")
         }
+        metadata = null // ensure to clear any past state
 
-        return deferred.promise
+        try {
+            metadata =
+                client.files().getMetadata(Preferences.remoteFilePath) as FileMetadata
+            metaFetched = true
+            isInSync = metadata?.rev.equals(Preferences.revision)
+        } catch (e: GetMetadataErrorException) {
+            // session does not exist
+            with(Preferences) {
+                cachedPassword = null  // ensure it is clean
+                revision = null
+            }
+            isInSync = true
+            metaFetched = true // flag for isNewSession
+        } catch (e: InvalidAccessTokenException) {
+            Preferences.dbxAccessToken = null
+            throw e
+        }
+        isInSync
     }
 
     /**
@@ -153,55 +144,41 @@ object DbxManager {
      * If a local file exists, it will download the file from Dropbox only if [isInSync] is false.
      *
      * @param password the password
-     * @return a promise resolved with true or rejected with an exception in case the
-     * session could not be loaded (no network and no cached file, network but no
-     * metadata fetched)
+     * @throws Exception in case the session could not be loaded (no network and no
+     * cached file, network but no metadata fetched)
      */
-    fun openSession(password: String): Promise<Boolean, Exception> {
-        val deferred = deferred<Boolean, Exception>()
-        task {
+    suspend fun openSession(password: String) = onWorker {
+        if (isNewSession) {
+            // new account
+            _accounts = Accounts(password, Preferences.remoteFilePath)
 
-            if (isNewSession) {
-                // new account
-                _accounts = Accounts(password, Preferences.remoteFilePath)
-                deferred.resolve(true)
-
-            } else if (!NetworkStatus.isInternetAvailable()) {
-                if (localFileExists) {
-                    loadCachedFile(password)
-                    deferred.resolve(true)
-                } else {
-                    deferred.reject(Exception("No network connection (and no cached session)"))
-                }
-            } else if (isInSync && localFileExists) {
+        } else if (!NetworkStatus.isInternetAvailable()) {
+            if (localFileExists) {
                 loadCachedFile(password)
-                deferred.resolve(true)
-
             } else {
-                if (metaFetched) {
-                    // no cached file, but ok, we have the connection
-                    // (at least we should since we have fetched the metadata)
-                    loadSession(password, deferred)
-                } else {
-                    deferred.reject(Exception("Missing metadata (no network?) and offline mode not available (no cached file)"))
-                }
-
+                throw Exception("No network connection (and no cached session)")
             }
-        } fail {
-            deferred.reject(it)
-        }
+        } else if (isInSync && localFileExists) {
+            loadCachedFile(password)
 
-        return deferred.promise
+        } else {
+            if (metaFetched) {
+                // no cached file, but ok, we have the connection
+                // (at least we should since we have fetched the metadata)
+                loadSession(password)
+            } else {
+                throw Exception("Missing metadata (no network?) and offline mode not available (no cached file)")
+            }
+        }
     }
 
     /**
      * Encrypt and save the [accounts] to dropbox.
      */
-    fun saveAccounts(): Promise<Boolean, Exception> {
+    suspend fun saveAccounts() {
         requireNotNull(_accounts)
 
-        val deferred = deferred<Boolean, Exception>()
-        task {
+        onWorker {
             Timber.d("begin save accounts %s", Thread.currentThread())
             val tempFile = "lala"
             // serialize accounts to private file
@@ -225,43 +202,27 @@ object DbxManager {
             )
 
             Preferences.revision = metadata!!.rev
-            deferred.resolve(true)
             Timber.d("end save accounts %s", Thread.currentThread())
-        } fail {
-            val ex = it
-            Timber.d(it)
-            deferred.reject(ex)
         }
-        return deferred.promise
     }
 
     /**
      * Get all the filenames in the Dropbox application directory.
      * Note that the starting slash is removed from all filenames.
      *
-     * @return a promise resolved with the list of filenames and rejeted with an
-     * exception in case the fetching failed.
+     * @return the list of filenames
+     * @throws Exception in case the fetching failed.
      */
-    fun listSessionFiles(): Promise<Array<String>, Exception> {
-        val deferred = deferred<Array<String>, Exception>()
-        task {
-            val files = client.files().listFolder("").entries.map { f -> f.name }.toTypedArray()
-            files.sort()
-            deferred.resolve(files)
-        } fail {
-            deferred.reject(it)
-        }
-        return deferred.promise
+    suspend fun listSessionFiles(): Array<String> = onWorker {
+        val files = client.files().listFolder("").entries.map { f -> f.name }.toTypedArray()
+        files.sort()
+        files
     }
 
     // ----------------------------
 
     // fetch the accounts from Dropbox
-    private fun loadSession(
-        password: String,
-        deferred: nl.komponents.kovenant.Deferred<Boolean, Exception>
-    ) {
-
+    private fun loadSession(password: String) {
         try {
             metadata = client.files()
                 .download(metadata!!.pathDisplay)
@@ -284,12 +245,11 @@ object DbxManager {
             }
 
             isInSync = true
-            deferred.resolve(true)
 
         } catch (e: Exception) {
             // TODO: undo local change
             Timber.d(e)
-            deferred.reject(e)
+            throw e
         }
     }
 

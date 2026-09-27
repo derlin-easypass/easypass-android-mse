@@ -28,9 +28,9 @@ import ch.derlin.easypass.helper.Preferences
 import ch.derlin.easypass.helper.SelectFileDialog.createSelectFileDialog
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
-import nl.komponents.kovenant.ui.alwaysUi
-import nl.komponents.kovenant.ui.failUi
-import nl.komponents.kovenant.ui.successUi
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 
 // TODO: check connectivity to avoid errors (changing mdp for example...)
 class SettingsActivity : AppCompatActivity() {
@@ -133,11 +133,16 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun unbindDropbox() {
         working = true
-        DbxManager.unbind().successUi {
+        lifecycleScope.launch {
+            try {
+                DbxManager.unbind()
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                working = false
+                Snackbar.make(rootView(), "Error: $e", Snackbar.LENGTH_LONG).show()
+                return@launch
+            }
             exitApp()
-        }.failUi {
-            working = false
-            Snackbar.make(rootView(), "Error: $it", Snackbar.LENGTH_LONG).show()
         }
     }
 
@@ -200,18 +205,23 @@ class SettingsActivity : AppCompatActivity() {
         working = true
         val oldPassword = DbxManager.accounts.password
         DbxManager.accounts.password = newPassword
-        DbxManager.saveAccounts().alwaysUi {
+        lifecycleScope.launch {
+            try {
+                DbxManager.saveAccounts()
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                working = false
+                DbxManager.accounts.password = oldPassword
+                Snackbar.make(rootView(), "Error: $e", Snackbar.LENGTH_LONG)
+                    .show()
+                return@launch
+            }
             working = false
-        } successUi {
             CachedCredentials.clearPassword()
             val snack = Snackbar.make(rootView(), "Password changed.", Snackbar.LENGTH_LONG)
             if (firstTime)
                 snack.setAction("undo") { changePassword(oldPassword, false) }
             snack.show()
-        } failUi {
-            DbxManager.accounts.password = oldPassword
-            Snackbar.make(rootView(), "Error: $it", Snackbar.LENGTH_LONG)
-                .show()
         }
     }
 

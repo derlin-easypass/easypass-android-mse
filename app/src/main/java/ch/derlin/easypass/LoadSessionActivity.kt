@@ -27,8 +27,9 @@ import ch.derlin.easypass.helper.CachedCredentials
 import ch.derlin.easypass.helper.DbxManager
 import ch.derlin.easypass.helper.Preferences
 import ch.derlin.easypass.helper.SelectFileDialog.createSelectFileDialog
-import nl.komponents.kovenant.ui.failUi
-import nl.komponents.kovenant.ui.successUi
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 
 class LoadSessionActivity : AppCompatActivity() {
 
@@ -112,11 +113,15 @@ class LoadSessionActivity : AppCompatActivity() {
         private fun fetchMeta() {
             binding.errorLayout.visibility = View.GONE
             binding.loadingLayout.visibility = View.VISIBLE
-            DbxManager.fetchRemoteFileInfo().successUi {
+            viewLifecycleOwner.lifecycleScope.launch {
+                try {
+                    DbxManager.fetchRemoteFileInfo()
+                } catch (e: Exception) {
+                    if (e is CancellationException) throw e
+                    showError(e)
+                    return@launch
+                }
                 next()
-            } failUi {
-                val ex = it
-                showError(ex)
             }
         }
 
@@ -256,19 +261,23 @@ class LoadSessionActivity : AppCompatActivity() {
 
         private fun decryptSession() {
             working = true
-            DbxManager.openSession(mPassword!!).successUi {
-                (activity as LoadSessionActivity).onSessionOpened()
-            } failUi {
-                val ex = it
-                working = false
-                if (ex is JsonManager.WrongCredentialsException) {
-                    // remove wrong credentials
-                    CachedCredentials.clearPassword()
-                    Toast.makeText(activity, "Wrong credentials", Toast.LENGTH_LONG).show()
-                } else {
-                    Toast.makeText(activity, "An error occurred: " + ex.message, Toast.LENGTH_LONG)
-                        .show()
+            viewLifecycleOwner.lifecycleScope.launch {
+                try {
+                    DbxManager.openSession(mPassword!!)
+                } catch (e: Exception) {
+                    if (e is CancellationException) throw e
+                    working = false
+                    if (e is JsonManager.WrongCredentialsException) {
+                        // remove wrong credentials
+                        CachedCredentials.clearPassword()
+                        Toast.makeText(activity, "Wrong credentials", Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(activity, "An error occurred: " + e.message, Toast.LENGTH_LONG)
+                            .show()
+                    }
+                    return@launch
                 }
+                (activity as LoadSessionActivity).onSessionOpened()
             }
         }
 
