@@ -408,7 +408,7 @@ class AccountListActivity : SecureActivity() {
         }
 
         fun createSwipeHandler(): SwipeToDeleteCallback =
-            object : SwipeToDeleteCallback(this, attrColor(R.attr.colorAccent)) {
+            object : SwipeToDeleteCallback(this, attrColor(androidx.appcompat.R.attr.colorAccent)) {
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     val item = mAdapter.removeAt(viewHolder.bindingAdapterPosition)

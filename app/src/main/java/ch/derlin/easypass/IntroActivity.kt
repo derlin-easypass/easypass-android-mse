@@ -19,7 +19,7 @@ class IntroActivity : AppIntro() {
         addSlide(
             "Welcome!",
             "One safe vault for all your credentials, anywhere, anytime.",
-            attrColor(R.attr.colorPrimary),
+            attrColor(androidx.appcompat.R.attr.colorPrimary),
             R.drawable.splashscreen
         )
         addSlide(
@@ -44,7 +44,7 @@ class IntroActivity : AppIntro() {
         addSlide(
             "Let's do it!",
             "Start enjoying EasyPass now.",
-            attrColor(R.attr.colorPrimary),
+            attrColor(androidx.appcompat.R.attr.colorPrimary),
             R.drawable.splashscreen
         )
 
