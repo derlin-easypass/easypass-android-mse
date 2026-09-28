@@ -84,8 +84,4 @@ class IntroActivity : AppIntro() {
         exitIntro()
     }
 
-    companion object {
-        const val INTENT_INTRO = 5553
-    }
-
 }

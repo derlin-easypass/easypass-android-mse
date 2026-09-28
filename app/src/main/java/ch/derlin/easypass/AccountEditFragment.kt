@@ -58,13 +58,6 @@ class AccountEditFragment : Fragment() {
             binding.progressBar.visibility = if (value) View.VISIBLE else View.INVISIBLE
         }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // do not recreate the menu when switching fragments,
-        // so the search state is kept in two panes mode
-        setHasOptionsMenu(false)
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
 

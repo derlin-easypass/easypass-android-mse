@@ -12,6 +12,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -68,6 +69,30 @@ class AccountListActivity : SecureActivity() {
     private var bottomSheetDialog: BottomSheetDialog? = null
     private var selectedAccount: Account? = null
 
+    private val detailLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val data = result.data
+            if (data?.getBooleanExtra(AccountDetailActivity.RETURN_MODIFIED, false) == true) {
+                // update the list in case of modification
+                val account = data.getParcelableExtra(
+                    AccountDetailActivity.BUNDLE_ACCOUNT_KEY,
+                    Account::class.java
+                )
+                notifyAccountUpdate(requireNotNull(account))
+            }
+        }
+
+    private val settingsLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK
+                && result.data?.getBooleanExtra(SettingsActivity.BUNDLE_RESTART_KEY, false) == true
+            ) {
+                // if asking for restart, kill current activity
+                // TODO: find a better way
+                restartApp()
+            }
+        }
+
     private val mNetworkChangeListener = object : NetworkChangeListener() {
         override fun onNetworkChange(connectionAvailable: Boolean) {
             updateConnectivityViews(connectionAvailable)
@@ -118,30 +143,6 @@ class AccountListActivity : SecureActivity() {
         }
 
         if (mTwoPane) registerOnBackPressed()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == DETAIL_ACTIVITY_REQUEST_CODE) {
-            if (data?.getBooleanExtra(AccountDetailActivity.RETURN_MODIFIED, false) == true) {
-                // update the list in case of modification
-                val account = data.getParcelableExtra(
-                    AccountDetailActivity.BUNDLE_ACCOUNT_KEY,
-                    Account::class.java
-                )
-                notifyAccountUpdate(requireNotNull(account))
-            }
-        } else if (requestCode == SETTINGS_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK
-                && data?.getBooleanExtra(SettingsActivity.BUNDLE_RESTART_KEY, false) == true
-            ) {
-                // if asking for restart, kill current activity
-                // TODO: find a better way
-                restartApp()
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data)
-        }
-
     }
 
     override fun onPause() {
@@ -216,11 +217,8 @@ class AccountListActivity : SecureActivity() {
             return true
         } else {
             when (item.itemId) {
-                R.id.action_settings -> startActivityForResult(
-                    Intent(
-                        this,
-                        SettingsActivity::class.java
-                    ), SETTINGS_REQUEST_CODE
+                R.id.action_settings -> settingsLauncher.launch(
+                    Intent(this, SettingsActivity::class.java)
                 )
 
                 R.id.action_sync -> syncWithRemote()
@@ -348,7 +346,7 @@ class AccountListActivity : SecureActivity() {
                 it.putExtra(AccountDetailActivity.BUNDLE_OPERATION_KEY, operation)
                 it.putExtra(AccountDetailActivity.BUNDLE_ACCOUNT_KEY, item)
             }
-            startActivityForResult(intent, DETAIL_ACTIVITY_REQUEST_CODE)
+            detailLauncher.launch(intent)
         }
         return true
     }
@@ -480,10 +478,5 @@ class AccountListActivity : SecureActivity() {
 
     private fun updateConnectivityViews(connectionAvailable: Boolean) {
         mOfflineIndicator?.isVisible = !connectionAvailable
-    }
-
-    companion object {
-        const val DETAIL_ACTIVITY_REQUEST_CODE = 1984
-        const val SETTINGS_REQUEST_CODE = 1985
     }
 }

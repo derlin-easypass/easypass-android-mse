@@ -1,10 +1,11 @@
 package ch.derlin.easypass.helper
 
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.os.Handler
+import android.os.Looper
 import ch.derlin.easypass.App
 
 /**
@@ -12,27 +13,29 @@ import ch.derlin.easypass.App
  *
  * To use it:
  *  1. ensure you have the [android.permission.ACCESS_NETWORK_STATE] set in the manifest
- *  2. create a new instance of this receiver
- *  3. register the receiver by calling [registerSelf] in the [android.app.Activity.onResume]
+ *  2. create a new instance of this listener
+ *  3. register the listener by calling [registerSelf] in the [android.app.Activity.onResume]
  *      and [unregisterSelf] in the [android.app.Activity.onPause]
  *  4. override [onNetworkChange] to respond to the events
  *
  *  date: 24.11.2017
  *  @author Lucy Linder
  */
-open class NetworkChangeListener : BroadcastReceiver() {
+open class NetworkChangeListener {
 
     // to avoid registering twice
     private var isRegistered = false
 
-    companion object {
-        private var INTENT_FILTER: IntentFilter =
-            IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+    private val callback = object : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network) = checkStatus()
+        override fun onLost(network: Network) = checkStatus()
+        override fun onCapabilitiesChanged(network: Network, caps: NetworkCapabilities) =
+            checkStatus()
     }
 
     // ----------------------------------------------------
 
-    override fun onReceive(context: Context, intent: Intent) {
+    private fun checkStatus() {
         val oldStatus = NetworkStatus.isConnected
         val status = NetworkStatus.isInternetAvailable(App.appContext)
         if (oldStatus != status) {
@@ -42,27 +45,33 @@ open class NetworkChangeListener : BroadcastReceiver() {
 
 
     /**
-     * Register this receiver to the broadcast manager to start receiving events.
+     * Register this listener to start receiving events.
      *
      * @param context the context
      */
     fun registerSelf(context: Context) {
         if (isRegistered) return
-        context.registerReceiver(this, INTENT_FILTER)
+        // the main looper lets onNetworkChange update views
+        connectivityManager(context)
+            .registerDefaultNetworkCallback(callback, Handler(Looper.getMainLooper()))
         isRegistered = true
     }
 
 
     /**
-     * Unregister this receiver from the broadcast manager to stop receiving events.
+     * Unregister this listener to stop receiving events.
      *
      * @param context the context
      */
     fun unregisterSelf(context: Context) {
-        context.unregisterReceiver(this)
+        if (!isRegistered) return
+        connectivityManager(context).unregisterNetworkCallback(callback)
         isRegistered = false
     }
 
+
+    private fun connectivityManager(context: Context) =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
     /**
      * callback to implement

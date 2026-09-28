@@ -265,6 +265,7 @@ object DbxManager {
 
     // deserialize and decrypt a file. This will update the accounts variable
     private fun deserialize(fin: FileInputStream, pathName: String?, password: String) {
+        @Suppress("UNCHECKED_CAST") // Gson returns Any, typed by the TypeToken
         val accountList = JsonManager.deserialize(
             fin, password,
             object : TypeToken<SessionSerialisationType>() {

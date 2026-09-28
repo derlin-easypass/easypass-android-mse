@@ -74,7 +74,7 @@ object JsonManager {
                 )
             )
             outStream.write("\r\n".toByteArray())
-            outStream.write(System.getProperty("line.separator").toByteArray())
+            outStream.write(System.lineSeparator().toByteArray())
             outStream.flush()
 
         } catch (e: GeneralSecurityException) {

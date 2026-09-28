@@ -9,7 +9,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.os.Build
 import android.text.Html
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -43,11 +42,7 @@ object MiscUtils {
 
     /** Convert an HTML string into a [Spanned] that can be used in a [TextView] */
     fun String.toSpannable(): Spanned? {
-        return if (Build.VERSION.SDK_INT >= 24) {
-            Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(this)
-        }
+        return Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY)
     }
 
     /** Colorize digits and special chars in a password */
@@ -111,11 +106,9 @@ object MiscUtils {
         //android.os.Process.killProcess(android.os.Process.myPid())
     }
 
-    /** Launch the introduction slides activity using the [IntroActivity.INTENT_INTRO] request code */
+    /** Launch the introduction slides activity */
     fun Activity.showIntro() {
-        val intent = Intent(this, IntroActivity::class.java)
-        // intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
-        startActivityForResult(intent, IntroActivity.INTENT_INTRO)
+        startActivity(Intent(this, IntroActivity::class.java))
     }
 
     /** Get the activity root view, for example to create a snackbar */

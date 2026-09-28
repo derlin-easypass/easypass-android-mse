@@ -3,12 +3,16 @@ package ch.derlin.easypass.helper
 import android.app.Activity
 import android.app.KeyguardManager
 import android.content.Context
-import android.content.Intent
+import android.hardware.biometrics.BiometricManager.Authenticators.BIOMETRIC_STRONG
+import android.hardware.biometrics.BiometricManager.Authenticators.DEVICE_CREDENTIAL
+import android.hardware.biometrics.BiometricPrompt
+import android.os.CancellationSignal
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.KeyProperties
 import android.security.keystore.UserNotAuthenticatedException
 import android.util.Base64
+import ch.derlin.easypass.easypass.R
 import timber.log.Timber
 import java.nio.charset.Charset
 import java.security.InvalidKeyException
@@ -62,9 +66,7 @@ object CachedCredentials {
      * It can be pattern, password or fingerprint.
      *
      * @throws UserNotAuthenticatedException if the keyguard hasn't been unlocked for a while
-     * In this case, you need to start a new activity using [KeyguardManager.createConfirmDeviceCredentialIntent].
-     * (see [getAuthenticationIntent]) and then call this method again in the [Activity.onActivityResult]
-     * (if the result is a success).
+     * In this case, call [authenticate] and then call this method again on success.
      */
     @Throws(UserNotAuthenticatedException::class, RuntimeException::class)
     fun savePassword(password: String) {
@@ -102,16 +104,12 @@ object CachedCredentials {
      * Read a cached password stored securely.
      *
      * @throws UserNotAuthenticatedException if the keyguard hasn't been unlocked for a while
-     * In this case, you need to start a new activity using [KeyguardManager.createConfirmDeviceCredentialIntent].
-     * (see [getAuthenticationIntent]) and then call this method again in the [Activity.onActivityResult]
-     * (if the result is a success).
+     * In this case, call [authenticate] and then call this method again on success.
      *
      * @throws Exception if there is no cached password. Use [isPasswordCached] beforehand to
      * avoid this error.
      * @throws UserNotAuthenticatedException if the keyguard hasn't been unlocked for a while
-     * In this case, you need to start a new activity using [KeyguardManager.createConfirmDeviceCredentialIntent].
-     * (see [getAuthenticationIntent]) and then call this method again in the [Activity.onActivityResult]
-     * (if the result is a success).
+     * In this case, call [authenticate] and then call this method again on success.
      * @throws KeyPermanentlyInvalidatedException if the lockscreen security has changed (either a
      * new lock screen -> ask for password again) or no security (-> can't store password anymore)
      * @throws RuntimeException for any other exception
@@ -160,22 +158,32 @@ object CachedCredentials {
     }
 
     /**
-     * Get the intent to use in order to show an authentication screen.
-     * Once the intent created, use [Activity.startActivityForResult].
+     * Show an authentication screen (fingerprint or screen lock). A success unlocks the key
+     * for [AUTHENTICATION_VALIDITY_SECONDS].
      *
      * @param ctx the activity context
-     * @param requestCode the code used to identify the request in the [Activity.onActivityResult]
-     * @param title the title in the authentication screen
-     * @param description the description in the authentication screen
+     * @param onResult called on the main thread with true if the authentication succeeded
+     * @return false if the device has no screen lock (nothing is shown)
      */
-    fun getAuthenticationIntent(
-        ctx: Context,
-        requestCode: Int,
-        title: String? = null,
-        description: String? = null
-    ): Intent? {
+    fun authenticate(ctx: Context, onResult: (Boolean) -> Unit): Boolean {
         val keyguardManager = ctx.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        return keyguardManager.createConfirmDeviceCredentialIntent(null, null)
+        if (!keyguardManager.isDeviceSecure) return false
+
+        BiometricPrompt.Builder(ctx)
+            .setTitle(ctx.getString(R.string.app_name))
+            .setAllowedAuthenticators(BIOMETRIC_STRONG or DEVICE_CREDENTIAL)
+            .build()
+            .authenticate(
+                CancellationSignal(),
+                ctx.mainExecutor,
+                object : BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult?) =
+                        onResult(true)
+
+                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence?) =
+                        onResult(false)
+                })
+        return true
     }
 
     // -----------------------------------------
@@ -210,7 +218,10 @@ object CachedCredentials {
                 )
                     .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
                     .setUserAuthenticationRequired(true)
-                    .setUserAuthenticationValidityDurationSeconds(AUTHENTICATION_VALIDITY_SECONDS)
+                    .setUserAuthenticationParameters(
+                        AUTHENTICATION_VALIDITY_SECONDS,
+                        KeyProperties.AUTH_BIOMETRIC_STRONG or KeyProperties.AUTH_DEVICE_CREDENTIAL
+                    )
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
                     .build()
             )

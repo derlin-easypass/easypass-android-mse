@@ -39,13 +39,6 @@ class AccountDetailFragment : Fragment() {
     private lateinit var password: String
     private lateinit var hiddenPassword: String
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // do not recreate the menu when switching fragments,
-        // so the search state is kept in two panes mode
-        setHasOptionsMenu(false)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

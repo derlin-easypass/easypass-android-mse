@@ -2,6 +2,7 @@ package ch.derlin.easypass.helper
 
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import ch.derlin.easypass.App
 
 
@@ -15,7 +16,8 @@ object NetworkStatus {
 
     fun isInternetAvailable(context: Context = App.appContext): Boolean {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        isConnected = cm.activeNetworkInfo?.isConnectedOrConnecting == true
+        isConnected = cm.getNetworkCapabilities(cm.activeNetwork)
+            ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
         return isConnected
     }
 }

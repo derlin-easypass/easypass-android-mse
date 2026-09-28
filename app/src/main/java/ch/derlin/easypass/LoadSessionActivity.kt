@@ -1,6 +1,5 @@
 package ch.derlin.easypass
 
-import android.app.Activity
 import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
@@ -74,7 +73,6 @@ class LoadSessionActivity : AppCompatActivity() {
     private fun switchFragments(f: Fragment) {
         // Execute a transaction, replacing any existing fragment
         // with this one inside the frame.
-        f.retainInstance = true
         mCurrentFragment = f
         val ft = supportFragmentManager.beginTransaction()
         ft.replace(R.id.load_session_fragment_layout, f)
@@ -180,7 +178,7 @@ class LoadSessionActivity : AppCompatActivity() {
             // cf https://developer.android.com/training/articles/keystore.html
             val keyguardManager =
                 requireActivity().getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-            if (!keyguardManager.isKeyguardSecure) {
+            if (!keyguardManager.isDeviceSecure) {
                 // no way to save the password if the device doesn't have a pin
                 binding.rememberMeCheckbox.isEnabled = false
                 binding.rememberMeCheckbox.text = "Caching disabled.\nYour device is not secure."
@@ -235,17 +233,18 @@ class LoadSessionActivity : AppCompatActivity() {
         }
 
 
-        override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        private fun onAuthenticationResult(requestCode: Int, success: Boolean) {
+            if (_binding == null) return // view destroyed while the prompt was shown
             when (requestCode) {
 
                 SAVE_CREDENTIALS_REQUEST_CODE -> {
                     // save the password only if the authentication was successful
-                    if (resultCode == Activity.RESULT_OK) savePasswordAndDecrypt()
+                    if (success) savePasswordAndDecrypt()
                     else decryptSession()
                 }
 
                 LOGIN_WITH_CREDENTIALS_REQUEST_CODE -> {
-                    if (resultCode == Activity.RESULT_OK) {
+                    if (success) {
                         getPasswordsFromFingerprint()
                     } else {
                         Toast.makeText(
@@ -309,10 +308,10 @@ class LoadSessionActivity : AppCompatActivity() {
         }
 
         private fun showAuthenticationScreen(requestCode: Int) {
-            val intent = CachedCredentials.getAuthenticationIntent(requireContext(), requestCode)
-            if (intent != null) {
-                startActivityForResult(intent, requestCode)
-            } else {
+            val started = CachedCredentials.authenticate(requireContext()) { success ->
+                onAuthenticationResult(requestCode, success)
+            }
+            if (!started) {
                 // keyguard ont secure !
                 Preferences.cachedPassword = null
                 Preferences.keystoreInitialised = false
