@@ -12,8 +12,11 @@ object Preferences {
     private val sharedPrefs: SharedPreferences =
         App.appContext.getSharedPreferences("ch.derlin.easypass.preferences", Context.MODE_PRIVATE)
 
+    /** Extension of the session files */
+    const val SESSION_FILE_EXTENSION = ".enc"
+
     /** Default session path in Dropbox */
-    const val DEFAULT_REMOTE_FILE_PATH = "easypass.data_ser" // Default session path in Dropbox
+    const val DEFAULT_REMOTE_FILE_PATH = "easypass$SESSION_FILE_EXTENSION" // Default session path in Dropbox
 
     /** The OAuth token for accessing Dropbox, if any. */
     var dbxAccessToken: String?

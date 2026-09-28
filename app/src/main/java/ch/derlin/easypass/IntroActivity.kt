@@ -33,7 +33,7 @@ class IntroActivity : AppIntro() {
         )
         addSlide(
             "Integration",
-            "Whatever happens, you can always use OpenSSL or another tool from the EasyPass suit" +
+            "Whatever happens, you can always use OpenSSL or another tool from the EasyPass suite " +
                     "to get your credentials back!",
             R.color.introOrange,
             R.drawable.puzzle

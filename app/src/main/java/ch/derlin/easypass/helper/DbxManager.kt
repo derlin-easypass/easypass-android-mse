@@ -37,7 +37,7 @@ import java.io.FileInputStream
 object DbxManager {
 
     /** Filename used locally as a cache */
-    private const val LOCAL_FILE_NAME = "easypass_cached.data_ser"
+    private const val LOCAL_FILE_NAME = "easypass_cached.enc"
 
     /** The list of accounts */
     private var _accounts: Accounts? = null
@@ -207,14 +207,16 @@ object DbxManager {
     }
 
     /**
-     * Get all the filenames in the Dropbox application directory.
+     * Get the session filenames (ending with [Preferences.SESSION_FILE_EXTENSION]) in the
+     * Dropbox application directory.
      * Note that the starting slash is removed from all filenames.
      *
      * @return the list of filenames
      * @throws Exception in case the fetching failed.
      */
     suspend fun listSessionFiles(): Array<String> = onWorker {
-        val files = client.files().listFolder("").entries.map { f -> f.name }.toTypedArray()
+        val files = client.files().listFolder("").entries.map { f -> f.name }
+            .filter { it.endsWith(Preferences.SESSION_FILE_EXTENSION) }.toTypedArray()
         files.sort()
         files
     }
